@@ -248,10 +248,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 990686005}
+  - component: {fileID: 990686009}
+  - component: {fileID: 990686008}
   - component: {fileID: 990686004}
-  - component: {fileID: 990686003}
   - component: {fileID: 990686006}
   - component: {fileID: 990686007}
+  - component: {fileID: 990686003}
   m_Layer: 0
   m_Name: Icosahedron
   m_TagString: Untagged
@@ -268,10 +270,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 990686002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 926c2171f2a9ffd488dfd7d804e3ecbc, type: 3}
+  m_Script: {fileID: 11500000, guid: 6009e71131ed4ab46999d87ca5b64251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _meshFilter: {fileID: 990686004}
+  _size: 1
 --- !u!33 &990686004
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -350,6 +353,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deltaPerSecond: {x: 0, y: 30, z: 0}
   _target: {fileID: 990686005}
+--- !u!114 &990686008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990686002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b69ad66057d7e80478f352f7db19757a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &990686009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990686002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08eca9f7688a0a24685b89133b020c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scriptableObjectInstallers: []
+  _monoInstallers:
+  - {fileID: 990686008}
+  _installerPrefabs: []
+  _autoRun: 1
+  _kernel: {fileID: 0}
 --- !u!1 &1454089595
 GameObject:
   m_ObjectHideFlags: 0
