@@ -17,10 +17,10 @@ namespace SBaier.Master
         [SerializeField]
         private string _fileName = "Noise";
 
-        private PerlinNoise _noise;
+        private Noise2D _noise;
 
         [Inject]
-        private void Construct(PerlinNoise noise)
+        private void Construct(Noise2D noise)
 		{
             _noise = noise;
         }
@@ -40,7 +40,6 @@ namespace SBaier.Master
 				{
                     Vector2 evaluationValue = _upperLeft - new Vector2(_delta.x * i, _delta.y * j);
                     float noiseValue = (float) _noise.Evaluate(evaluationValue.x, evaluationValue.y);
-                    noiseValue = (noiseValue + 1) / 2;
                     texture.SetPixel(i, j, new Color(noiseValue, noiseValue, noiseValue));
 
                 }

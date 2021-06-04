@@ -8,8 +8,8 @@ namespace SBaier.Master
 	/// <summary>
 	/// Deviation of Ken Perlins algorithm introduced in 2002.
 	/// </summary>
-    public class PerlinNoise
-    {
+    public class PerlinNoise : Noise2D, Noise3D
+	{
 		private const int _permutationCount = 256;
 		private const int _doublePermutationCount = _permutationCount * 2;
 
@@ -20,22 +20,6 @@ namespace SBaier.Master
 		public PerlinNoise(Seed seed)
 		{
 			InitPermutation(seed);
-			double value = Evaluate(0.1, 3.4, 2.3);
-
-		}
-
-        private void InitPermutation(Seed seed)
-		{
-			int[] permutation = new int[_permutationCount];
-			for (int i = 0; i < permutation.Length; i++)
-				permutation[i] = i;
-
-			permutation = permutation.OrderBy(x => seed.Random.Next()).ToArray();
-			for (int i = 0; i < permutation.Length; i++)
-				_permutation[i] = permutation[i];
-
-			for (int i = 0; i < _permutationCount; i++)
-				_p[_permutationCount + i] = _p[i] = permutation[i];
 		}
 
 		public double Evaluate(double x, double y)
@@ -60,7 +44,7 @@ namespace SBaier.Master
 			int A = _p[X] + Y, AA = _p[A] + Z, AB = _p[A + 1] + Z, // HASH COORDINATES OF
 				B = _p[X + 1] + Y, BA = _p[B] + Z, BB = _p[B + 1] + Z; // THE 8 CUBE CORNERS,
 
-			return Lerp(w, Lerp(v, Lerp(u, Grad(_p[AA], x, y, z),  // AND ADD
+			double value = Lerp(w, Lerp(v, Lerp(u, Grad(_p[AA], x, y, z),  // AND ADD
 										   Grad(_p[BA], x - 1, y, z)), // BLENDED
 								   Lerp(u, Grad(_p[AB], x, y - 1, z),  // RESULTS
 										   Grad(_p[BB], x - 1, y - 1, z))),// FROM  8
@@ -68,6 +52,22 @@ namespace SBaier.Master
 										   Grad(_p[BA + 1], x - 1, y, z - 1)), // OF CUBE
 								   Lerp(u, Grad(_p[AB + 1], x, y - 1, z - 1),
 										   Grad(_p[BB + 1], x - 1, y - 1, z - 1))));
+			return (value + 1) / 2;
+		}
+
+
+		private void InitPermutation(Seed seed)
+		{
+			int[] permutation = new int[_permutationCount];
+			for (int i = 0; i < permutation.Length; i++)
+				permutation[i] = i;
+
+			permutation = permutation.OrderBy(x => seed.Random.Next()).ToArray();
+			for (int i = 0; i < permutation.Length; i++)
+				_permutation[i] = permutation[i];
+
+			for (int i = 0; i < _permutationCount; i++)
+				_p[_permutationCount + i] = _p[i] = permutation[i];
 		}
 
 		private double Fade(double t)

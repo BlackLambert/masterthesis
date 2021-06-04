@@ -3,7 +3,7 @@ using Zenject;
 
 namespace SBaier.Master
 {
-    public class NoiseInstaller : MonoInstaller
+    public class SeedInstaller : MonoInstaller
     {
         [SerializeField]
         private int _seed = 24234;
@@ -11,7 +11,6 @@ namespace SBaier.Master
         public override void InstallBindings()
         {
             Container.Bind<Seed>().To<Seed>().FromNew().AsTransient().WithArguments(_seed);
-            Container.Bind<PerlinNoise>().To<PerlinNoise>().AsSingle().NonLazy();
         }
     }
 }
