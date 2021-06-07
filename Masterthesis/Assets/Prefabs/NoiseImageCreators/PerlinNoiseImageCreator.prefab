@@ -75,7 +75,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _upperLeft: {x: 0, y: 0}
+  _bottomLeft: {x: 0, y: 0}
   _delta: {x: 0.02, y: 0.02}
-  _size: {x: 512, y: 512}
+  _imageSize: {x: 512, y: 512}
   _fileName: PerlinNoise
+  _filePath: Noise

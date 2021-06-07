@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.12107852, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -200,6 +200,71 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _seed: 1234
+--- !u!1001 &2211756146139275004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7208198653336060952, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: _delta.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7208198653336060952, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: _delta.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8146407672239369386, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_Name
+      value: OctaveNoiseImageCreator
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.0774636
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.20391396
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.62564737
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8311676763932761898, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8847836e1803b3d47b9ae1aca631acd4, type: 3}
 --- !u!1001 &2387811079907998560
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -321,6 +386,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 564869735101800419, guid: 5065f3f8628290c4aa5a2b1c28c75f67, type: 3}
+      propertyPath: _delta.x
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 564869735101800419, guid: 5065f3f8628290c4aa5a2b1c28c75f67, type: 3}
+      propertyPath: _delta.y
+      value: 0.02
+      objectReference: {fileID: 0}
     - target: {fileID: 7028670523195447195, guid: 5065f3f8628290c4aa5a2b1c28c75f67, type: 3}
       propertyPath: m_Name
       value: RidgedNoiseImageCreator

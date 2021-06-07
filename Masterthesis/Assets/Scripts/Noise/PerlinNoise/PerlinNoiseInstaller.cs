@@ -7,7 +7,7 @@ namespace SBaier.Master
     {
         public override void InstallBindings()
         {
-            Container.Bind(typeof(Noise3D), typeof(Noise2D)).To<PerlinNoise>().AsSingle().NonLazy();
+            Container.Bind(typeof(Noise3D), typeof(Noise2D)).To<PerlinNoise>().AsSingle();
         }
     }
 }

@@ -8,9 +8,6 @@ namespace SBaier.Master.Test
     {
 		private const int _testSeed = 49242;
 
-		protected override double AverageDelta => 0.02;
-		protected override double ExpectedAverage => 0.2;
-
 		protected override void GivenANew3DNoise()
 		{
 			Container.Bind<Seed>().To<Seed>().FromMethod(CreateSeed).AsTransient();

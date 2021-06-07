@@ -8,8 +8,6 @@ namespace SBaier.Master.Test
     {
 		private const int _testSeed = 49242;
 
-		protected override double AverageDelta => 0.02;
-		protected override double ExpectedAverage => 0.8;
 
 		protected override void GivenANew3DNoise()
 		{

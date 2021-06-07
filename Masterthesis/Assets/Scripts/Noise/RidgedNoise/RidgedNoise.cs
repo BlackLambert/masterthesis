@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Runtime.CompilerServices;
 
 namespace SBaier.Master
 {
@@ -20,8 +18,14 @@ namespace SBaier.Master
 
 		public double Evaluate(double x, double y, double z)
 		{
-			// Inverts the Billow Noise evaluated values
-			return _bollowNoise.Evaluate(x, y, z) * (-1) + 1;
+			double billowValue = _bollowNoise.Evaluate(x, y, z);
+			return InvertValue(billowValue);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private double InvertValue(double billowValue)
+		{
+			return billowValue * (-1) + 1;
 		}
 	}
 }

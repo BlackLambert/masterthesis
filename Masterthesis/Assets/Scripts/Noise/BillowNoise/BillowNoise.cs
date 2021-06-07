@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Runtime.CompilerServices;
 
 namespace SBaier.Master
 {
@@ -22,7 +20,14 @@ namespace SBaier.Master
 		public double Evaluate(double x, double y, double z)
 		{
 			double perlinValue = _baseNoise.Evaluate(x, y, z);
-			return Math.Abs(perlinValue * 2 - 1);
+			double stretchedValue = stretchToNegativeValueRange(perlinValue);
+			return Math.Abs(stretchedValue);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private double stretchToNegativeValueRange(double perlinValue)
+		{
+			return perlinValue * 2 - 1;
 		}
 	}
 }

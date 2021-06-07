@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7028670523195447195
+--- !u!1 &8146407672239369386
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,38 +8,39 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7679441817764604514}
-  - component: {fileID: 7082733179563409808}
-  - component: {fileID: 8859632829366761624}
-  - component: {fileID: 564869735101800419}
+  - component: {fileID: 8311676763932761898}
+  - component: {fileID: 6148097144380532411}
+  - component: {fileID: 7208198653336060952}
+  - component: {fileID: 5508444247719107344}
+  - component: {fileID: 6221750000578631578}
   m_Layer: 0
-  m_Name: RidgedNoiseImageCreator
+  m_Name: OctaveNoiseImageCreator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7679441817764604514
+--- !u!4 &8311676763932761898
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7028670523195447195}
+  m_GameObject: {fileID: 8146407672239369386}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 3.0774636, y: -0.20391396, z: 0.62564737}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7082733179563409808
+--- !u!114 &6148097144380532411
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7028670523195447195}
+  m_GameObject: {fileID: 8146407672239369386}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 08eca9f7688a0a24685b89133b020c8e, type: 3}
@@ -47,29 +48,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
   _monoInstallers:
-  - {fileID: 8859632829366761624}
+  - {fileID: 6221750000578631578}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
---- !u!114 &8859632829366761624
+--- !u!114 &7208198653336060952
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7028670523195447195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7fb74df361e97048a784707f12bbeec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &564869735101800419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7028670523195447195}
+  m_GameObject: {fileID: 8146407672239369386}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
@@ -78,5 +67,29 @@ MonoBehaviour:
   _bottomLeft: {x: 0, y: 0}
   _delta: {x: 0.02, y: 0.02}
   _imageSize: {x: 512, y: 512}
-  _fileName: RidgedNoise
+  _fileName: OctaveNoise
   _filePath: Noise
+--- !u!114 &5508444247719107344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8146407672239369386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2595935dfd5f79546a7b41c1e674da4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6221750000578631578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8146407672239369386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c165bb1e548f8d4bbbe41c7636e315f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

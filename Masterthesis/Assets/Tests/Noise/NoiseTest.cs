@@ -10,8 +10,6 @@ namespace SBaier.Master.Test
 		private const int _testSamplesCount = 1000;
 		private const int _randomSeed = 1234;
 		private readonly Vector2 _valueRange = new Vector2(0, 1);
-		protected abstract double AverageDelta { get; }
-		protected abstract double ExpectedAverage { get; }
 		private readonly Vector3 _testEvaluationPoint = new Vector3(3.2f, 5.8f, -1.7f);
 		private readonly Vector3Int _sampleRange = new Vector3Int(100, 100, 100);
 
@@ -20,13 +18,6 @@ namespace SBaier.Master.Test
 		{
 			GivenANew3DNoise();
 			ThenAllEvaluatedValuesAreInExpectedRange();
-		}
-
-		[Test]
-		public void TheAverageOfEvaluatedValuesIsAsExpected()
-		{
-			GivenANew3DNoise();
-			ThenTheAverageOfEvaluatedValuesIsAsExpected();
 		}
 
 		[Test]
@@ -60,19 +51,6 @@ namespace SBaier.Master.Test
 
 			for (int i = 0; i < _testSamplesCount; i++)
 				TestRandomSampleWithinRange(noise, random);
-		}
-
-		private void ThenTheAverageOfEvaluatedValuesIsAsExpected()
-		{
-			Noise3D noise = Container.Resolve<Noise3D>();
-			System.Random random = new System.Random(_randomSeed);
-			double sum = 0;
-
-			for (int i = 0; i < _testSamplesCount; i++)
-				sum += EvaluateRandom3DSample(noise, random);
-
-			double actual = sum / _testSamplesCount;
-			Assert.AreEqual(ExpectedAverage, actual, AverageDelta);
 		}
 
 		private void ThenEvaluatedDataOfTwoNoisesWithSameSeedAreEqual()
