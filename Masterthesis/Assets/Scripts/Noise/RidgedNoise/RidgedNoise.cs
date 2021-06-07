@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class RidgedNoise : Noise2D, Noise3D
+	public class RidgedNoise : Noise3D
 	{
 		private BillowNoise _bollowNoise;
 
@@ -20,6 +20,7 @@ namespace SBaier.Master
 
 		public double Evaluate(double x, double y, double z)
 		{
+			// Inverts the Billow Noise evaluated values
 			return _bollowNoise.Evaluate(x, y, z) * (-1) + 1;
 		}
 	}

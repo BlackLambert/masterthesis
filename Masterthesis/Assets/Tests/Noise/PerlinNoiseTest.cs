@@ -6,17 +6,17 @@ using UnityEngine;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class PerlinNoise2DTest : Noise2DTest
+    public class PerlinNoiseTest : NoiseTest
 	{
 		private const int _testSeed = 49242;
 
 		protected override double AverageDelta => 0.01;
 		protected override double ExpectedAverage => 0.5;
 
-		protected override void GivenANew2DNoise()
+		protected override void GivenANew3DNoise()
 		{
 			Container.Bind<Seed>().To<Seed>().FromMethod(CreateSeed).AsTransient();
-			Container.Bind<Noise2D>().To<PerlinNoise>().AsTransient();
+			Container.Bind<Noise3D>().To<PerlinNoise>().AsTransient();
 		}
 
 		private Seed CreateSeed()

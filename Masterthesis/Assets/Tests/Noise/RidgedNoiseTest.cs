@@ -4,18 +4,20 @@ using NUnit.Framework;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class BillowNoise3DTest : Noise3DTest
+    public class RidgedNoiseTest : NoiseTest
     {
 		private const int _testSeed = 49242;
 
 		protected override double AverageDelta => 0.02;
-		protected override double ExpectedAverage => 0.2;
+		protected override double ExpectedAverage => 0.8;
 
 		protected override void GivenANew3DNoise()
 		{
 			Container.Bind<Seed>().To<Seed>().FromMethod(CreateSeed).AsTransient();
 			Container.Bind<PerlinNoise>().To<PerlinNoise>().AsTransient();
-			Container.Bind<Noise3D>().To<BillowNoise>().AsTransient();
+			PerlinNoise baseNoise = Container.Resolve<PerlinNoise>();
+			Container.Bind<BillowNoise>().To<BillowNoise>().AsTransient().WithArguments(baseNoise);
+			Container.Bind<Noise3D>().To<RidgedNoise>().AsTransient();
 		}
 
 		private Seed CreateSeed()

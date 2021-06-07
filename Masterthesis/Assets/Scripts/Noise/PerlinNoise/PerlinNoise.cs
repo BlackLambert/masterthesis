@@ -8,7 +8,7 @@ namespace SBaier.Master
 	/// <summary>
 	/// Deviation of Ken Perlins algorithm introduced in 2002.
 	/// </summary>
-    public class PerlinNoise : Noise2D, Noise3D
+    public class PerlinNoise : Noise3D
 	{
 		private const int _permutationCount = 256;
 		private const int _doublePermutationCount = _permutationCount * 2;

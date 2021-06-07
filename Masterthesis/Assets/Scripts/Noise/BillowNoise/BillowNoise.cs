@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class BillowNoise : Noise2D, Noise3D
+	public class BillowNoise : Noise3D
 	{
-		private PerlinNoise _perlinNoise;
+		private Noise3D _baseNoise;
 
-		public BillowNoise(PerlinNoise perlinNoise)
+		public BillowNoise(Noise3D baseNoise)
 		{
-			_perlinNoise = perlinNoise;
+			_baseNoise = baseNoise;
 		}
 
 		public double Evaluate(double x, double y)
@@ -21,7 +21,7 @@ namespace SBaier.Master
 
 		public double Evaluate(double x, double y, double z)
 		{
-			double perlinValue = _perlinNoise.Evaluate(x, y, z);
+			double perlinValue = _baseNoise.Evaluate(x, y, z);
 			return Math.Abs(perlinValue * 2 - 1);
 		}
 	}
