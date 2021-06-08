@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 22bc051a7d716134ea88b0f45514c304, type: 3}
-  m_Name: RidgedNoiseSettings
+  m_Name: TestPerlinRidgedNoiseSettings
   m_EditorClassIdentifier: 
-  _billowNoiseSettings: {fileID: 11400000, guid: 395363cae3599304d947f1bb0c1cfdd8, type: 2}
+  _billowNoiseSettings: {fileID: 11400000, guid: bf542f9c1da860543907306d66cbdbd4, type: 2}

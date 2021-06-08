@@ -8,7 +8,7 @@ namespace SBaier.Master
 	/// <summary>
 	/// Deviation of Ken Perlins algorithm introduced in 2002.
 	/// </summary>
-    public class PerlinNoise : Noise3D
+    public class PerlinNoise : Noise3D, Seedbased
 	{
 		private const int _permutationCount = 256;
 		private const int _doublePermutationCount = _permutationCount * 2;
@@ -16,9 +16,11 @@ namespace SBaier.Master
 		private int[] _permutation = new int[_permutationCount];
 		private int[] _p = new int[_doublePermutationCount];
 
+		public Seed Seed { get; }
 
 		public PerlinNoise(Seed seed)
 		{
+			Seed = seed;
 			InitPermutation(seed);
 		}
 
@@ -87,6 +89,5 @@ namespace SBaier.Master
 				   v = h < 4 ? y : h == 12 || h == 14 ? x : z;
 			return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 		}
-
 	}
 }

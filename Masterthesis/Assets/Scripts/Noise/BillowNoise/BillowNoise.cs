@@ -6,6 +6,7 @@ namespace SBaier.Master
 	public class BillowNoise : Noise3D
 	{
 		private Noise3D _baseNoise;
+		public Noise3D BaseNoise => _baseNoise;
 
 		public BillowNoise(Noise3D baseNoise)
 		{

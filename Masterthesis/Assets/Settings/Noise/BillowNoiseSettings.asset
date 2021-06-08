@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 499142f86b7376d4e9888dd8e330dcdd, type: 3}
   m_Name: BillowNoiseSettings
   m_EditorClassIdentifier: 
-  _baseNoiseSettings: {fileID: 0}
+  _baseNoiseSettings: {fileID: 11400000, guid: 87a1147bf29b49c4891974f334294bc5, type: 2}
