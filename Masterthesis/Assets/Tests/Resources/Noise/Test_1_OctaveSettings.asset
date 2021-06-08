@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bc051a7d716134ea88b0f45514c304, type: 3}
-  m_Name: RidgedNoiseSettings
+  m_Script: {fileID: 11500000, guid: 6867a3a3d661f784eab0bb5294a43087, type: 3}
+  m_Name: Test_1_OctaveSettings
   m_EditorClassIdentifier: 
-  _billowNoiseSettings: {fileID: 11400000, guid: 395363cae3599304d947f1bb0c1cfdd8, type: 2}
+  _noiseSettings: {fileID: 11400000, guid: 1c68958656495fb419a2f73f85fe34ea, type: 2}
+  _amplitude: 1
+  _frequencyFactor: 1

@@ -8,6 +8,8 @@ namespace SBaier.Master
 {
     public class NoiseImageCreator : MonoBehaviour
     {
+		[SerializeField]
+		private NoiseSettings _noiseSettings;
         [SerializeField]
         private Vector2 _bottomLeft = Vector2.zero;
         [SerializeField]
@@ -19,7 +21,9 @@ namespace SBaier.Master
         [SerializeField]
         private string _filePath = "Noise";
 
-        private Noise2D _noise;
+        private NoiseFactory _noiseFactory;
+		private Seed _seed;
+		private Noise2D _noise;
 
         public string DirectoryPath => Path.Combine(Application.persistentDataPath, _filePath);
         public string FileName => $"{_fileName}_{_imageSize.x}x{_imageSize.y}.png";
@@ -27,14 +31,16 @@ namespace SBaier.Master
         public Vector2Int ImageSize => _imageSize;
 
         [Inject]
-        private void Construct(Noise2D noise)
+        private void Construct(NoiseFactory noiseFactory, Seed seed)
 		{
-            _noise = noise;
-        }
+			_noiseFactory = noiseFactory;
+			_seed = seed;
+		}
 
         protected virtual void Start()
 		{
-            CreateImage();
+			_noise = _noiseFactory.Create(_noiseSettings, _seed);
+			CreateImage();
         }
 
         private void CreateImage()

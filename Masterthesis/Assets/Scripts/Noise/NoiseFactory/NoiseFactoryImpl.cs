@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Zenject;
 
 namespace SBaier.Master
 {
-	public class NoiseFactory
+	public class NoiseFactoryImpl : NoiseFactory
 	{
 		private int _recursionDepthLimit = 8;
 
@@ -37,6 +38,8 @@ namespace SBaier.Master
 					return CreateBillowNoise((BillowNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Ridged:
 					return CreateRidgedNoise((RidgedNoiseSettings)settings, baseSeed, recursionDepth + 1);
+				case NoiseType.Octave:
+					return CreateOctaveNoise((OctaveNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				default:
 					throw new NotImplementedException();
 			}
@@ -53,10 +56,24 @@ namespace SBaier.Master
 			return new BillowNoise(baseNoise);
 		}
 
-		private Noise3D CreateRidgedNoise(RidgedNoiseSettings settings, Seed baseSeed, int recursionDepth)
+		private RidgedNoise CreateRidgedNoise(RidgedNoiseSettings settings, Seed baseSeed, int recursionDepth)
 		{
 			BillowNoise baseNoise = (BillowNoise)Create(settings.BillowNoiseSettings, baseSeed, recursionDepth);
 			return new RidgedNoise(baseNoise);
+		}
+
+		private OctaveNoise CreateOctaveNoise(OctaveNoiseSettings settings, Seed baseSeed, int recursionDepth)
+		{
+			if (settings.Octaves.Count == 0)
+				throw new ArgumentException();
+				
+			List<OctaveNoise.Octave> octaves = new List<OctaveNoise.Octave>();
+			foreach (OctaveSettings octaveSetting in settings.Octaves)
+			{
+				Noise3D noise = Create(octaveSetting.NoiseSettings, baseSeed, recursionDepth + 1);
+				octaves.Add(new OctaveNoise.Octave(noise, octaveSetting.Amplitude, octaveSetting.FrequencyFactor));
+			}
+			return new OctaveNoise(octaves);
 		}
 
 		private Seed CreateSeedBasedOn(Seed seed)
@@ -68,18 +85,13 @@ namespace SBaier.Master
 		private void CheckRecursionDepth(int recursionDepth)
 		{
 			if (recursionDepth > _recursionDepthLimit)
-				throw new RecursionDepthLimitReachedException();
+				throw new NoiseFactory.RecursionDepthLimitReachedException();
 		}
 
 		private void CheckNotNull(object argument)
 		{
 			if (argument == null)
 				throw new ArgumentNullException();
-		}
-
-		public class RecursionDepthLimitReachedException : Exception
-		{
-
 		}
 	}
 }

@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6867a3a3d661f784eab0bb5294a43087, type: 3}
-  m_Name: Octave2
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: Image_2_OctaveNoiseSettings
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: a54b6a95fc1060847b58a3c6ac6507e0, type: 2}
-  _amplitude: 0.2
-  _frequencyFactor: 2
+  _octaves:
+  - {fileID: 11400000, guid: dbb97deadcf539e429561a050f183014, type: 2}
+  - {fileID: 11400000, guid: 4665b8b82c3d5d24cb3ee5790bf85b23, type: 2}

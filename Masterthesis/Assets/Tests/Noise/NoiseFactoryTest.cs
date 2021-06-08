@@ -2,6 +2,7 @@ using Zenject;
 using NUnit.Framework;
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace SBaier.Master.Test
 {
@@ -13,6 +14,8 @@ namespace SBaier.Master.Test
 		private const string _perlinBasedBillowNoiseSettingsPath = "Noise/TestPerlinBillowNoiseSettings";
         private const string _perlinBasedRidgedNoiseSettingsPath = "Noise/TestPerlinRidgedNoiseSettings";
         private const string _loopedNoiseSettingsPath = "Noise/TestLoopedBillowNoiseSettings";
+        private const string _threeOctavedNoiseSettingsPath = "Noise/TestThreeOctavedNoiseSettings";
+        private const string _emptyOctavedNoiseSettingsPath = "Noise/TestEmptyOctavedNoiseSettings";
         private Noise3D _noise;
 
 		[Test]
@@ -81,10 +84,46 @@ namespace SBaier.Master.Test
             ThenAnArgumentOutOfRangeExceptionIsThrown(test);
         }
 
+        [Test(Description = "The Create method creates an OctaveNoise if provided with an OctaveNoiseSetting.")]
+        public void CreatesOctaveNoiseOnOctaveNoiseSettings()
+		{
+            GivenANewNoiseFactory();
+            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithOctavedNoiseSettings(settings);
+            ThenAnOctaveNoiseIsCreated();
+        }
+
+        [Test(Description = "A created OctaveNoise has as many Octaves as provided by the OctaveNoiseSettings")]
+        public void ACreatedOctaveNoiseHasExpectedOctaveCount()
+		{
+            GivenANewNoiseFactory();
+            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithOctavedNoiseSettings(settings);
+            ThenTheOctaveNoiseHasExpectedOctaveCount(settings);
+        }
+
+        [Test(Description = "The Octaves of a created OctaveNoise have the expected values based on the provided OctaveNoiseSettings")]
+        public void OctavesOfCreatedOctaveNoiseHaveExpectedValues()
+        {
+            GivenANewNoiseFactory();
+            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithOctavedNoiseSettings(settings);
+            ThenTheOctavesHaveValuesBasedOn(settings);
+        }
+
+        [Test(Description = "Creation of an octave noise throws an ArgumentException if the provided octave settings have no octaves.")]
+        public void EmptyOctavesCauseException()
+		{
+            GivenANewNoiseFactory();
+            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_emptyOctavedNoiseSettingsPath);
+            TestDelegate test = () => WhenCreateIsCalledWithOctavedNoiseSettings(settings);
+            ThenAnArgumentExceptionIsThrown(test);
+        }
+
 		private void GivenANewNoiseFactory()
 		{
             Container.Bind<Seed>().AsTransient().WithArguments(_seedValue);
-            Container.Bind<NoiseFactory>().AsTransient();
+            Container.Bind<NoiseFactory>().To<NoiseFactoryImpl>().AsTransient();
         }
 
         private void WhenCreateIsCalledWithPerlinNoiseSettings()
@@ -119,6 +158,11 @@ namespace SBaier.Master.Test
         private void WhenRecursionDepthLimitIsChangedToANegativeValue(NoiseFactory factory)
         {
             factory.RecursionDepthLimit = -1;
+        }
+
+        private void WhenCreateIsCalledWithOctavedNoiseSettings(OctaveNoiseSettings settings)
+        {
+            CreateNoise(settings);
         }
 
         private void ThenAPerlinNoiseIsCreated()
@@ -158,6 +202,36 @@ namespace SBaier.Master.Test
         private void ThenAnArgumentOutOfRangeExceptionIsThrown(TestDelegate test)
         {
             Assert.Throws<ArgumentOutOfRangeException>(test);
+        }
+
+        private void ThenAnOctaveNoiseIsCreated()
+        {
+            Assert.True(_noise is OctaveNoise);
+        }
+
+        private void ThenTheOctaveNoiseHasExpectedOctaveCount(OctaveNoiseSettings settings)
+        {
+            OctaveNoise octaveNoise = (OctaveNoise)_noise;
+            Assert.AreEqual(settings.Octaves.Count, octaveNoise.OctavesCopy.Count);
+        }
+
+        private void ThenTheOctavesHaveValuesBasedOn(OctaveNoiseSettings settings)
+        {
+            OctaveNoise octaveNoise = (OctaveNoise)_noise;
+            List<OctaveNoise.Octave> octaves = octaveNoise.OctavesCopy;
+            for (int i = 0; i < settings.Octaves.Count; i++)
+			{
+                OctaveSettings octaveSetting = settings.Octaves[i];
+                OctaveNoise.Octave octave = octaves[i];
+                Assert.AreEqual(octaveSetting.Amplitude, octave.Amplitude);
+                Assert.AreEqual(octaveSetting.FrequencyFactor, octave.FrequencyFactor);
+                Assert.AreEqual(octaveSetting.NoiseSettings.GetNoiseType(), octave.Noise.NoiseType);
+            }
+        }
+
+        private void ThenAnArgumentExceptionIsThrown(TestDelegate test)
+        {
+            Assert.Throws<ArgumentException>(test);
         }
 
         private void CreateNoise(NoiseSettings settings)

@@ -18,6 +18,8 @@ namespace SBaier.Master
 
 		public Seed Seed { get; }
 
+		public NoiseType NoiseType => NoiseType.Perlin;
+
 		public PerlinNoise(Seed seed)
 		{
 			Seed = seed;

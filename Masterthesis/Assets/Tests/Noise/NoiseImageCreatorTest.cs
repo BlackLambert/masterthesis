@@ -13,7 +13,9 @@ namespace SBaier.Master.Test
 		private const string _prefabPath = "Noise/TestNoiseImageCreator";
         private const double _evaluationDelta = 0.1f;
 		private const float _epsilon = 0.002f;
-		private Mock<Noise2D> _noiseMock;
+		private const int _testSeed = 1234;
+		private Mock<NoiseFactory> _noiseFactoryMock;
+        private Mock<Noise3D> _noiseMock;
         private NoiseImageCreator _creator;
         private double _evaluationValue = 0;
 
@@ -33,16 +35,18 @@ namespace SBaier.Master.Test
         {
             GivenADefaultSetup();
             GivenNoiseEvaluateReturnsOne();
+            GivenNoiseFactoryReturnsMockedNoise();
             _creator = Container.Resolve<NoiseImageCreator>();
             yield return 0;
             ThenTheNoiseImageFolderIsCreatedAt(_creator.DirectoryPath);
         }
 
-        [UnityTest]
+		[UnityTest]
         public IEnumerator CreatesFileWithExpectedName()
 		{
             GivenADefaultSetup();
             GivenNoiseEvaluateReturnsOne();
+            GivenNoiseFactoryReturnsMockedNoise();
             _creator = Container.Resolve<NoiseImageCreator>();
             yield return 0;
             ThenTheImageFilePathContainsFileName(_creator.FilePath, _creator.FileName);
@@ -54,6 +58,7 @@ namespace SBaier.Master.Test
         {
             GivenADefaultSetup();
             GivenNoiseEvaluateReturnsOne();
+            GivenNoiseFactoryReturnsMockedNoise();
             _creator = Container.Resolve<NoiseImageCreator>();
             yield return 0;
             ThenTheImageFilePathContainsTheDirectoryPath(_creator.FilePath, _creator.DirectoryPath);
@@ -65,6 +70,7 @@ namespace SBaier.Master.Test
 		{
             GivenADefaultSetup();
             GivenNoiseEvaluateReturnsIncreasingValue();
+            GivenNoiseFactoryReturnsMockedNoise();
             _creator = Container.Resolve<NoiseImageCreator>();
             yield return 0;
             ThenImageHasPixelsWithIncreasingValue();
@@ -75,6 +81,7 @@ namespace SBaier.Master.Test
         {
             GivenADefaultSetup();
             GivenNoiseEvaluateReturnsOne();
+            GivenNoiseFactoryReturnsMockedNoise();
             _creator = Container.Resolve<NoiseImageCreator>();
             yield return 0;
             ThenTheCreatedImageHasExpectedSize();
@@ -83,13 +90,20 @@ namespace SBaier.Master.Test
 		private void GivenADefaultSetup()
 		{
             PreInstall();
-            _noiseMock = new Mock<Noise2D>();
-            Container.Bind<Noise2D>().FromInstance(_noiseMock.Object).AsSingle();
+            _noiseFactoryMock = new Mock<NoiseFactory>();
+            _noiseMock = new Mock<Noise3D>();
+            Container.Bind<Seed>().FromMethod(CreateSeed).AsTransient();
+            Container.Bind<NoiseFactory>().To<NoiseFactory>().FromInstance(_noiseFactoryMock.Object).AsSingle();
             Container.Bind<NoiseImageCreator>().To<NoiseImageCreator>().FromComponentInNewPrefabResource(_prefabPath).AsSingle();
             PostInstall();
         }
 
-        private void GivenNoiseEvaluateReturnsOne()
+		private Seed CreateSeed()
+		{
+            return new Seed(_testSeed);
+		}
+
+		private void GivenNoiseEvaluateReturnsOne()
         {
             _noiseMock.Setup(n => n.Evaluate(It.IsAny<double>(), It.IsAny<double>())).Returns(1);
         }
@@ -98,6 +112,11 @@ namespace SBaier.Master.Test
         {
             _evaluationValue = 0;
             _noiseMock.Setup(n => n.Evaluate(It.IsAny<double>(), It.IsAny<double>())).Returns(GetIncreasingEvaluationValue);
+        }
+
+        private void GivenNoiseFactoryReturnsMockedNoise()
+        {
+            _noiseFactoryMock.Setup(f => f.Create(It.IsAny<NoiseSettings>(), It.IsAny<Seed>())).Returns(_noiseMock.Object);
         }
 
         private void ThenTheNoiseImageFolderIsCreatedAt(string directoryPath)

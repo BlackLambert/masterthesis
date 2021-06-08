@@ -8,6 +8,7 @@ namespace SBaier.Master.Test
     {
 		private const int _testSeed = 49242;
 
+		protected override NoiseType ExpectedNoiseType => NoiseType.Ridged;
 
 		protected override void GivenANew3DNoise()
 		{

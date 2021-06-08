@@ -1,6 +1,7 @@
 using Zenject;
 using NUnit.Framework;
 using UnityEngine;
+using System;
 
 namespace SBaier.Master.Test
 {
@@ -12,6 +13,8 @@ namespace SBaier.Master.Test
 		private readonly Vector2 _valueRange = new Vector2(0, 1);
 		private readonly Vector3 _testEvaluationPoint = new Vector3(3.2f, 5.8f, -1.7f);
 		private readonly Vector3Int _sampleRange = new Vector3Int(100, 100, 100);
+
+		protected abstract NoiseType ExpectedNoiseType { get; }
 
 		[Test]
 		public void AllEvaluatedValuesAreInExpectedRange()
@@ -39,6 +42,13 @@ namespace SBaier.Master.Test
 		{
 			GivenANew3DNoise();
 			ThenTheEvaluated2DValuesEqualTheEvalueded3DValuesWithZSetToZero();
+		}
+
+		[Test]
+		public void NoiseTypeReturnsExpectedValue()
+		{
+			GivenANew3DNoise();
+			ThenNoiseTypeReturnsExpectedValue();
 		}
 
 		protected abstract void GivenANew3DNoise();
@@ -100,6 +110,12 @@ namespace SBaier.Master.Test
 			double actual = EvaluateRandom3DSample(noise, random);
 			Assert.GreaterOrEqual(actual, _valueRange.x);
 			Assert.LessOrEqual(actual, _valueRange.y);
+		}
+
+		private void ThenNoiseTypeReturnsExpectedValue()
+		{
+			Noise3D noise = Container.Resolve<Noise3D>();
+			Assert.AreEqual(ExpectedNoiseType, noise.NoiseType);
 		}
 
 		private double EvaluateRandom3DSample(Noise3D noise, System.Random random)

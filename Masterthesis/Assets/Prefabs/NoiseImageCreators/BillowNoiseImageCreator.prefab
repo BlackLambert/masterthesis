@@ -75,6 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _noiseSettings: {fileID: 11400000, guid: 395363cae3599304d947f1bb0c1cfdd8, type: 2}
   _bottomLeft: {x: 0, y: 0}
   _delta: {x: 0.02, y: 0.02}
   _imageSize: {x: 512, y: 512}

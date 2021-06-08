@@ -5,12 +5,13 @@ namespace SBaier.Master
 {
 	public class BillowNoise : Noise3D
 	{
-		private Noise3D _baseNoise;
-		public Noise3D BaseNoise => _baseNoise;
+		public Noise3D BaseNoise { get; }
+
+		public NoiseType NoiseType => NoiseType.Billow;
 
 		public BillowNoise(Noise3D baseNoise)
 		{
-			_baseNoise = baseNoise;
+			BaseNoise = baseNoise;
 		}
 
 		public double Evaluate(double x, double y)
@@ -20,7 +21,7 @@ namespace SBaier.Master
 
 		public double Evaluate(double x, double y, double z)
 		{
-			double perlinValue = _baseNoise.Evaluate(x, y, z);
+			double perlinValue = BaseNoise.Evaluate(x, y, z);
 			double stretchedValue = stretchToNegativeValueRange(perlinValue);
 			return Math.Abs(stretchedValue);
 		}

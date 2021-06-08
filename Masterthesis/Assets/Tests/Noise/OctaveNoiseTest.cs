@@ -14,8 +14,7 @@ namespace SBaier.Master.Test
 		private const int _randomSeed = 43623;
 		private readonly Vector3 _testEvaluationPoint = new Vector3(3.2f, 5.8f, -1.7f);
 
-		private OctaveNoise _noise;
-		private ICollection<OctaveNoise.Octave> _octaves;
+		protected override NoiseType ExpectedNoiseType => NoiseType.Octave;
 
 		[Test]
 		public void OctavesReturnsProvidedValues()
@@ -31,30 +30,55 @@ namespace SBaier.Master.Test
 			ThenEvaluateReturnsOctavedValue();
 		}
 
+		[Test (Description = "The OctabesCopy property returns a copy of the octave list provided as argument to the constructor.")]
+		public void OctavesCopyReturnsExpectedValue()
+		{
+			GivenANew3DNoise();
+			ThenOctavesCopyReturnsCopyOfProvidedOctaves();
+		}
+
 		protected override void GivenANew3DNoise()
 		{
-			Container.Bind<ICollection<OctaveNoise.Octave>>().FromMethod(CreateValidOctaves).AsSingle();
+			Container.Bind<List<OctaveNoise.Octave>>().FromMethod(CreateValidOctaves).AsSingle();
 			Container.Bind(typeof(Noise3D), typeof(OctaveNoise)).To<OctaveNoise>().AsTransient();
 		}
 
 		private void ThenOctavesReturnsProvidedValues()
 		{
-			_octaves = Container.Resolve<ICollection<OctaveNoise.Octave>>();
-			_noise = Container.Resolve<OctaveNoise>();
-			Assert.True(Enumerable.SequenceEqual(_octaves, _noise.Octaves));
+			List<OctaveNoise.Octave> octaves = Container.Resolve<List<OctaveNoise.Octave>>();
+			OctaveNoise noise = Container.Resolve<OctaveNoise>();
+			Assert.True(Enumerable.SequenceEqual(octaves, noise.OctavesCopy));
 		}
 
 		private void ThenEvaluateReturnsOctavedValue()
 		{
-			_octaves = Container.Resolve<ICollection<OctaveNoise.Octave>>();
-			_noise = Container.Resolve<OctaveNoise>();
-			double sum = _octaves.Sum(o => o.Noise.Evaluate(_testEvaluationPoint.x, _testEvaluationPoint.y, _testEvaluationPoint.z) * o.Amplitude);
-			double expected = (sum > 1) ? 1 : (sum < 0) ? 0 : sum;
-			double actual = _noise.Evaluate(_testEvaluationPoint.x, _testEvaluationPoint.y, _testEvaluationPoint.z);
+			List<OctaveNoise.Octave> octaves = Container.Resolve<List<OctaveNoise.Octave>>();
+			OctaveNoise noise = Container.Resolve<OctaveNoise>();
+			List<OctaveNoise.Octave> noiseOctaves = noise.OctavesCopy;
+			Assert.AreEqual(octaves, noiseOctaves);
+			double sum = octaves.Sum(OctaveNoiseSum);
+			double expected = Clamp01(sum + 0.5);
+			double actual = noise.Evaluate(_testEvaluationPoint.x, _testEvaluationPoint.y, _testEvaluationPoint.z);
 			Assert.AreEqual(expected, actual);
 		}
 
-		private ICollection<OctaveNoise.Octave> CreateValidOctaves()
+		private double OctaveNoiseSum(OctaveNoise.Octave octave)
+		{
+			double ff = octave.FrequencyFactor;
+			double evaluatedValue = octave.Noise.Evaluate(_testEvaluationPoint.x * ff, _testEvaluationPoint.y * ff, _testEvaluationPoint.z * ff) - 0.5;
+			return evaluatedValue * octave.Amplitude;
+		}
+
+		private void ThenOctavesCopyReturnsCopyOfProvidedOctaves()
+		{
+			List<OctaveNoise.Octave> octaves = Container.Resolve<List<OctaveNoise.Octave>>();
+			OctaveNoise noise = Container.Resolve<OctaveNoise>();
+			List<OctaveNoise.Octave> octavesCopy = noise.OctavesCopy;
+			Assert.AreEqual(octaves, octavesCopy);
+			Assert.AreNotSame(octaves, octavesCopy);
+		}
+
+		private List<OctaveNoise.Octave> CreateValidOctaves()
 		{
 			return new List<OctaveNoise.Octave>()
 			{
@@ -70,6 +94,11 @@ namespace SBaier.Master.Test
 			Seed seed = new Seed(_randomSeed);
 			PerlinNoise noise = new PerlinNoise(seed);
 			return noise;
+		}
+
+		private double Clamp01(double result)
+		{
+			return (result > 1) ? 1 : (result < 0) ? 0 : result;
 		}
 	}
 }

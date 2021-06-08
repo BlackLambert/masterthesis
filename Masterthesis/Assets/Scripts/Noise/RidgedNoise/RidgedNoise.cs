@@ -6,6 +6,8 @@ namespace SBaier.Master
 	{
 		private BillowNoise _bollowNoise;
 
+		public NoiseType NoiseType => NoiseType.Ridged;
+
 		public RidgedNoise(BillowNoise billowNoise)
 		{
 			_bollowNoise = billowNoise;

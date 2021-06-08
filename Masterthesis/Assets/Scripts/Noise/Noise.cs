@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public interface Noise2D : Noise
-	{
-		double Evaluate(double x, double y);
-	}
+    public interface Noise 
+    {
+        NoiseType NoiseType { get; }
+    }
 }

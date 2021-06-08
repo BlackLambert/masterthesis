@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: Image_4_OctaveNoiseSettings
+  m_EditorClassIdentifier: 
+  _octaves:
+  - {fileID: 11400000, guid: dbb97deadcf539e429561a050f183014, type: 2}
+  - {fileID: 11400000, guid: 4665b8b82c3d5d24cb3ee5790bf85b23, type: 2}
+  - {fileID: 11400000, guid: f380460de1ec2734db81d2eff14f342e, type: 2}
+  - {fileID: 11400000, guid: 7225b819ca09e2d41a2f4e57ce237db7, type: 2}

@@ -6,19 +6,22 @@ namespace SBaier.Master
 {
 	public class OctaveNoise : Noise3D
 	{
-		public OctaveNoise(ICollection<Octave> octaves)
+		public OctaveNoise(List<Octave> octaves)
 		{
-			Octaves = octaves;
+			_octaves = octaves;
 		}
 
-		public ICollection<Octave> Octaves { get; }
+		private List<Octave> _octaves;
+		public List<Octave> OctavesCopy => new List<Octave>(_octaves);
+
+		public NoiseType NoiseType => NoiseType.Octave;
 
 		public double Evaluate(double x, double y, double z)
 		{
 			double result = 0;
-			foreach (Octave octave in Octaves)
+			foreach (Octave octave in _octaves)
 			{
-				float ff = octave.FrequencyFactor;
+				double ff = octave.FrequencyFactor;
 				double evaluatedValue = octave.Noise.Evaluate(x * ff, y * ff, z * ff) - 0.5;
 				result += evaluatedValue * octave.Amplitude;
 			}
@@ -38,13 +41,13 @@ namespace SBaier.Master
 		public class Octave
 		{
 			public Noise3D Noise { get; }
-			public float Amplitude { get; }
-			public float FrequencyFactor { get; }
+			public double Amplitude { get; }
+			public double FrequencyFactor { get; }
 
 			public Octave(
 				Noise3D noise,
-				float amplitude,
-				float frequencyFactor)
+				double amplitude,
+				double frequencyFactor)
 			{
 				Noise = noise;
 				Amplitude = amplitude;

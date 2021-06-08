@@ -8,6 +8,8 @@ namespace SBaier.Master.Test
     {
 		private const int _testSeed = 49242;
 
+		protected override NoiseType ExpectedNoiseType => NoiseType.Billow;
+
 		protected override void GivenANew3DNoise()
 		{
 			Container.Bind<Seed>().To<Seed>().FromMethod(CreateSeed).AsTransient();
