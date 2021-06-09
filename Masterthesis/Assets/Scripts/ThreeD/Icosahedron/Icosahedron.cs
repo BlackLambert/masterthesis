@@ -2,11 +2,8 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class Icosahedron : MonoBehaviour
+    public class Icosahedron
     {
-        [SerializeField]
-        private MeshFilter _meshFilter;
-
 		private const float _e0 = 0.525731112119133606f;
 		private const float _e1 = 0.850650808352039932f;
 		private const float _e2 = 0;
@@ -52,18 +49,5 @@ namespace SBaier.Master
 			9, 2, 5,
 			7, 2, 11
 		};
-
-		protected virtual void Start()
-		{
-			_meshFilter.sharedMesh = new Mesh();
-			GenerateMesh();
-		}
-
-		private void GenerateMesh()
-		{
-			_meshFilter.sharedMesh.Clear();
-			_meshFilter.sharedMesh.vertices = Vertices;
-			_meshFilter.sharedMesh.triangles = Triangles;
-		}
 	}
 }

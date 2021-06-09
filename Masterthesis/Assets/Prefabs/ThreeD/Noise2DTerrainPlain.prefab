@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7041713397089841668}
   - component: {fileID: 7041713397089841669}
   - component: {fileID: 7041713397089841670}
+  - component: {fileID: 3138268688429447994}
   m_Layer: 0
   m_Name: Noise2DTerrainPlain
   m_TagString: Untagged
@@ -48,6 +49,7 @@ MonoBehaviour:
   _scriptableObjectInstallers: []
   _monoInstallers:
   - {fileID: 7041713397089841670}
+  - {fileID: 3138268688429447994}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -63,6 +65,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb139313b12996c4bb8439c699fce52f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3138268688429447994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041713397089841671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 674eb4da4aaa6914683e1162dfe90515, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7041713397155677523
 GameObject:
   m_ObjectHideFlags: 0
@@ -75,6 +89,8 @@ GameObject:
   - component: {fileID: 7041713397155677527}
   - component: {fileID: 7041713397155677520}
   - component: {fileID: 7041713397155677521}
+  - component: {fileID: 5401745615139937874}
+  - component: {fileID: 5656840103399120055}
   m_Layer: 0
   m_Name: PlainMesh
   m_TagString: Untagged
@@ -124,7 +140,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 42b9ac3f4a4b2b545b703c2d7139ac87, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -160,3 +176,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _meshFilter: {fileID: 7041713397155677527}
   _size: 10
+--- !u!114 &5401745615139937874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041713397155677523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdb42306d42813047a1c0a455887b422, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _amount: 7
+  _meshFilter: {fileID: 7041713397155677527}
+--- !u!114 &5656840103399120055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041713397155677523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d77cdf931d37b54082cd0839bbc48e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _noiseSettings: {fileID: 11400000, guid: 48347f0f5bfb5fe44b6cf2788f9f40b3, type: 2}
+  _meshFilter: {fileID: 7041713397155677527}
+  _maxHeight: 1
