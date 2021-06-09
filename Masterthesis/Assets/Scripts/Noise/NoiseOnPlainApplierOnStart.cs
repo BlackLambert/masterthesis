@@ -14,6 +14,8 @@ namespace SBaier.Master
         private MeshFilter _meshFilter;
         [SerializeField]
         private float _maxHeight = 5f;
+        [SerializeField]
+        private float _noiseFactor = 0.01f;
 
         private NoiseFactory _noiseFactory;
         private Seed _seed;
@@ -49,7 +51,7 @@ namespace SBaier.Master
             for(int i = 0; i< newVertices.Length; i++)
 			{
                 Vector3 former = mesh.vertices[i];
-                float noiseValue = (float) _noise.Evaluate(former.x, former.z);
+                float noiseValue = (float) _noise.Evaluate(former.x * _noiseFactor, former.z * _noiseFactor);
                 newVertices[i] = new Vector3(former.x, noiseValue * _maxHeight, former.z);
             }
 

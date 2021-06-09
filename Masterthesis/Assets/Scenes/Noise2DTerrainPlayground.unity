@@ -430,9 +430,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5401745615139937874, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: _amount
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _maxHeight
-      value: 1
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: _noiseFactor
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 7041713397089841668, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: m_RootOrder
@@ -481,6 +489,10 @@ PrefabInstance:
     - target: {fileID: 7041713397089841671, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: m_Name
       value: Noise2DTerrainPlain
+      objectReference: {fileID: 0}
+    - target: {fileID: 7041713397155677521, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: _size
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a80340043b233b048a64984c4daeafe2, type: 3}
