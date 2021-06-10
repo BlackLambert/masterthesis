@@ -21,10 +21,10 @@ namespace SBaier.Master
             _subdivider = subdivider;
         }
 
-        protected virtual IEnumerator Start()
+        protected virtual void Start()
 		{
-            yield return new WaitForEndOfFrame();
             _subdivider.Subdivide(_meshFilter.sharedMesh, _amount);
+            _meshFilter.sharedMesh.RecalculateNormals();
         }
     }
 }

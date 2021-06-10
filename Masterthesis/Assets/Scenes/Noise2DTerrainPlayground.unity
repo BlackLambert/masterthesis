@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17990729, g: 0.22016503, b: 0.27724218, a: 1}
+  m_IndirectSpecularColor: {r: 0.17212477, g: 0.20596024, b: 0.24549732, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -200,13 +200,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 141263584}
-  m_LocalRotation: {x: 0.17528768, y: 0.24459091, z: -0.045007695, w: 0.95258796}
-  m_LocalPosition: {x: -5.82, y: 4.95, z: -9.61}
+  m_LocalRotation: {x: 0.2507271, y: 0.2396444, z: -0.06421253, w: 0.93572605}
+  m_LocalPosition: {x: -3.31, y: 3.93, z: -4.97}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 20.853, y: 28.801, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: 28.73, z: 0}
 --- !u!114 &141263588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,7 +365,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -416,13 +416,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1857820372}
-  m_LocalRotation: {x: -0.37040192, y: -0.81934047, z: 0.30840626, w: 0.31043407}
+  m_LocalRotation: {x: -0.3922963, y: -0.8137283, z: 0.2680942, w: 0.33477676}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 15.986, y: -129.93, z: 56.157}
+  m_LocalEulerAnglesHint: {x: 10, y: -129.93, z: 56.157}
 --- !u!1001 &7041713396654025187
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -432,7 +432,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5401745615139937874, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _amount
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _maxHeight
@@ -442,6 +442,10 @@ PrefabInstance:
       propertyPath: _noiseFactor
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: _noiseSettings
+      value: 
+      objectReference: {fileID: 11400000, guid: a600fedaa0e2c68419af4957fd31bace, type: 2}
     - target: {fileID: 7041713397089841668, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: m_RootOrder
       value: 3

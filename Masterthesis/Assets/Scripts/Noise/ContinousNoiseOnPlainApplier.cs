@@ -6,7 +6,7 @@ using Zenject;
 
 namespace SBaier.Master
 {
-    public class NoiseOnPlainApplierOnStart : MonoBehaviour
+    public class ContinousNoiseOnPlainApplier : MonoBehaviour
     {
         [SerializeField]
         private NoiseSettings _noiseSettings;
@@ -16,11 +16,16 @@ namespace SBaier.Master
         private float _maxHeight = 5f;
         [SerializeField]
         private float _noiseFactor = 0.01f;
+        [SerializeField]
+        private Vector3 _startPositionDelta = new Vector3(0.02f, 0, 0.03f);
+        [SerializeField]
+        private Vector3 _startPosition = Vector3.zero;
 
         private NoiseFactory _noiseFactory;
         private Seed _seed;
 
         private Noise3D _noise;
+        private Vector3 _currentStartPositionDelta;
 
         [Inject]
         private void Construct(NoiseFactory noiseFactory,
@@ -30,13 +35,17 @@ namespace SBaier.Master
             _seed = seed;
         }
 
-        protected virtual IEnumerator Start()
+        protected virtual void Start()
 		{
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
             CreateNoise();
+            _currentStartPositionDelta = _startPosition;
+        }
+
+        protected virtual void Update()
+		{
             ApplyNoise();
-		}
+            _currentStartPositionDelta += _startPositionDelta;
+        }
 
 		private void CreateNoise()
 		{
@@ -52,7 +61,8 @@ namespace SBaier.Master
             for(int i = 0; i< newVertices.Length; i++)
 			{
                 Vector3 former = formerVertices[i];
-                float noiseValue = (float) _noise.Evaluate(former.x * _noiseFactor, former.z * _noiseFactor);
+                Vector3 evaluationVector = former + _currentStartPositionDelta;
+                float noiseValue = (float) _noise.Evaluate(evaluationVector.x * _noiseFactor, evaluationVector.z * _noiseFactor);
                 newVertices[i] = new Vector3(former.x, noiseValue * _maxHeight, former.z);
             }
 

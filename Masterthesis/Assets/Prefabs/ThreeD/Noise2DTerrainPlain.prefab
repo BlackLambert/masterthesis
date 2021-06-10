@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 7041713397155677522}
   - component: {fileID: 7041713397155677527}
   - component: {fileID: 7041713397155677520}
+  - component: {fileID: 8258194495242074108}
   - component: {fileID: 7041713397155677521}
   - component: {fileID: 5401745615139937874}
   - component: {fileID: 5656840103399120055}
@@ -162,6 +163,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8258194495242074108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041713397155677523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f4d12c850d91844a6eba87101e38d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _components:
+  - {fileID: 7041713397155677521}
+  - {fileID: 5401745615139937874}
+  - {fileID: 5656840103399120055}
 --- !u!114 &7041713397155677521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,3 +222,4 @@ MonoBehaviour:
   _noiseSettings: {fileID: 11400000, guid: 48347f0f5bfb5fe44b6cf2788f9f40b3, type: 2}
   _meshFilter: {fileID: 7041713397155677527}
   _maxHeight: 1
+  _noiseFactor: 0.01

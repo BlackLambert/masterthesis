@@ -79,8 +79,14 @@ namespace SBaier.Master
 
         private void AddIfNew(ref Dictionary<Vector3, int> vertices, ref Vector3 vertex, int newIndex)
 		{
-            if (!vertices.ContainsKey(vertex))
-                vertices[vertex] = newIndex;
+			try
+			{
+                vertices.Add(vertex, newIndex);
+            }
+            catch(Exception _)
+			{
+
+			}
         }
     }
 }
