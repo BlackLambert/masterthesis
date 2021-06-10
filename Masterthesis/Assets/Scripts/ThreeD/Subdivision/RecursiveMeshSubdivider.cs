@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -21,16 +22,13 @@ namespace SBaier.Master
 
         public void Subdivide(Mesh mesh)
 		{
-            Dictionary<Vector3, int> vertices = new Dictionary<Vector3, int>(new Vector3EqualityComparer());
+            Dictionary<Vector3, int> additionalVertices = new Dictionary<Vector3, int>(new Vector3EqualityComparer());
             int trianglesCount = mesh.triangles.Length * 4;
             int[] triangles = new int[trianglesCount];
             int[] formerTriangles = mesh.triangles;
             Vector3[] verticesCache = new Vector3[6];
             Vector3[] formerVertices = mesh.vertices;
             int trianglesIndex = 0;
-
-            for (int i = 0; i < formerVertices.Length; i++)
-                vertices.Add(formerVertices[i], i);
 
             for (int i = 0; i < formerTriangles.Length / 3; i++)
             {
@@ -44,13 +42,13 @@ namespace SBaier.Master
                 verticesCache[3] = Subdivide(verticesCache[0], verticesCache[1]);
                 verticesCache[4] = Subdivide(verticesCache[1], verticesCache[2]);
                 verticesCache[5] = Subdivide(verticesCache[2], verticesCache[0]);
-                AddIfNew(ref vertices, verticesCache[3]);
-                AddIfNew(ref vertices, verticesCache[4]);
-                AddIfNew(ref vertices, verticesCache[5]);
+                AddIfNew(ref additionalVertices, ref verticesCache[3], formerVertices.Length + additionalVertices.Count);
+                AddIfNew(ref additionalVertices, ref verticesCache[4], formerVertices.Length + additionalVertices.Count);
+                AddIfNew(ref additionalVertices, ref verticesCache[5], formerVertices.Length + additionalVertices.Count);
 
-                int i3 = vertices[verticesCache[3]];
-                int i4 = vertices[verticesCache[4]];
-                int i5 = vertices[verticesCache[5]];
+                int i3 = additionalVertices[verticesCache[3]];
+                int i4 = additionalVertices[verticesCache[4]];
+                int i5 = additionalVertices[verticesCache[5]];
 
                 triangles[trianglesIndex] = i0;
                 triangles[trianglesIndex + 1] = i3;
@@ -67,19 +65,22 @@ namespace SBaier.Master
 
                 trianglesIndex += 12;
             }
-            mesh.vertices = vertices.Keys.ToArray();
+            List<Vector3> newVertices = new List<Vector3>(formerVertices);
+            newVertices.AddRange(additionalVertices.Keys);
+            mesh.vertices = newVertices.ToArray();
             mesh.triangles = triangles;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Vector3 Subdivide(Vector3 vecA, Vector3 vecB)
 		{
             return vecA + (vecB - vecA) * 0.5f;
         }
 
-        private void AddIfNew(ref Dictionary<Vector3, int> vertices, Vector3 vertex)
+        private void AddIfNew(ref Dictionary<Vector3, int> vertices, ref Vector3 vertex, int newIndex)
 		{
             if (!vertices.ContainsKey(vertex))
-                vertices[vertex] = vertices.Count;
+                vertices[vertex] = newIndex;
         }
     }
 }

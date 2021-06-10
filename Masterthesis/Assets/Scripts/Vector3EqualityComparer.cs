@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -16,12 +17,10 @@ namespace SBaier.Master
 
         public bool Equals(Vector3 vec1, Vector3 vec2)
         {
-            bool xEqual = Equals(vec1.x, vec2.x);
-            bool yEqual = Equals(vec1.y, vec2.y);
-            bool zEqual = Equals(vec1.z, vec2.z);
-            return xEqual && yEqual && zEqual;
+            return Equals(vec1.x, vec2.x) && Equals(vec1.y, vec2.y) && Equals(vec1.z, vec2.z);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Equals(float f1, float f2)
 		{
             return f1 == f2 || ((f1 - _epsilon) < f2) && ((f1 + _epsilon) > f2);
