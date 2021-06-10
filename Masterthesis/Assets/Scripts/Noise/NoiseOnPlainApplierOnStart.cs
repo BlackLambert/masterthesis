@@ -47,10 +47,11 @@ namespace SBaier.Master
         {
             Mesh mesh = _meshFilter.sharedMesh;
             Vector3[] newVertices = new Vector3[mesh.vertices.Length];
+            Vector3[] formerVertices = mesh.vertices;
 
             for(int i = 0; i< newVertices.Length; i++)
 			{
-                Vector3 former = mesh.vertices[i];
+                Vector3 former = formerVertices[i];
                 float noiseValue = (float) _noise.Evaluate(former.x * _noiseFactor, former.z * _noiseFactor);
                 newVertices[i] = new Vector3(former.x, noiseValue * _maxHeight, former.z);
             }

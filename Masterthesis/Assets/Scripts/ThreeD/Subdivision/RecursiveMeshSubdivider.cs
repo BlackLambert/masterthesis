@@ -22,41 +22,53 @@ namespace SBaier.Master
         public void Subdivide(Mesh mesh)
 		{
             Dictionary<Vector3, int> vertices = new Dictionary<Vector3, int>(new Vector3EqualityComparer());
-            List<int> triangles = new List<int>();
+            int trianglesCount = mesh.triangles.Length * 4;
+            int[] triangles = new int[trianglesCount];
+            int[] formerTriangles = mesh.triangles;
+            Vector3[] verticesCache = new Vector3[6];
+            Vector3[] formerVertices = mesh.vertices;
+            int trianglesIndex = 0;
 
-            for (int i = 0; i < mesh.vertices.Length; i++)
-                vertices.Add(mesh.vertices[i], i);
+            for (int i = 0; i < formerVertices.Length; i++)
+                vertices.Add(formerVertices[i], i);
 
-            for (int i = 0; i < mesh.triangles.Length / 3; i++)
+            for (int i = 0; i < formerTriangles.Length / 3; i++)
             {
-                int i0 = mesh.triangles[i * 3];
-                int i1 = mesh.triangles[i * 3 + 1];
-                int i2 = mesh.triangles[i * 3 + 2];
+                int i0 = formerTriangles[i * 3];
+                int i1 = formerTriangles[i * 3 + 1];
+                int i2 = formerTriangles[i * 3 + 2];
 
-                Vector3 vertex0 = mesh.vertices[i0];
-                Vector3 vertex1 = mesh.vertices[i1];
-                Vector3 vertex2 = mesh.vertices[i2];
-                Vector3 vertex01 = Subdivide(vertex0, vertex1);
-                Vector3 vertex12 = Subdivide(vertex1, vertex2);
-                Vector3 vertex20 = Subdivide(vertex2, vertex0);
-                AddIfNew(ref vertices, vertex01);
-                AddIfNew(ref vertices, vertex12);
-                AddIfNew(ref vertices, vertex20);
+                verticesCache[0] = formerVertices[i0];
+                verticesCache[1] = formerVertices[i1];
+                verticesCache[2] = formerVertices[i2];
+                verticesCache[3] = Subdivide(verticesCache[0], verticesCache[1]);
+                verticesCache[4] = Subdivide(verticesCache[1], verticesCache[2]);
+                verticesCache[5] = Subdivide(verticesCache[2], verticesCache[0]);
+                AddIfNew(ref vertices, verticesCache[3]);
+                AddIfNew(ref vertices, verticesCache[4]);
+                AddIfNew(ref vertices, verticesCache[5]);
 
-                int i3 = vertices[vertex01];
-                int i4 = vertices[vertex12];
-                int i5 = vertices[vertex20];
+                int i3 = vertices[verticesCache[3]];
+                int i4 = vertices[verticesCache[4]];
+                int i5 = vertices[verticesCache[5]];
 
-                triangles.AddRange(new int[]
-                {
-                    i0, i3, i5,
-                    i3, i1, i4,
-                    i5, i4, i2,
-                    i5, i3, i4
-                });
+                triangles[trianglesIndex] = i0;
+                triangles[trianglesIndex + 1] = i3;
+                triangles[trianglesIndex + 2] = i5;
+                triangles[trianglesIndex + 3] = i3;
+                triangles[trianglesIndex + 4] = i1;
+                triangles[trianglesIndex + 5] = i4;
+                triangles[trianglesIndex + 6] = i5;
+                triangles[trianglesIndex + 7] = i4;
+                triangles[trianglesIndex + 8] = i2;
+                triangles[trianglesIndex + 9] = i5;
+                triangles[trianglesIndex + 10] = i3;
+                triangles[trianglesIndex + 11] = i4;
+
+                trianglesIndex += 12;
             }
             mesh.vertices = vertices.Keys.ToArray();
-            mesh.triangles = triangles.ToArray();
+            mesh.triangles = triangles;
         }
 
         private Vector3 Subdivide(Vector3 vecA, Vector3 vecB)
@@ -67,7 +79,7 @@ namespace SBaier.Master
         private void AddIfNew(ref Dictionary<Vector3, int> vertices, Vector3 vertex)
 		{
             if (!vertices.ContainsKey(vertex))
-                vertices.Add(vertex, vertices.Count);
+                vertices[vertex] = vertices.Count;
         }
     }
 }
