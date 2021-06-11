@@ -10,6 +10,7 @@ namespace SBaier.Master
         Perlin = 1,
         Billow = 2,
         Ridged = 4,
-        Octave = 8
+        Layered = 8,
+        Octave = 16,
     }
 }

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: TestThreeLayeredNoiseSettings
+  m_EditorClassIdentifier: 
+  _octaves:
+  - {fileID: 11400000, guid: 02c6bb77eae1dfd4fb7a24dbe86eb327, type: 2}
+  - {fileID: 11400000, guid: c9ec24f78bf3224498c47083778f22fc, type: 2}
+  - {fileID: 11400000, guid: 87eccb7a8f4a0dc40bfd5b58cc333cbf, type: 2}

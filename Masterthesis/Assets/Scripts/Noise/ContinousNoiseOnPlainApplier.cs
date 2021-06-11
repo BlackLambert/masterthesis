@@ -44,7 +44,7 @@ namespace SBaier.Master
         protected virtual void Update()
 		{
             ApplyNoise();
-            _currentStartPositionDelta += _startPositionDelta;
+            _currentStartPositionDelta += _startPositionDelta * Time.deltaTime;
         }
 
 		private void CreateNoise()

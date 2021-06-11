@@ -1,36 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+
+
+using System;
 
 namespace SBaier.Master
 {
 	public class OctaveNoise : Noise3D
 	{
-		public OctaveNoise(List<Octave> octaves)
-		{
-			_octaves = octaves;
-		}
-
-		private List<Octave> _octaves;
-		public List<Octave> OctavesCopy => new List<Octave>(_octaves);
+		public int OctavesCount { get; }
+		public Noise3D BaseNoise { get; }
+		public double StartFrequency { get; }
+		public double StartWeight { get; }
 
 		public NoiseType NoiseType => NoiseType.Octave;
+
+
+		public OctaveNoise(Arguments args)
+		{
+			OctavesCount = args.OctavesCount;
+			BaseNoise = args.BaseNoise;
+			StartFrequency = args.StartFrequency;
+			StartWeight = args.StartWeight;
+		}
 
 		public double Evaluate(double x, double y, double z)
 		{
 			double result = 0;
-			foreach (Octave octave in _octaves)
+			for (int i = 0; i < OctavesCount; i++)
 			{
-				double ff = octave.FrequencyFactor;
-				double evaluatedValue = octave.Noise.Evaluate(x * ff, y * ff, z * ff) - 0.5;
-				result += evaluatedValue * octave.Amplitude;
+				double factor = Math.Pow(2, i);
+				double ff = StartFrequency * factor;
+				double weight = StartWeight / factor;
+				result += (BaseNoise.Evaluate(x * ff, y * ff, z * ff) - 0.5f) * weight;
 			}
-			return Clamp01(result + 0.5);
-		}
-
-		private double Clamp01(double result)
-		{
-			return (result > 1) ? 1 : (result < 0) ? 0 : result;
+			return Clamp01(result + 0.5f);
 		}
 
 		public double Evaluate(double x, double y)
@@ -38,20 +40,40 @@ namespace SBaier.Master
 			return Evaluate(x, y, 0);
 		}
 
-		public class Octave
+		private double Clamp01(double result)
 		{
-			public Noise3D Noise { get; }
-			public double Amplitude { get; }
-			public double FrequencyFactor { get; }
+			return (result > 1) ? 1 : (result < 0) ? 0 : result;
+		}
 
-			public Octave(
-				Noise3D noise,
-				double amplitude,
-				double frequencyFactor)
+		public class Arguments
+		{
+			public int OctavesCount { get; }
+			public Noise3D BaseNoise { get; }
+			public double StartFrequency { get; }
+			public double StartWeight { get; }
+
+
+			public Arguments(int octavesCount, Noise3D baseNoise, double startFrequency, double startWeight)
 			{
-				Noise = noise;
-				Amplitude = amplitude;
-				FrequencyFactor = frequencyFactor;
+				CheckStartWeightOutOfRange(startWeight);
+				CheckStartFrequencyOutOfRange(startFrequency);
+
+				OctavesCount = octavesCount;
+				BaseNoise = baseNoise;
+				StartFrequency = startFrequency;
+				StartWeight = startWeight;
+			}
+
+			private void CheckStartWeightOutOfRange(double startWeight)
+			{
+				if (startWeight > 1 || startWeight < 0)
+					throw new ArgumentOutOfRangeException();
+			}
+
+			private void CheckStartFrequencyOutOfRange(double startFrequency)
+			{
+				if (startFrequency < 1)
+					throw new ArgumentOutOfRangeException();
 			}
 		}
 	}

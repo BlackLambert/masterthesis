@@ -2,14 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace SBaier.Master
 {
 	/// <summary>
 	/// Deviation of Ken Perlins algorithm introduced in 2002.
+	/// Optimized by the implementation of Stefan Gustavson 2005.
 	/// </summary>
-    public class PerlinNoise : Noise3D, Seedbased
+	public class PerlinNoise : Noise3D, Seedbased
 	{
+		private static int[][] _grad3 = new int[][] 
+		{
+			new int[] {1,1,0},
+			new int[] {-1,1,0},
+			new int[] {1,-1,0},
+			new int[] {-1,-1,0},
+			new int[] {1,0,1},
+			new int[] {-1,0,1},
+			new int[] {1,0,-1},
+			new int[] {-1,0,-1},
+			new int[] {0,1,1},
+			new int[] {0,-1,1},
+			new int[] {0,1,-1},
+			new int[] {0,-1,-1}
+		};
+
 		private const int _permutationCount = 256;
 		private const int _doublePermutationCount = _permutationCount * 2;
 
@@ -33,30 +51,60 @@ namespace SBaier.Master
 
 		public double Evaluate(double x, double y, double z)
 		{
-			int X = (int)Math.Floor(x) & 255, // FIND UNIT CUBE THAT
-				Y = (int)Math.Floor(y) & 255, // CONTAINS POINT.
-				Z = (int)Math.Floor(z) & 255;
+			int flooredX = Floor(x);
+			int flooredY = Floor(y);
+			int flooredZ = Floor(z);
 
-			x -= Math.Floor(x); // FIND RELATIVE X,Y,Z
-			y -= Math.Floor(y); // OF POINT IN CUBE.
-			z -= Math.Floor(z);
+			// Find unit grid cell containing point
+			// Wrap the integer cells at 255 (smaller integer period can be introduced here)
+			int X = flooredX & 255;
+			int Y = flooredY & 255;
+			int Z = flooredZ & 255;
 
-			double u = Fade(x), // COMPUTE FADE CURVES
-				   v = Fade(y), // FOR EACH OF X,Y,Z.
-				   w = Fade(z);
+			// Get relative xyz coordinates of point within that cell
+			x -= flooredX;
+			y -= flooredY;
+			z -= flooredZ;
 
-			int A = _p[X] + Y, AA = _p[A] + Z, AB = _p[A + 1] + Z, // HASH COORDINATES OF
-				B = _p[X + 1] + Y, BA = _p[B] + Z, BB = _p[B + 1] + Z; // THE 8 CUBE CORNERS,
+			// Calculate a set of eight hashed gradient indices
+			int gi000 = _p[X + _p[Y + _p[Z]]] % 12;
+			int gi001 = _p[X + _p[Y + _p[Z + 1]]] % 12;
+			int gi010 = _p[X + _p[Y + 1 + _p[Z]]] % 12;
+			int gi011 = _p[X + _p[Y + 1 + _p[Z + 1]]] % 12;
+			int gi100 = _p[X + 1 + _p[Y + _p[Z]]] % 12;
+			int gi101 = _p[X + 1 + _p[Y + _p[Z + 1]]] % 12;
+			int gi110 = _p[X + 1 + _p[Y + 1 + _p[Z]]] % 12;
+			int gi111 = _p[X + 1 + _p[Y + 1 + _p[Z + 1]]] % 12;
 
-			double value = Lerp(w, Lerp(v, Lerp(u, Grad(_p[AA], x, y, z),  // AND ADD
-										   Grad(_p[BA], x - 1, y, z)), // BLENDED
-								   Lerp(u, Grad(_p[AB], x, y - 1, z),  // RESULTS
-										   Grad(_p[BB], x - 1, y - 1, z))),// FROM  8
-						   Lerp(v, Lerp(u, Grad(_p[AA + 1], x, y, z - 1),  // CORNERS
-										   Grad(_p[BA + 1], x - 1, y, z - 1)), // OF CUBE
-								   Lerp(u, Grad(_p[AB + 1], x, y - 1, z - 1),
-										   Grad(_p[BB + 1], x - 1, y - 1, z - 1))));
-			return (value + 1) / 2;
+			// Calculate noise contributions from each of the eight corners
+			double n000 = Dot(_grad3[gi000], x, y, z);
+			double n100 = Dot(_grad3[gi100], x - 1, y, z);
+			double n010 = Dot(_grad3[gi010], x, y - 1, z);
+			double n110 = Dot(_grad3[gi110], x - 1, y - 1, z);
+			double n001 = Dot(_grad3[gi001], x, y, z - 1);
+			double n101 = Dot(_grad3[gi101], x - 1, y, z - 1);
+			double n011 = Dot(_grad3[gi011], x, y - 1, z - 1);
+			double n111 = Dot(_grad3[gi111], x - 1, y - 1, z - 1);
+
+			// Compute the fade curve value for each of x, y, z
+			double u = Fade(x);
+			double v = Fade(y);
+			double w = Fade(z);
+
+			// Interpolate along x the contributions from each of the corners
+			double nx00 = Lerp(n000, n100, u);
+			double nx01 = Lerp(n001, n101, u);
+			double nx10 = Lerp(n010, n110, u);
+			double nx11 = Lerp(n011, n111, u);
+
+			// Interpolate the four results along y
+			double nxy0 = Lerp(nx00, nx10, v);
+			double nxy1 = Lerp(nx01, nx11, v);
+
+			// Interpolate the two last results along z
+			double nxyz = Lerp(nxy0, nxy1, w);
+
+			return (nxyz + 1) / 2;
 		}
 
 
@@ -74,22 +122,29 @@ namespace SBaier.Master
 				_p[_permutationCount + i] = _p[i] = permutation[i];
 		}
 
-		private double Fade(double t)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static double Fade(double t)
 		{
 			return t * t * t * (t * (t * 6 - 15) + 10);
 		}
 
-		private double Lerp(double t, double min, double max)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static double Lerp(double min, double max, double t)
 		{
 			return min + t * (max - min);
 		}
 
-		private double Grad(int hash, double x, double y, double z)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static int Floor(double value)
 		{
-			int h = hash & 15; // CONVERT LO 4 BITS OF HASH CODE
-			double u = h < 8 ? x : y, // INTO 12 GradIENT DIRECTIONS.
-				   v = h < 4 ? y : h == 12 || h == 14 ? x : z;
-			return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+			int xi = (int)value;
+			return value < xi ? xi - 1 : xi;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static double Dot(int[] gradient, double x, double y, double z)
+		{
+			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
 		}
 	}
 }

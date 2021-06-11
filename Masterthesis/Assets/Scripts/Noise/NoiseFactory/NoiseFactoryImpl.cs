@@ -38,6 +38,8 @@ namespace SBaier.Master
 					return CreateBillowNoise((BillowNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Ridged:
 					return CreateRidgedNoise((RidgedNoiseSettings)settings, baseSeed, recursionDepth + 1);
+				case NoiseType.Layered:
+					return CreateLayeredNoise((LayeredNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Octave:
 					return CreateOctaveNoise((OctaveNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				default:
@@ -62,18 +64,24 @@ namespace SBaier.Master
 			return new RidgedNoise(baseNoise);
 		}
 
-		private OctaveNoise CreateOctaveNoise(OctaveNoiseSettings settings, Seed baseSeed, int recursionDepth)
+		private LayeredNoise CreateLayeredNoise(LayeredNoiseSettings settings, Seed baseSeed, int recursionDepth)
 		{
-			if (settings.Octaves.Count == 0)
+			if (settings.Layers.Count == 0)
 				throw new ArgumentException();
 				
-			List<OctaveNoise.Octave> octaves = new List<OctaveNoise.Octave>();
-			foreach (OctaveSettings octaveSetting in settings.Octaves)
+			List<LayeredNoise.NoiseLayer> layers = new List<LayeredNoise.NoiseLayer>();
+			foreach (NoiseLayerSettings layerSetting in settings.Layers)
 			{
-				Noise3D noise = Create(octaveSetting.NoiseSettings, baseSeed, recursionDepth + 1);
-				octaves.Add(new OctaveNoise.Octave(noise, octaveSetting.Amplitude, octaveSetting.FrequencyFactor));
+				Noise3D noise = Create(layerSetting.NoiseSettings, baseSeed, recursionDepth + 1);
+				layers.Add(new LayeredNoise.NoiseLayer(noise, layerSetting.Amplitude, layerSetting.FrequencyFactor));
 			}
-			return new OctaveNoise(octaves);
+			return new LayeredNoise(layers);
+		}
+
+		private OctaveNoise CreateOctaveNoise(OctaveNoiseSettings settings, Seed baseSeed, int recursionDepth)
+		{
+			Noise3D baseNoise = Create(settings.BaseNoise, baseSeed, recursionDepth + 1);
+			return new OctaveNoise(new OctaveNoise.Arguments(settings.OctavesCount, baseNoise, settings.StartFrequency, settings.StartWeight));
 		}
 
 		private Seed CreateSeedBasedOn(Seed seed)

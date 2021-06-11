@@ -445,7 +445,15 @@ PrefabInstance:
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: a600fedaa0e2c68419af4957fd31bace, type: 2}
+      objectReference: {fileID: 11400000, guid: ce3ae07842ba0984088e3a41c12794c3, type: 2}
+    - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: _startPositionDelta.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: _startPositionDelta.z
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 7041713397089841668, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: m_RootOrder
       value: 3

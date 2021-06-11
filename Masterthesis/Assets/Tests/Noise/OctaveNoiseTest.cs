@@ -1,99 +1,163 @@
 using Zenject;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Moq;
 using UnityEngine;
 
 namespace SBaier.Master.Test
 {
-	[TestFixture]
-	public class OctaveNoiseTest : NoiseTest
-	{
-		private const int _randomSeed = 43623;
-		private readonly Vector3 _testEvaluationPoint = new Vector3(3.2f, 5.8f, -1.7f);
+    [TestFixture]
+    public class OctaveNoiseTest : NoiseTest
+    {
+		private const int _octavesCount = 3;
+		private const double _startFrequency = 4;
+		private readonly Vector2 _startWeightRange = new Vector2(0, 1); 
+		private const double _startWeight = 0.5;
+		private const double _startWeightSmallerRange = -0.23;
+		private const double _startWeightLargerRange = 1.12;
+		private const double _startFrequencySmallerOne = -1.3;
+		private const int _testSeed = 1234;
+		private const double _doubleDelta = 0.001;
+		private readonly Vector3 _testValue = new Vector3(2.1f, 4.7f, -2.4f);
+		private OctaveNoise _noise;
+		private Noise3D _baseNoise;
 
 		protected override NoiseType ExpectedNoiseType => NoiseType.Octave;
 
-		[Test]
-		public void OctavesReturnsProvidedValues()
+		[Test(Description = "The OctavesCount property returns value put into the constructor")]
+        public void OctavesCount_ReturnsExpectedValue()
+        {
+			GivenANew3DNoise();
+			ThenOctavesCountReturns(_octavesCount);
+        }
+
+		[Test(Description = "The BaseNoise property returns value put into the constructor")]
+		public void BaseNoise_ReturnsExpectedValue()
 		{
 			GivenANew3DNoise();
-			ThenOctavesReturnsProvidedValues();
+			ThenBaseNoiseReturns(_baseNoise);
 		}
 
-		[Test]
-		public void EvaluateReturnsOctavedValue()
+		[Test(Description = "The StartFrequency property returns value put into the constructor")]
+		public void StartFrequency_ReturnsExpectedValue()
 		{
 			GivenANew3DNoise();
-			ThenEvaluateReturnsOctavedValue();
+			ThenStartFrequencyReturns(_startFrequency);
 		}
 
-		[Test (Description = "The OctabesCopy property returns a copy of the octave list provided as argument to the constructor.")]
-		public void OctavesCopyReturnsExpectedValue()
+		[Test(Description = "The StartWeight property returns value put into the constructor")]
+		public void StartWeight_ReturnsExpectedValue()
 		{
 			GivenANew3DNoise();
-			ThenOctavesCopyReturnsCopyOfProvidedOctaves();
+			ThenStartWeightReturns(_startWeight);
+		}
+
+		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Weight is out of range.")]
+		public void ThrowsExceptionOnStartWeightOutOfRange()
+		{
+			TestDelegate test = () => CreateTestArgsWithStartWeightSmallerThanRange();
+			ThenThrowsArgumentOutOfRangeException(test);
+			test = () => CreateTestArgsWithStartWeightLargerThanRange();
+			ThenThrowsArgumentOutOfRangeException(test);
+		}
+
+		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Frequency is smaller than 1.")]
+		public void ThrowsExceptionOnStartFrequencyOutOfRange()
+		{
+			TestDelegate test = () => CreateTestArgsWithStartFrequencySmallerThanOne();
+			ThenThrowsArgumentOutOfRangeException(test);
+		}
+
+		[Test(Description = "The evaluated values are as expected")]
+		public void Evaluate_ReturnsExpectedValue()
+		{
+			GivenANew3DNoise();
+			ThenTheTestValueEvaluatesToExpectedValue();
 		}
 
 		protected override void GivenANew3DNoise()
 		{
-			Container.Bind<List<OctaveNoise.Octave>>().FromMethod(CreateValidOctaves).AsSingle();
-			Container.Bind(typeof(Noise3D), typeof(OctaveNoise)).To<OctaveNoise>().AsTransient();
+			GivenAnOctaveNoise(CreateValidArgs());
 		}
 
-		private void ThenOctavesReturnsProvidedValues()
+		private void GivenAnOctaveNoise(OctaveNoise.Arguments args)
 		{
-			List<OctaveNoise.Octave> octaves = Container.Resolve<List<OctaveNoise.Octave>>();
-			OctaveNoise noise = Container.Resolve<OctaveNoise>();
-			Assert.True(Enumerable.SequenceEqual(octaves, noise.OctavesCopy));
+			Container.Bind(typeof(Noise3D), typeof(OctaveNoise)).To<OctaveNoise>().AsTransient().WithArguments(args);
+			_noise = Container.Resolve<OctaveNoise>();
 		}
 
-		private void ThenEvaluateReturnsOctavedValue()
+		private void ThenOctavesCountReturns(int octaves)
 		{
-			List<OctaveNoise.Octave> octaves = Container.Resolve<List<OctaveNoise.Octave>>();
-			OctaveNoise noise = Container.Resolve<OctaveNoise>();
-			List<OctaveNoise.Octave> noiseOctaves = noise.OctavesCopy;
-			Assert.AreEqual(octaves, noiseOctaves);
-			double sum = octaves.Sum(OctaveNoiseSum);
-			double expected = Clamp01(sum + 0.5);
-			double actual = noise.Evaluate(_testEvaluationPoint.x, _testEvaluationPoint.y, _testEvaluationPoint.z);
+			Assert.AreEqual(octaves, _noise.OctavesCount);
+		}
+
+		private void ThenBaseNoiseReturns(Noise3D baseNoise)
+		{
+			Assert.AreEqual(baseNoise, _noise.BaseNoise);
+		}
+
+		private void ThenStartFrequencyReturns(double startFrequency)
+		{
+			Assert.AreEqual(startFrequency, _noise.StartFrequency);
+		}
+
+		private void ThenStartWeightReturns(double startWeight)
+		{
+			Assert.AreEqual(startWeight, _noise.StartWeight);
+		}
+
+		private void ThenThrowsArgumentOutOfRangeException(TestDelegate test)
+		{
+			Assert.Throws<ArgumentOutOfRangeException>(test);
+		}
+
+		private void ThenTheTestValueEvaluatesToExpectedValue()
+		{
+			double actual = _noise.Evaluate(_testValue.x, _testValue.y, _testValue.z);
+			double expected = CreateExpected(_testValue);
 			Assert.AreEqual(expected, actual);
 		}
 
-		private double OctaveNoiseSum(OctaveNoise.Octave octave)
+		private Noise3D CreateBaseNoise()
 		{
-			double ff = octave.FrequencyFactor;
-			double evaluatedValue = octave.Noise.Evaluate(_testEvaluationPoint.x * ff, _testEvaluationPoint.y * ff, _testEvaluationPoint.z * ff) - 0.5;
-			return evaluatedValue * octave.Amplitude;
+			return new PerlinNoise(new Seed(_testSeed));
 		}
 
-		private void ThenOctavesCopyReturnsCopyOfProvidedOctaves()
+		private OctaveNoise.Arguments CreateValidArgs()
 		{
-			List<OctaveNoise.Octave> octaves = Container.Resolve<List<OctaveNoise.Octave>>();
-			OctaveNoise noise = Container.Resolve<OctaveNoise>();
-			List<OctaveNoise.Octave> octavesCopy = noise.OctavesCopy;
-			Assert.AreEqual(octaves, octavesCopy);
-			Assert.AreNotSame(octaves, octavesCopy);
+			_baseNoise = CreateBaseNoise();
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeight);
 		}
 
-		private List<OctaveNoise.Octave> CreateValidOctaves()
+		private OctaveNoise.Arguments CreateTestArgsWithStartWeightSmallerThanRange()
 		{
-			return new List<OctaveNoise.Octave>()
+			_baseNoise = CreateBaseNoise();
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.x - _doubleDelta);
+		}
+
+		private OctaveNoise.Arguments CreateTestArgsWithStartWeightLargerThanRange()
+		{
+			_baseNoise = CreateBaseNoise();
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.y + _doubleDelta);
+		}
+
+		private OctaveNoise.Arguments CreateTestArgsWithStartFrequencySmallerThanOne()
+		{
+			_baseNoise = CreateBaseNoise();
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequencySmallerOne, 1 - _doubleDelta);
+		}
+
+		private double CreateExpected(Vector3 testValue)
+		{
+			double result = 0;
+			for(int i = 0; i < _octavesCount; i++)
 			{
-				new OctaveNoise.Octave(CreateNoise(), 1, 1),
-				new OctaveNoise.Octave(CreateNoise(), 0.75f, 0.5f),
-				new OctaveNoise.Octave(CreateNoise(), 0.5f, 0.25f),
-				new OctaveNoise.Octave(CreateNoise(), 0.25f, 0.1f)
-			};
-		}
-
-		private Noise3D CreateNoise()
-		{
-			Seed seed = new Seed(_randomSeed);
-			PerlinNoise noise = new PerlinNoise(seed);
-			return noise;
+				double factor = Math.Pow(2, i);
+				double ff = _startFrequency * factor;
+				double weight = _startWeight / factor;
+				result += (_baseNoise.Evaluate(testValue.x * ff, testValue.y * ff, testValue.z * ff) - 0.5f) * weight;
+			}
+			return Clamp01(result + 0.5f);
 		}
 
 		private double Clamp01(double result)

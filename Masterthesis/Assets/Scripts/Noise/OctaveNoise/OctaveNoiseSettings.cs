@@ -8,8 +8,17 @@ namespace SBaier.Master
 	public class OctaveNoiseSettings : NoiseSettings
 	{
 		[SerializeField]
-		private List<OctaveSettings> _octaves = new List<OctaveSettings>();
-		public List<OctaveSettings> Octaves => _octaves;
+		private int _octavesCount = 3;
+		public int OctavesCount => _octavesCount;
+		[SerializeField]
+		private NoiseSettings _baseNoise;
+		public NoiseSettings BaseNoise => _baseNoise;
+		[SerializeField]
+		private double _startFrequency = 1;
+		public double StartFrequency => _startFrequency;
+		[SerializeField]
+		private double _startWeight = 1;
+		public double StartWeight => _startWeight;
 
 		public override NoiseType GetNoiseType()
 		{

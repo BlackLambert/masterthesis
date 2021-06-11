@@ -14,8 +14,9 @@ namespace SBaier.Master.Test
 		private const string _perlinBasedBillowNoiseSettingsPath = "Noise/TestPerlinBillowNoiseSettings";
         private const string _perlinBasedRidgedNoiseSettingsPath = "Noise/TestPerlinRidgedNoiseSettings";
         private const string _loopedNoiseSettingsPath = "Noise/TestLoopedBillowNoiseSettings";
-        private const string _threeOctavedNoiseSettingsPath = "Noise/TestThreeOctavedNoiseSettings";
-        private const string _emptyOctavedNoiseSettingsPath = "Noise/TestEmptyOctavedNoiseSettings";
+        private const string _threeOctavedNoiseSettingsPath = "Noise/TestThreeLayeredNoiseSettings";
+        private const string _emptyOctavedNoiseSettingsPath = "Noise/TestEmptyLayeredNoiseSettings";
+        private const string _octaveNoiseSettingsPath = "Noise/TestOctaveNoiseSettings";
         private Noise3D _noise;
 
 		[Test]
@@ -85,39 +86,55 @@ namespace SBaier.Master.Test
         }
 
         [Test(Description = "The Create method creates an OctaveNoise if provided with an OctaveNoiseSetting.")]
-        public void CreatesOctaveNoiseOnOctaveNoiseSettings()
+        public void CreatesLayerNoiseOnLayerNoiseSettings()
 		{
             GivenANewNoiseFactory();
-            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_threeOctavedNoiseSettingsPath);
-            WhenCreateIsCalledWithOctavedNoiseSettings(settings);
-            ThenAnOctaveNoiseIsCreated();
+            LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithLayerNoiseSettings(settings);
+            ThenAnLayerNoiseIsCreated();
         }
 
         [Test(Description = "A created OctaveNoise has as many Octaves as provided by the OctaveNoiseSettings")]
-        public void ACreatedOctaveNoiseHasExpectedOctaveCount()
+        public void ACreatedLayerNoiseHasExpectedOctaveCount()
 		{
             GivenANewNoiseFactory();
-            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_threeOctavedNoiseSettingsPath);
-            WhenCreateIsCalledWithOctavedNoiseSettings(settings);
-            ThenTheOctaveNoiseHasExpectedOctaveCount(settings);
+            LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithLayerNoiseSettings(settings);
+            ThenTheLayerNoiseHasExpectedLayersCount(settings);
         }
 
         [Test(Description = "The Octaves of a created OctaveNoise have the expected values based on the provided OctaveNoiseSettings")]
-        public void OctavesOfCreatedOctaveNoiseHaveExpectedValues()
+        public void LayersOfCreatedLayerNoiseHaveExpectedValues()
         {
             GivenANewNoiseFactory();
-            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_threeOctavedNoiseSettingsPath);
-            WhenCreateIsCalledWithOctavedNoiseSettings(settings);
-            ThenTheOctavesHaveValuesBasedOn(settings);
+            LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithLayerNoiseSettings(settings);
+            ThenTheLayersHaveValuesBasedOn(settings);
         }
 
         [Test(Description = "Creation of an octave noise throws an ArgumentException if the provided octave settings have no octaves.")]
-        public void EmptyOctavesCauseException()
+        public void EmptyLayersCauseException()
 		{
             GivenANewNoiseFactory();
-            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_emptyOctavedNoiseSettingsPath);
-            TestDelegate test = () => WhenCreateIsCalledWithOctavedNoiseSettings(settings);
+            LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_emptyOctavedNoiseSettingsPath);
+            TestDelegate test = () => WhenCreateIsCalledWithLayerNoiseSettings(settings);
             ThenAnArgumentExceptionIsThrown(test);
+        }
+
+        [Test(Description = "The Create method creates an OctaveNoise if provided with an OctaveNoiseSetting.")]
+        public void CreatesOctaveNoiseOnOctaveNoiseSettings()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithOctavedNoiseSettings();
+            ThenAnOctaveNoiseIsCreated();
+        }
+
+        [Test(Description = "The Create method creates an OctaveNoise with all values provided by the Arguments.")]
+        public void CreatesOctaveNoiseWithExpectedValues()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithOctavedNoiseSettings();
+            ThenAnOctaveNoiseWithExpectedValuesIsCreated();
         }
 
 		private void GivenANewNoiseFactory()
@@ -160,8 +177,15 @@ namespace SBaier.Master.Test
             factory.RecursionDepthLimit = -1;
         }
 
-        private void WhenCreateIsCalledWithOctavedNoiseSettings(OctaveNoiseSettings settings)
+        private void WhenCreateIsCalledWithLayerNoiseSettings(LayeredNoiseSettings settings)
         {
+            CreateNoise(settings);
+        }
+
+
+        private void WhenCreateIsCalledWithOctavedNoiseSettings()
+        {
+            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_octaveNoiseSettingsPath);
             CreateNoise(settings);
         }
 
@@ -204,25 +228,25 @@ namespace SBaier.Master.Test
             Assert.Throws<ArgumentOutOfRangeException>(test);
         }
 
-        private void ThenAnOctaveNoiseIsCreated()
+        private void ThenAnLayerNoiseIsCreated()
         {
-            Assert.True(_noise is OctaveNoise);
+            Assert.True(_noise is LayeredNoise);
         }
 
-        private void ThenTheOctaveNoiseHasExpectedOctaveCount(OctaveNoiseSettings settings)
+        private void ThenTheLayerNoiseHasExpectedLayersCount(LayeredNoiseSettings settings)
         {
-            OctaveNoise octaveNoise = (OctaveNoise)_noise;
-            Assert.AreEqual(settings.Octaves.Count, octaveNoise.OctavesCopy.Count);
+            LayeredNoise octaveNoise = (LayeredNoise)_noise;
+            Assert.AreEqual(settings.Layers.Count, octaveNoise.OctavesCopy.Count);
         }
 
-        private void ThenTheOctavesHaveValuesBasedOn(OctaveNoiseSettings settings)
+        private void ThenTheLayersHaveValuesBasedOn(LayeredNoiseSettings settings)
         {
-            OctaveNoise octaveNoise = (OctaveNoise)_noise;
-            List<OctaveNoise.Octave> octaves = octaveNoise.OctavesCopy;
-            for (int i = 0; i < settings.Octaves.Count; i++)
+            LayeredNoise octaveNoise = (LayeredNoise)_noise;
+            List<LayeredNoise.NoiseLayer> octaves = octaveNoise.OctavesCopy;
+            for (int i = 0; i < settings.Layers.Count; i++)
 			{
-                OctaveSettings octaveSetting = settings.Octaves[i];
-                OctaveNoise.Octave octave = octaves[i];
+                NoiseLayerSettings octaveSetting = settings.Layers[i];
+                LayeredNoise.NoiseLayer octave = octaves[i];
                 Assert.AreEqual(octaveSetting.Amplitude, octave.Amplitude);
                 Assert.AreEqual(octaveSetting.FrequencyFactor, octave.FrequencyFactor);
                 Assert.AreEqual(octaveSetting.NoiseSettings.GetNoiseType(), octave.Noise.NoiseType);
@@ -232,6 +256,21 @@ namespace SBaier.Master.Test
         private void ThenAnArgumentExceptionIsThrown(TestDelegate test)
         {
             Assert.Throws<ArgumentException>(test);
+        }
+
+        private void ThenAnOctaveNoiseIsCreated()
+        {
+            Assert.True(_noise is OctaveNoise);
+        }
+
+        private void ThenAnOctaveNoiseWithExpectedValuesIsCreated()
+        {
+            OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_octaveNoiseSettingsPath);
+            OctaveNoise noise = (OctaveNoise)_noise;
+            Assert.AreEqual(settings.StartFrequency, noise.StartFrequency);
+            Assert.AreEqual(settings.StartWeight, noise.StartWeight);
+            Assert.AreEqual(settings.BaseNoise.GetNoiseType(), noise.BaseNoise.NoiseType);
+            Assert.AreEqual(settings.OctavesCount, noise.OctavesCount);
         }
 
         private void CreateNoise(NoiseSettings settings)

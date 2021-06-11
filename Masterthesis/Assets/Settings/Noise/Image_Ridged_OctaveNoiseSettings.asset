@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Image_Ridged_OctaveNoiseSettings
   m_EditorClassIdentifier: 
   _octaves:
-  - {fileID: 11400000, guid: dd89293c075798a48aa39d5d16e8df1f, type: 2}
-  - {fileID: 11400000, guid: 9bf0c254f7b23f243948756bdb4c30ad, type: 2}
-  - {fileID: 11400000, guid: f380460de1ec2734db81d2eff14f342e, type: 2}
-  - {fileID: 11400000, guid: f7e4be1aea4d6874c982dbaad3679ce3, type: 2}
-  - {fileID: 11400000, guid: 50ae80652dd58ef4194fd2c0263e1cfb, type: 2}
+  - {fileID: 11400000, guid: fb1fd237522ab5e44ad3714db5da27c9, type: 2}
+  - {fileID: 11400000, guid: 9c718f2da4eec594d9c739fb12ad621a, type: 2}
+  - {fileID: 11400000, guid: 6872068c13f0744418a2c33a1b39c5bf, type: 2}
+  - {fileID: 11400000, guid: 9fc930a28207c704e9bda01ef18fdd68, type: 2}
+  - {fileID: 11400000, guid: 7070edb9e38a04f47adc8fb846794032, type: 2}
