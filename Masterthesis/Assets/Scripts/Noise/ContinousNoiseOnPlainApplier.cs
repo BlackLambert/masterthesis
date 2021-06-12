@@ -20,12 +20,16 @@ namespace SBaier.Master
         private Vector3 _startPositionDelta = new Vector3(0.02f, 0, 0.03f);
         [SerializeField]
         private Vector3 _startPosition = Vector3.zero;
+        [SerializeField]
+        private bool _cacheVertices = true;
 
         private NoiseFactory _noiseFactory;
         private Seed _seed;
 
         private Noise3D _noise;
         private Vector3 _currentStartPositionDelta;
+        private Vector3[] _newVertices;
+        private Vector3[] _formerVertices;
 
         [Inject]
         private void Construct(NoiseFactory noiseFactory,
@@ -39,6 +43,8 @@ namespace SBaier.Master
 		{
             CreateNoise();
             _currentStartPositionDelta = _startPosition;
+            if (_cacheVertices)
+                _formerVertices = _meshFilter.sharedMesh.vertices;
         }
 
         protected virtual void Update()
@@ -55,18 +61,21 @@ namespace SBaier.Master
         private void ApplyNoise()
         {
             Mesh mesh = _meshFilter.sharedMesh;
-            Vector3[] newVertices = new Vector3[mesh.vertices.Length];
-            Vector3[] formerVertices = mesh.vertices;
+            if(_newVertices == null || _newVertices.Length != mesh.vertexCount)
+                _newVertices = new Vector3[mesh.vertexCount];
+            _formerVertices = _cacheVertices && _formerVertices.Length == mesh.vertexCount ? _formerVertices : mesh.vertices;
 
-            for(int i = 0; i< newVertices.Length; i++)
+            for(int i = 0; i< _newVertices.Length; i++)
 			{
-                Vector3 former = formerVertices[i];
+                Vector3 former = _formerVertices[i];
                 Vector3 evaluationVector = former + _currentStartPositionDelta;
                 float noiseValue = (float) _noise.Evaluate(evaluationVector.x * _noiseFactor, evaluationVector.z * _noiseFactor);
-                newVertices[i] = new Vector3(former.x, noiseValue * _maxHeight, former.z);
+                _newVertices[i] = new Vector3(former.x, noiseValue * _maxHeight, former.z);
             }
 
-            mesh.vertices = newVertices;
+            mesh.vertices = _newVertices;
+            if (_cacheVertices)
+                _formerVertices = _newVertices;
         }
     }
 }
