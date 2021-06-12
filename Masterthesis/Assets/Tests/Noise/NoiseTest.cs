@@ -38,13 +38,6 @@ namespace SBaier.Master.Test
 		}
 
 		[Test]
-		public void Evaluate2DHasExpectedValues()
-		{
-			GivenANew3DNoise();
-			ThenTheEvaluated2DValuesEqualTheEvalueded3DValuesWithZSetToZero();
-		}
-
-		[Test]
 		public void NoiseTypeReturnsExpectedValue()
 		{
 			GivenANew3DNoise();
@@ -91,18 +84,6 @@ namespace SBaier.Master.Test
 				_testEvaluationPoint.y,
 				_testEvaluationPoint.z);
 			Assert.AreEqual(evaluatedValueOne, evaluatedValueTwo);
-		}
-		private void ThenTheEvaluated2DValuesEqualTheEvalueded3DValuesWithZSetToZero()
-		{
-			Noise3D noise = Container.Resolve<Noise3D>();
-			double evaluated2DValue = noise.Evaluate(
-				_testEvaluationPoint.x,
-				_testEvaluationPoint.y);
-			double evaluated3DValue = noise.Evaluate(
-				_testEvaluationPoint.x,
-				_testEvaluationPoint.y,
-				0);
-			Assert.AreEqual(evaluated3DValue, evaluated2DValue);
 		}
 
 		private void TestRandomSampleWithinRange(Noise3D noise, System.Random random)

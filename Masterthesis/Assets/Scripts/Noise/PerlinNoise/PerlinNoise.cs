@@ -8,31 +8,32 @@ namespace SBaier.Master
 {
 	/// <summary>
 	/// Deviation of Ken Perlins algorithm introduced in 2002.
-	/// Optimized by the implementation of Stefan Gustavson 2005.
+	/// Optimized by the implementation of Stefan Gustavson and Peter Eastman 2005/2012.
+	/// Quelle: https://weber.itn.liu.se/~stegu/simplexnoise
 	/// </summary>
 	public class PerlinNoise : Noise3D, Seedbased
 	{
-		private static int[][] _grad3 = new int[][] 
+		private readonly static short[][] _grad3 = new short[][] 
 		{
-			new int[] {1,1,0},
-			new int[] {-1,1,0},
-			new int[] {1,-1,0},
-			new int[] {-1,-1,0},
-			new int[] {1,0,1},
-			new int[] {-1,0,1},
-			new int[] {1,0,-1},
-			new int[] {-1,0,-1},
-			new int[] {0,1,1},
-			new int[] {0,-1,1},
-			new int[] {0,1,-1},
-			new int[] {0,-1,-1}
+			new short[] {1,1,0},
+			new short[] {-1,1,0},
+			new short[] {1,-1,0},
+			new short[] {-1,-1,0},
+			new short[] {1,0,1},
+			new short[] {-1,0,1},
+			new short[] {1,0,-1},
+			new short[] {-1,0,-1},
+			new short[] {0,1,1},
+			new short[] {0,-1,1},
+			new short[] {0,1,-1},
+			new short[] {0,-1,-1}
 		};
 
-		private const int _permutationCount = 256;
-		private const int _doublePermutationCount = _permutationCount * 2;
+		private const short _permutationCount = 256;
+		private const short _doublePermutationCount = _permutationCount * 2;
 
-		private int[] _permutation = new int[_permutationCount];
-		private int[] _p = new int[_doublePermutationCount];
+		private readonly short[] _dP = new short[_doublePermutationCount];
+		private readonly short[] _dPMod12 = new short[_doublePermutationCount];
 
 		public Seed Seed { get; }
 
@@ -67,14 +68,14 @@ namespace SBaier.Master
 			z -= flooredZ;
 
 			// Calculate a set of eight hashed gradient indices
-			int gi000 = _p[X + _p[Y + _p[Z]]] % 12;
-			int gi001 = _p[X + _p[Y + _p[Z + 1]]] % 12;
-			int gi010 = _p[X + _p[Y + 1 + _p[Z]]] % 12;
-			int gi011 = _p[X + _p[Y + 1 + _p[Z + 1]]] % 12;
-			int gi100 = _p[X + 1 + _p[Y + _p[Z]]] % 12;
-			int gi101 = _p[X + 1 + _p[Y + _p[Z + 1]]] % 12;
-			int gi110 = _p[X + 1 + _p[Y + 1 + _p[Z]]] % 12;
-			int gi111 = _p[X + 1 + _p[Y + 1 + _p[Z + 1]]] % 12;
+			int gi000 = _dPMod12[X + _dP[Y + _dP[Z]]];
+			int gi001 = _dPMod12[X + _dP[Y + _dP[Z + 1]]];
+			int gi010 = _dPMod12[X + _dP[Y + 1 + _dP[Z]]];
+			int gi011 = _dPMod12[X + _dP[Y + 1 + _dP[Z + 1]]];
+			int gi100 = _dPMod12[X + 1 + _dP[Y + _dP[Z]]];
+			int gi101 = _dPMod12[X + 1 + _dP[Y + _dP[Z + 1]]];
+			int gi110 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z]]];
+			int gi111 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z + 1]]];
 
 			// Calculate noise contributions from each of the eight corners
 			double n000 = Dot(_grad3[gi000], x, y, z);
@@ -110,16 +111,16 @@ namespace SBaier.Master
 
 		private void InitPermutation(Seed seed)
 		{
-			int[] permutation = new int[_permutationCount];
-			for (int i = 0; i < permutation.Length; i++)
+			short[] permutation = new short[_permutationCount];
+			for (short i = 0; i < permutation.Length; i++)
 				permutation[i] = i;
 
 			permutation = permutation.OrderBy(x => seed.Random.Next()).ToArray();
-			for (int i = 0; i < permutation.Length; i++)
-				_permutation[i] = permutation[i];
-
 			for (int i = 0; i < _permutationCount; i++)
-				_p[_permutationCount + i] = _p[i] = permutation[i];
+			{
+				_dP[_permutationCount + i] = _dP[i] = permutation[i];
+				_dPMod12[_permutationCount + i] = _dPMod12[i] = (short) (permutation[i] % 12);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -142,7 +143,7 @@ namespace SBaier.Master
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static double Dot(int[] gradient, double x, double y, double z)
+		private static double Dot(short[] gradient, double x, double y, double z)
 		{
 			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
 		}

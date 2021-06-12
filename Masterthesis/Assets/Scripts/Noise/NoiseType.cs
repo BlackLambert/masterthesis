@@ -12,5 +12,6 @@ namespace SBaier.Master
         Ridged = 4,
         Layered = 8,
         Octave = 16,
+        Simplex = 32,
     }
 }

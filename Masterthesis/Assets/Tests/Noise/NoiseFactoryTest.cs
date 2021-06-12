@@ -17,6 +17,7 @@ namespace SBaier.Master.Test
         private const string _threeOctavedNoiseSettingsPath = "Noise/TestThreeLayeredNoiseSettings";
         private const string _emptyOctavedNoiseSettingsPath = "Noise/TestEmptyLayeredNoiseSettings";
         private const string _octaveNoiseSettingsPath = "Noise/TestOctaveNoiseSettings";
+        private const string _simplexNoiseSettingsPath = "Noise/TestSimplexNoiseSettings";
         private Noise3D _noise;
 
 		[Test]
@@ -137,6 +138,22 @@ namespace SBaier.Master.Test
             ThenAnOctaveNoiseWithExpectedValuesIsCreated();
         }
 
+        [Test(Description = "The Create method creates an SimplexNoise if provided with an SimplexNoiseSetting.")]
+        public void CreatesSimplexNoiseOnSimplexNoiseSettings()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithSimplexNoiseSettings();
+            ThenASimplexNoiseIsCreated();
+        }
+
+        [Test(Description = "The SimplexNoise created has a seed based on provided base seed")]
+        public void CreatedSimplexNoiseHasSeedBasedOnProvidedSeed()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithSimplexNoiseSettings();
+            ThenSimplexNoiseHasSeedBasedOnProvidedSeed((SimplexNoise)_noise);
+        }
+
 		private void GivenANewNoiseFactory()
 		{
             Container.Bind<Seed>().AsTransient().WithArguments(_seedValue);
@@ -189,6 +206,12 @@ namespace SBaier.Master.Test
             CreateNoise(settings);
         }
 
+        private void WhenCreateIsCalledWithSimplexNoiseSettings()
+        {
+            SimplexNoiseSettings settings = Resources.Load<SimplexNoiseSettings>(_simplexNoiseSettingsPath);
+            CreateNoise(settings);
+        }
+
         private void ThenAPerlinNoiseIsCreated()
         {
             Assert.True(_noise is PerlinNoise);
@@ -204,12 +227,11 @@ namespace SBaier.Master.Test
             Assert.Throws<ArgumentNullException>(test);
         }
 
-        private void ThenPerlinNoiseHasSeedBasedOnProvidedSeed(PerlinNoise _noise)
+        private void ThenPerlinNoiseHasSeedBasedOnProvidedSeed(PerlinNoise noise)
         {
-            PerlinNoise perlinNoise = (PerlinNoise)_noise;
             Seed seed = Container.Resolve<Seed>();
             int expected = seed.Random.Next();
-            int actual = perlinNoise.Seed.SeedNumber;
+            int actual = noise.Seed.SeedNumber;
             Assert.AreEqual(expected, actual);
         }
 
@@ -271,6 +293,19 @@ namespace SBaier.Master.Test
             Assert.AreEqual(settings.StartWeight, noise.StartWeight);
             Assert.AreEqual(settings.BaseNoise.GetNoiseType(), noise.BaseNoise.NoiseType);
             Assert.AreEqual(settings.OctavesCount, noise.OctavesCount);
+        }
+
+        private void ThenASimplexNoiseIsCreated()
+        {
+            Assert.True(_noise is SimplexNoise);
+        }
+
+        private void ThenSimplexNoiseHasSeedBasedOnProvidedSeed(SimplexNoise noise)
+        {
+            Seed seed = Container.Resolve<Seed>();
+            int expected = seed.Random.Next();
+            int actual = noise.Seed.SeedNumber;
+            Assert.AreEqual(expected, actual);
         }
 
         private void CreateNoise(NoiseSettings settings)

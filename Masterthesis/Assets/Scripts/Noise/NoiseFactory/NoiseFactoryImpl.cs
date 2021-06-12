@@ -42,6 +42,8 @@ namespace SBaier.Master
 					return CreateLayeredNoise((LayeredNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Octave:
 					return CreateOctaveNoise((OctaveNoiseSettings)settings, baseSeed, recursionDepth + 1);
+				case NoiseType.Simplex:
+					return CreateSimplexNoise(baseSeed);
 				default:
 					throw new NotImplementedException();
 			}
@@ -82,6 +84,11 @@ namespace SBaier.Master
 		{
 			Noise3D baseNoise = Create(settings.BaseNoise, baseSeed, recursionDepth + 1);
 			return new OctaveNoise(new OctaveNoise.Arguments(settings.OctavesCount, baseNoise, settings.StartFrequency, settings.StartWeight));
+		}
+
+		private SimplexNoise CreateSimplexNoise(Seed baseSeed)
+		{
+			return new SimplexNoise(CreateSeedBasedOn(baseSeed));
 		}
 
 		private Seed CreateSeedBasedOn(Seed seed)
