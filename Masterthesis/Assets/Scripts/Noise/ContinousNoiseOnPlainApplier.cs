@@ -74,6 +74,7 @@ namespace SBaier.Master
             }
 
             mesh.vertices = _newVertices;
+            mesh.RecalculateNormals();
             if (_cacheVertices)
                 _formerVertices = _newVertices;
         }

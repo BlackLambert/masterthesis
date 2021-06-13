@@ -23,6 +23,7 @@ namespace SBaier.Master
 		protected virtual void Start()
 		{
 			_meshFormer.Form(_meshFilter.sharedMesh, _size);
+			_meshFilter.sharedMesh.RecalculateNormals();
 		}
 	}
 }

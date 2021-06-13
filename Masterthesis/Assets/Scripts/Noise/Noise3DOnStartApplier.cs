@@ -48,6 +48,7 @@ namespace SBaier.Master
                 newVertices[i] = formerVertices[i].normalized * (float) (_valueRange.x + delta * evaluationValue);
 			}
             mesh.vertices = newVertices;
+            mesh.RecalculateNormals();
         }
 	}
 }
