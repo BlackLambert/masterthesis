@@ -83,7 +83,7 @@ namespace SBaier.Master
 			{
                 vertices.Add(vertex, newIndex);
             }
-            catch(Exception _)
+            catch (ArgumentException)
 			{
 
 			}
