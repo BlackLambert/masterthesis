@@ -440,12 +440,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseFactor
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: ce3ae07842ba0984088e3a41c12794c3, type: 2}
+      objectReference: {fileID: 11400000, guid: 87a1147bf29b49c4891974f334294bc5, type: 2}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _startPositionDelta.x
       value: 0.6

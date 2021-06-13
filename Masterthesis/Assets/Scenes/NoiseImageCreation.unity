@@ -246,8 +246,8 @@ MonoBehaviour:
   _noiseSettings: {fileID: 11400000, guid: 87a1147bf29b49c4891974f334294bc5, type: 2}
   _bottomLeft: {x: 0, y: 0}
   _delta: {x: 0.02, y: 0.02}
-  _imageSize: {x: 512, y: 512}
-  _fileName: PerlinNoise
+  _imageSize: {x: 1024, y: 1024}
+  _fileName: PerlinNoise2D
   _filePath: Noise
 --- !u!4 &1051682709
 Transform:

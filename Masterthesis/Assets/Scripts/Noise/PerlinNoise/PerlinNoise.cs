@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -47,20 +48,48 @@ namespace SBaier.Master
 
 		public double Evaluate(double x, double y)
 		{
-			return Evaluate(x, y, 0);
+			short flooredX = Floor(x);
+			short flooredY = Floor(y);
+
+			short X = (short)(flooredX & 255);
+			short Y = (short)(flooredY & 255);
+
+			short gi00 = _dPMod12[X + _dP[Y]];
+			short gi01 = _dPMod12[X + _dP[Y + 1]];
+			short gi10 = _dPMod12[X + 1 + _dP[Y]];
+			short gi11 = _dPMod12[X + 1 + _dP[Y + 1]];
+
+			//Debug.Log($"[{x}|{y}] [{gi00}|{gi01}|{gi10}|{gi11}|]");
+
+			x -= flooredX;
+			y -= flooredY;
+
+			double n00 = Dot(_grad3[gi00], x, y);
+			double n10 = Dot(_grad3[gi10], x - 1, y);
+			double n01 = Dot(_grad3[gi01], x, y - 1);
+			double n11 = Dot(_grad3[gi11], x - 1, y - 1);
+
+			double u = Fade(x);
+			double v = Fade(y);
+
+			double nx0 = Lerp(n00, n10, u);
+			double nx1 = Lerp(n01, n11, u);
+
+			double nxy = Lerp(nx0, nx1, v);
+			return (nxy + 1) / 2;
 		}
 
 		public double Evaluate(double x, double y, double z)
 		{
-			int flooredX = Floor(x);
-			int flooredY = Floor(y);
-			int flooredZ = Floor(z);
+			short flooredX = Floor(x);
+			short flooredY = Floor(y);
+			short flooredZ = Floor(z);
 
 			// Find unit grid cell containing point
 			// Wrap the integer cells at 255 (smaller integer period can be introduced here)
-			int X = flooredX & 255;
-			int Y = flooredY & 255;
-			int Z = flooredZ & 255;
+			short X = (short)(flooredX & 255);
+			short Y = (short)(flooredY & 255);
+			short Z = (short)(flooredZ & 255);
 
 			// Get relative xyz coordinates of point within that cell
 			x -= flooredX;
@@ -68,14 +97,14 @@ namespace SBaier.Master
 			z -= flooredZ;
 
 			// Calculate a set of eight hashed gradient indices
-			int gi000 = _dPMod12[X + _dP[Y + _dP[Z]]];
-			int gi001 = _dPMod12[X + _dP[Y + _dP[Z + 1]]];
-			int gi010 = _dPMod12[X + _dP[Y + 1 + _dP[Z]]];
-			int gi011 = _dPMod12[X + _dP[Y + 1 + _dP[Z + 1]]];
-			int gi100 = _dPMod12[X + 1 + _dP[Y + _dP[Z]]];
-			int gi101 = _dPMod12[X + 1 + _dP[Y + _dP[Z + 1]]];
-			int gi110 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z]]];
-			int gi111 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z + 1]]];
+			short gi000 = _dPMod12[X + _dP[Y + _dP[Z]]];
+			short gi001 = _dPMod12[X + _dP[Y + _dP[Z + 1]]];
+			short gi010 = _dPMod12[X + _dP[Y + 1 + _dP[Z]]];
+			short gi011 = _dPMod12[X + _dP[Y + 1 + _dP[Z + 1]]];
+			short gi100 = _dPMod12[X + 1 + _dP[Y + _dP[Z]]];
+			short gi101 = _dPMod12[X + 1 + _dP[Y + _dP[Z + 1]]];
+			short gi110 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z]]];
+			short gi111 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z + 1]]];
 
 			// Calculate noise contributions from each of the eight corners
 			double n000 = Dot(_grad3[gi000], x, y, z);
@@ -136,16 +165,22 @@ namespace SBaier.Master
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static int Floor(double value)
+		private static short Floor(double value)
 		{
-			int xi = (int)value;
-			return value < xi ? xi - 1 : xi;
+			short xi = (short)value;
+			return (short)(value < xi ? xi - 1 : xi);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static double Dot(short[] gradient, double x, double y, double z)
 		{
 			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static double Dot(short[] gradient, double x, double y)
+		{
+			return gradient[0] * x + gradient[1] * y;
 		}
 	}
 }
