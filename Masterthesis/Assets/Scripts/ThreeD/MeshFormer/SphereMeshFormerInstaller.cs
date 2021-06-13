@@ -7,7 +7,7 @@ namespace SBaier.Master
     {
         public override void InstallBindings()
         {
-            Container.Bind<MeshFormer>().To<SphereMeshFormer>().AsTransient();
+            Container.Bind(typeof(MeshFormer), typeof(SphereMeshFormer)).To<SphereMeshFormer>().AsTransient();
         }
     }
 }

@@ -5,6 +5,9 @@ namespace SBaier.Master
 {
 	public class SphereMeshFormer : MeshFormer
 	{
+		Vector3[] _newVertices;
+		Vector3[] _formerVertices;
+
 		public void Form(Mesh testMesh)
 		{
 			Form(testMesh, 1);
@@ -12,15 +15,18 @@ namespace SBaier.Master
 
 		public void Form(Mesh testMesh, float size)
 		{
-			Vector3[] newVertices = new Vector3[testMesh.vertexCount];
-			Vector3[] formerVertices = testMesh.vertices;
+			_formerVertices = testMesh.vertices;
+			if(_newVertices == null || _newVertices.Length != _formerVertices.Length)
+				_newVertices = new Vector3[_formerVertices.Length];
+
 			for (int i = 0; i < testMesh.vertexCount; i++)
 			{
-				if (formerVertices[i].normalized.magnitude == 0)
-					formerVertices[i] = Vector3.up;
-				newVertices[i] = formerVertices[i].normalized * size;
+				if (_formerVertices[i].normalized.magnitude == 0)
+					_formerVertices[i] = Vector3.up;
+				_newVertices[i] = _formerVertices[i].normalized * size;
 			}
-			testMesh.vertices = newVertices;
+
+			testMesh.vertices = _newVertices;
 		}
 	}
 }

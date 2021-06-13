@@ -248,9 +248,9 @@ GameObject:
   - component: {fileID: 533802757}
   - component: {fileID: 533802760}
   - component: {fileID: 533802759}
+  - component: {fileID: 533802758}
   - component: {fileID: 533802756}
   - component: {fileID: 533802755}
-  - component: {fileID: 533802758}
   - component: {fileID: 533802761}
   m_Layer: 0
   m_Name: Planet
@@ -288,7 +288,6 @@ MonoBehaviour:
   _components:
   - {fileID: 276696659}
   - {fileID: 533802755}
-  - {fileID: 533802758}
   - {fileID: 533802761}
 --- !u!4 &533802757
 Transform:
@@ -314,11 +313,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 533802754}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a897642fb45e4941b76bf5bca965a67, type: 3}
+  m_Script: {fileID: 11500000, guid: cc2c6f4b21eb13e4ba400c064c69930b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _size: 1
-  _meshFilter: {fileID: 276696658}
 --- !u!114 &533802759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,6 +343,7 @@ MonoBehaviour:
   _scriptableObjectInstallers: []
   _monoInstallers:
   - {fileID: 533802759}
+  - {fileID: 533802758}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -361,7 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f6d42a7bad5e45a3a47b5d09321d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: fd9520e07f3407d43ab49ed5e47f70ac, type: 2}
+  _noiseSettings: {fileID: 11400000, guid: 7c1bcb67ef9cc3e41a60d589d4347ded, type: 2}
   _meshFilter: {fileID: 276696658}
   _valueRange: {x: 1, y: 1.5}
 --- !u!1001 &1208882028
