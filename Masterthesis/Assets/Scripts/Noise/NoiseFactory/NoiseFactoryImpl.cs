@@ -75,7 +75,7 @@ namespace SBaier.Master
 			foreach (NoiseLayerSettings layerSetting in settings.Layers)
 			{
 				Noise3D noise = Create(layerSetting.NoiseSettings, baseSeed, recursionDepth + 1);
-				layers.Add(new LayeredNoise.NoiseLayer(noise, layerSetting.Amplitude, layerSetting.FrequencyFactor));
+				layers.Add(new LayeredNoise.NoiseLayer(noise, layerSetting.Weight, layerSetting.FrequencyFactor));
 			}
 			return new LayeredNoise(layers);
 		}

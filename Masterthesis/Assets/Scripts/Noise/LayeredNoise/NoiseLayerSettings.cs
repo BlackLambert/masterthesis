@@ -2,7 +2,7 @@
 
 namespace SBaier.Master
 {
-	[CreateAssetMenu(fileName = "NoiseLayerSettings", menuName = "Noise/NoiseLayerSettings")]
+	[CreateAssetMenu(fileName = "NoiseLayerSettings", menuName = "Noise/LayerSettings")]
 	public class NoiseLayerSettings : ScriptableObject
 	{
 		[SerializeField]
@@ -10,8 +10,8 @@ namespace SBaier.Master
 		public NoiseSettings NoiseSettings => _noiseSettings;
 
 		[SerializeField]
-		private double _amplitude = 1;
-		public double Amplitude => _amplitude;
+		private double _weight = 1;
+		public double Weight => _weight;
 
 		[SerializeField]
 		private double _frequencyFactor = 1;

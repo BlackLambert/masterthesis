@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7041713397089841668}
   - component: {fileID: 7041713397089841669}
-  - component: {fileID: 7041713397089841670}
   - component: {fileID: 3138268688429447994}
   m_Layer: 0
   m_Name: Noise2DTerrainPlain
@@ -48,23 +47,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
   _monoInstallers:
-  - {fileID: 7041713397089841670}
   - {fileID: 3138268688429447994}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
---- !u!114 &7041713397089841670
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7041713397089841671}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb139313b12996c4bb8439c699fce52f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3138268688429447994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,6 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _meshFilter: {fileID: 7041713397155677527}
+  _generatorSettings: {fileID: 11400000, guid: c390faad779dac54b9ee25930f4834b7, type: 2}
   _size: 10
 --- !u!114 &5401745615139937874
 MonoBehaviour:
@@ -223,3 +210,6 @@ MonoBehaviour:
   _meshFilter: {fileID: 7041713397155677527}
   _maxHeight: 1
   _noiseFactor: 0.01
+  _startPositionDelta: {x: 0.02, y: 0, z: 0.03}
+  _startPosition: {x: 0, y: 0, z: 0}
+  _cacheVertices: 1

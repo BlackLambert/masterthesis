@@ -47,7 +47,6 @@ namespace SBaier.Master
             }
 
             mesh.vertices = _newVertices;
-            mesh.RecalculateNormals();
         }
 	}
 }

@@ -9,16 +9,21 @@ namespace SBaier.Master
         [SerializeField]
         private Vector3 _deltaPerSecond = new Vector3(0, 30, 0);
         [SerializeField]
-        private Transform _target;
+        private Transform _target = null;
+
+        protected virtual void Reset()
+        {
+            _target = GetComponent<Transform>();
+        }
 
         protected virtual void Update()
 		{
-            _target.Rotate(_deltaPerSecond * Time.deltaTime);
-        }
+			RotateRarget();
+		}
 
-        protected virtual void Reset()
+		private void RotateRarget()
 		{
-            _target = GetComponent<Transform>();
-        }
+			_target.Rotate(_deltaPerSecond * Time.deltaTime);
+		}
     }
 }

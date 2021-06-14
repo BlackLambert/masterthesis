@@ -24,7 +24,6 @@ namespace SBaier.Master
         protected virtual void Start()
 		{
             _subdivider.Subdivide(_meshFilter.sharedMesh, _amount);
-            _meshFilter.sharedMesh.RecalculateNormals();
         }
     }
 }

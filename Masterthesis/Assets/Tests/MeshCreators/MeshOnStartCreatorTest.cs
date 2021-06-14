@@ -12,33 +12,43 @@ namespace SBaier.Master.Test
     {
 		private const string _creatorPrefabPath = "MeshCreators/TestMeshOnStartCreator";
 		private const float _testSize = 2.6f;
+		private Mock<MeshGeneratorFactory> _meshGeneratorFactoryMoq;
 		private Mock<MeshGenerator> _meshGeneratorMoq;
 		private MeshOnStartCreator _creator;
+
+        [TearDown]
+        public void Destruct()
+		{
+            if(_creator == null)
+                GameObject.Destroy(_creator.gameObject);
+        }
 
 		[UnityTest]
         public IEnumerator GenerateMeshCalledWithExpectedArguments()
         {
             GivenADefaultSetup();
-            _creator = Container.Resolve<MeshOnStartCreator>();
-            _creator.GetComponent<MeshFilter>().sharedMesh = new Mesh();
             GivenAGeneratorTestSetup();
             yield return 0;
             ThenGenerateMeshIsCalledWithExpectedArguments();
-            GameObject.Destroy(_creator.gameObject);
         }
 
 		private void GivenADefaultSetup()
 		{
             PreInstall();
+            _meshGeneratorFactoryMoq = new Mock<MeshGeneratorFactory>();
             _meshGeneratorMoq = new Mock<MeshGenerator>();
-            Container.Bind<MeshGenerator>().FromInstance(_meshGeneratorMoq.Object).AsSingle();
+            Container.Bind<MeshGeneratorFactory>().FromInstance(_meshGeneratorFactoryMoq.Object).AsSingle();
             Container.Bind<MeshOnStartCreator>().FromComponentInNewPrefabResource(_creatorPrefabPath).AsSingle();
             PostInstall();
+
+            _creator = Container.Resolve<MeshOnStartCreator>();
+            _creator.GetComponent<MeshFilter>().sharedMesh = new Mesh();
         }
 
         private void GivenAGeneratorTestSetup()
         {
             _meshGeneratorMoq.Setup(generator => generator.GenerateMeshFor(It.IsAny<Mesh>(), _testSize));
+            _meshGeneratorFactoryMoq.Setup(f => f.Create(It.IsAny<MeshGeneratorSettings>())).Returns(_meshGeneratorMoq.Object);
         }
 
         private void ThenGenerateMeshIsCalledWithExpectedArguments()

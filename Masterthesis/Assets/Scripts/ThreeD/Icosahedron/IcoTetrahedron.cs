@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class IcoTetrahedron : MonoBehaviour, OutwardMovable
+    public class IcoTetrahedron : MonoBehaviour, Movable
     {
         [SerializeField]
         private MeshFilter _meshFilter;
@@ -11,10 +11,10 @@ namespace SBaier.Master
 
         private readonly int[] _triangles =
         {
-            0, 1, 2,
-            0, 3, 1,
-            0, 2, 3,
-            1, 3, 2
+            0, 2, 1,
+            0, 1, 3,
+            0, 3, 2,
+            1, 2, 3
         };
 
         protected virtual void Reset()
@@ -35,6 +35,7 @@ namespace SBaier.Master
             _meshFilter.sharedMesh.vertices = vertices;
             _meshFilter.sharedMesh.triangles = _triangles;
             CalculateOuterTriangleCenter();
+            _meshFilter.sharedMesh.RecalculateNormals();
         }
 
 		private void CalculateOuterTriangleCenter()
@@ -44,7 +45,7 @@ namespace SBaier.Master
             _outwardVector = outerTriangleCenter - transform.localPosition;
         }
 
-        public void MoveOutwards(float delta)
+        public void Move(float delta)
 		{
             Vector3 deltaMovement = _outwardVector.normalized * delta;
             transform.localPosition += deltaMovement;

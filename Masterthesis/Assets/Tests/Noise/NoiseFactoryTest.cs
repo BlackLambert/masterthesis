@@ -269,7 +269,7 @@ namespace SBaier.Master.Test
 			{
                 NoiseLayerSettings octaveSetting = settings.Layers[i];
                 LayeredNoise.NoiseLayer octave = octaves[i];
-                Assert.AreEqual(octaveSetting.Amplitude, octave.Amplitude);
+                Assert.AreEqual(octaveSetting.Weight, octave.Amplitude);
                 Assert.AreEqual(octaveSetting.FrequencyFactor, octave.FrequencyFactor);
                 Assert.AreEqual(octaveSetting.NoiseSettings.GetNoiseType(), octave.Noise.NoiseType);
             }
