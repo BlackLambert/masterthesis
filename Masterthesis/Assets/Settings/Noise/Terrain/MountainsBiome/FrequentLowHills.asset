@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6019cc812c1faa4faab7be072c16e08, type: 3}
-  m_Name: OctavePerlinRidgedNoiseLayer_03_1
+  m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
+  m_Name: FrequentLowHills
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: fd9520e07f3407d43ab49ed5e47f70ac, type: 2}
-  _weight: 0.3
-  _frequencyFactor: 1
+  _valueLimits: {x: 0.5, y: 1}
+  _baseNoise: {fileID: 11400000, guid: e370c55e666352e4899e0ac79b109266, type: 2}

@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: TestLayeredNoise
   m_EditorClassIdentifier: 
-  _octaves: []
-  _mapping: 0
+  _octaves:
+  - {fileID: 11400000, guid: aeb4725c10a570548bbf2fc38a88828f, type: 2}
+  _mapping: 1

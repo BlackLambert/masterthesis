@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
   m_Name: FrequentHills
   m_EditorClassIdentifier: 
-  _valueLimits: {x: 0.45, y: 1}
+  _valueLimits: {x: 0.48, y: 1}
   _baseNoise: {fileID: 11400000, guid: 8e0b6ba9e7cb76248add9b9ea4d10003, type: 2}

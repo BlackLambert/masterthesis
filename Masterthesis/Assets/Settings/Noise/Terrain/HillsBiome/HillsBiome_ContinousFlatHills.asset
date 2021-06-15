@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: HillsBiome_ContinousFlatHills
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: 8e0b6ba9e7cb76248add9b9ea4d10003, type: 2}
-  _weight: 0.3
+  _weight: 0.2
   _frequencyFactor: 0.5

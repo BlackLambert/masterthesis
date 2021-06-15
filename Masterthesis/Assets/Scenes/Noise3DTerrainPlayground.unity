@@ -294,7 +294,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1424059973}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.25, y: 3.46, z: -9.34}
+  m_LocalPosition: {x: -2.25, y: 3.46, z: -13.05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -377,7 +377,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c20d464cd291534e8e8ca3782c2238d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _seed: 24234
+  _seed: 1234
 --- !u!114 &2088114920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -460,12 +460,36 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1527413263773040207, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _size
-      value: 1.3
+      value: 3.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2624570305799692079, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: _deltaPerSecond.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2624570305799692079, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: _deltaPerSecond.z
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2878180224719141820, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2882970802877584116, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: _amount
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: _valueRange.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: _valueRange.y
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: ce3ae07842ba0984088e3a41c12794c3, type: 2}
+      objectReference: {fileID: 11400000, guid: 6cdb2eb4482f4a2428094db8068a37fc, type: 2}
     - target: {fileID: 8711234613290344003, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: m_RootOrder
       value: 3

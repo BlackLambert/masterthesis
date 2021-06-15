@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: f014a305a4ff2524ea86b9271edfaeac, type: 2}
   _weight: 0.5
-  _frequencyFactor: 1
+  _frequencyFactor: 0.8

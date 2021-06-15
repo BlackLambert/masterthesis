@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
-  m_Name: Image_Perlin5OctaveNoiseSettings
+  m_Script: {fileID: 11500000, guid: f6019cc812c1faa4faab7be072c16e08, type: 3}
+  m_Name: MountainsBiome_SeldomMediumMountains
   m_EditorClassIdentifier: 
-  _octavesCount: 5
-  _baseNoise: {fileID: 11400000, guid: 87a1147bf29b49c4891974f334294bc5, type: 2}
-  _startFrequency: 1
-  _startWeight: 1
+  _noiseSettings: {fileID: 11400000, guid: 39f405b6dabdc6d4f8a72841130aea4f, type: 2}
+  _weight: 2
+  _frequencyFactor: 0.3

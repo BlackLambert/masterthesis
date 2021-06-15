@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
-  m_Name: Image_LayeredNoiseSettings
+  m_Script: {fileID: 11500000, guid: f6019cc812c1faa4faab7be072c16e08, type: 3}
+  m_Name: MountainsBiome_ContinousLowHills
   m_EditorClassIdentifier: 
-  _octaves:
-  - {fileID: 11400000, guid: ecdab2a3195196846aa9ec043612c88f, type: 2}
-  - {fileID: 11400000, guid: d52f597337dabd14ca470d32848ab30c, type: 2}
+  _noiseSettings: {fileID: 11400000, guid: e370c55e666352e4899e0ac79b109266, type: 2}
+  _weight: 0.15
+  _frequencyFactor: 0.6
