@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6019cc812c1faa4faab7be072c16e08, type: 3}
-  m_Name: HillsBiome_SeldomGreatHills
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: TestLayeredNoise
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: e6ca4bc849885c742aeeff4f8d689c77, type: 2}
-  _weight: 1.2
-  _frequencyFactor: 0.7
+  _octaves: []
+  _mapping: 0
