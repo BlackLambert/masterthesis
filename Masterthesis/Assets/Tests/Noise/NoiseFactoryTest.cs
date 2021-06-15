@@ -18,6 +18,7 @@ namespace SBaier.Master.Test
         private const string _emptyOctavedNoiseSettingsPath = "Noise/TestEmptyLayeredNoiseSettings";
         private const string _octaveNoiseSettingsPath = "Noise/TestOctaveNoiseSettings";
         private const string _simplexNoiseSettingsPath = "Noise/TestSimplexNoiseSettings";
+        private const string _noiseValueLimiterSettingsPath = "Noise/TestNoiseValueLimiterSettings";
         private Noise3D _noise;
 
 		[Test]
@@ -25,7 +26,7 @@ namespace SBaier.Master.Test
         {
             GivenANewNoiseFactory();
             WhenCreateIsCalledWithPerlinNoiseSettings();
-            ThenAPerlinNoiseIsCreated();
+            ThenANoiseOfGivenTypeIsCreated(typeof(PerlinNoise));
         }
 
         [Test]
@@ -41,7 +42,7 @@ namespace SBaier.Master.Test
         {
             GivenANewNoiseFactory();
             WhenCreateIsCalledWithBillowNoiseSettings();
-            ThenBillowNoiseIsCreated();
+            ThenANoiseOfGivenTypeIsCreated(typeof(BillowNoise));
         }
 
         [Test]
@@ -58,7 +59,7 @@ namespace SBaier.Master.Test
 		{
             GivenANewNoiseFactory();
             WhenCreateIsCalledWithRidgedNoiseSettings();
-            ThenRidgedNoiseIsCreated();
+            ThenANoiseOfGivenTypeIsCreated(typeof(RidgedNoise));
         }
 
 		[Test]
@@ -92,7 +93,7 @@ namespace SBaier.Master.Test
             GivenANewNoiseFactory();
             LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_threeOctavedNoiseSettingsPath);
             WhenCreateIsCalledWithLayerNoiseSettings(settings);
-            ThenAnLayerNoiseIsCreated();
+            ThenANoiseOfGivenTypeIsCreated(typeof(LayeredNoise));
         }
 
         [Test(Description = "A created OctaveNoise has as many Octaves as provided by the OctaveNoiseSettings")]
@@ -127,7 +128,7 @@ namespace SBaier.Master.Test
         {
             GivenANewNoiseFactory();
             WhenCreateIsCalledWithOctavedNoiseSettings();
-            ThenAnOctaveNoiseIsCreated();
+            ThenANoiseOfGivenTypeIsCreated(typeof(OctaveNoise));
         }
 
         [Test(Description = "The Create method creates an OctaveNoise with all values provided by the Arguments.")]
@@ -143,7 +144,7 @@ namespace SBaier.Master.Test
         {
             GivenANewNoiseFactory();
             WhenCreateIsCalledWithSimplexNoiseSettings();
-            ThenASimplexNoiseIsCreated();
+            ThenANoiseOfGivenTypeIsCreated(typeof(SimplexNoise));
         }
 
         [Test(Description = "The SimplexNoise created has a seed based on provided base seed")]
@@ -152,6 +153,22 @@ namespace SBaier.Master.Test
             GivenANewNoiseFactory();
             WhenCreateIsCalledWithSimplexNoiseSettings();
             ThenSimplexNoiseHasSeedBasedOnProvidedSeed((SimplexNoise)_noise);
+        }
+
+        [Test(Description = "The Create method creates an NoiseValueLimiter if provided with an NoiseValueLimiterSetting.")]
+        public void CreatesNoiseValueLimiterOnNoiseValueLimiterSettings()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithNoiseValueLimiterSettings();
+            ThenANoiseOfGivenTypeIsCreated(typeof(NoiseValueLimiter));
+        }
+
+        [Test(Description = "The created NoiseValueLimiter has arguments provided by the settings")]
+        public void CreatedNoiseValueLimiterHasExpectedProperties()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithNoiseValueLimiterSettings();
+            ThenTheNoiseValueLimiterPropertiesAreAsExpected();
         }
 
 		private void GivenANewNoiseFactory()
@@ -212,14 +229,10 @@ namespace SBaier.Master.Test
             CreateNoise(settings);
         }
 
-        private void ThenAPerlinNoiseIsCreated()
+        private void WhenCreateIsCalledWithNoiseValueLimiterSettings()
         {
-            Assert.True(_noise is PerlinNoise);
-        }
-
-        private void ThenBillowNoiseIsCreated()
-        {
-            Assert.True(_noise is BillowNoise);
+            NoiseValueLimiterSettings settings = Resources.Load<NoiseValueLimiterSettings>(_noiseValueLimiterSettingsPath);
+            CreateNoise(settings);
         }
 
         private void ThenAnArgumentNullExceptionIsThrown(TestDelegate test)
@@ -235,11 +248,6 @@ namespace SBaier.Master.Test
             Assert.AreEqual(expected, actual);
         }
 
-        private void ThenRidgedNoiseIsCreated()
-        {
-            Assert.True(_noise is RidgedNoise);
-        }
-
         private void ThenARecursionDepthExceptionIsThrown(TestDelegate test)
         {
             Assert.Throws<NoiseFactory.RecursionDepthLimitReachedException>(test);
@@ -248,11 +256,6 @@ namespace SBaier.Master.Test
         private void ThenAnArgumentOutOfRangeExceptionIsThrown(TestDelegate test)
         {
             Assert.Throws<ArgumentOutOfRangeException>(test);
-        }
-
-        private void ThenAnLayerNoiseIsCreated()
-        {
-            Assert.True(_noise is LayeredNoise);
         }
 
         private void ThenTheLayerNoiseHasExpectedLayersCount(LayeredNoiseSettings settings)
@@ -280,11 +283,6 @@ namespace SBaier.Master.Test
             Assert.Throws<ArgumentException>(test);
         }
 
-        private void ThenAnOctaveNoiseIsCreated()
-        {
-            Assert.True(_noise is OctaveNoise);
-        }
-
         private void ThenAnOctaveNoiseWithExpectedValuesIsCreated()
         {
             OctaveNoiseSettings settings = Resources.Load<OctaveNoiseSettings>(_octaveNoiseSettingsPath);
@@ -295,17 +293,26 @@ namespace SBaier.Master.Test
             Assert.AreEqual(settings.OctavesCount, noise.OctavesCount);
         }
 
-        private void ThenASimplexNoiseIsCreated()
-        {
-            Assert.True(_noise is SimplexNoise);
-        }
-
         private void ThenSimplexNoiseHasSeedBasedOnProvidedSeed(SimplexNoise noise)
         {
             Seed seed = Container.Resolve<Seed>();
             int expected = seed.Random.Next();
             int actual = noise.Seed.SeedNumber;
             Assert.AreEqual(expected, actual);
+        }
+
+        private void ThenANoiseOfGivenTypeIsCreated(Type type)
+        {
+            Assert.AreEqual(type, _noise.GetType());
+        }
+
+        private void ThenTheNoiseValueLimiterPropertiesAreAsExpected()
+        {
+            NoiseValueLimiterSettings settings = Resources.Load<NoiseValueLimiterSettings>(_noiseValueLimiterSettingsPath);
+            NoiseValueLimiter limiter = (NoiseValueLimiter)_noise;
+            Assert.AreEqual(settings.ValueLimits.x, limiter.Limits.x);
+            Assert.AreEqual(settings.ValueLimits.y, limiter.Limits.y);
+            Assert.AreEqual(settings.BaseNoise.GetNoiseType(), limiter.BaseNoise.NoiseType);
         }
 
         private void CreateNoise(NoiseSettings settings)

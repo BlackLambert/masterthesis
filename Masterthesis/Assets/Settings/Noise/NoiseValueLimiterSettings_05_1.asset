@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6019cc812c1faa4faab7be072c16e08, type: 3}
-  m_Name: RidgedNoiseLayer_025_2
+  m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
+  m_Name: NoiseValueLimiterSettings_05_1
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: a54b6a95fc1060847b58a3c6ac6507e0, type: 2}
-  _weight: 0.25
-  _frequencyFactor: 2
+  _valueLimits: {x: 0.5, y: 0.8}
+  _baseNoise: {fileID: 11400000, guid: ce3ae07842ba0984088e3a41c12794c3, type: 2}

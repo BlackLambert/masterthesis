@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: RidgedNoiseLayer_01_10
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: a54b6a95fc1060847b58a3c6ac6507e0, type: 2}
-  _amplitude: 0.1
+  _weight: 0.1
   _frequencyFactor: 10

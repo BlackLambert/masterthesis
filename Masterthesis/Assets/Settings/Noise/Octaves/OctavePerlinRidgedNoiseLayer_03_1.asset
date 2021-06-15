@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: OctavePerlinRidgedNoiseLayer_03_1
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: fd9520e07f3407d43ab49ed5e47f70ac, type: 2}
-  _amplitude: 0.5
+  _weight: 0.3
   _frequencyFactor: 1

@@ -44,6 +44,8 @@ namespace SBaier.Master
 					return CreateOctaveNoise((OctaveNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Simplex:
 					return CreateSimplexNoise(baseSeed);
+				case NoiseType.NoiseValueLimiter:
+					return CreateNoiseValueLimiter((NoiseValueLimiterSettings)settings, baseSeed);
 				default:
 					throw new NotImplementedException();
 			}
@@ -89,6 +91,12 @@ namespace SBaier.Master
 		private SimplexNoise CreateSimplexNoise(Seed baseSeed)
 		{
 			return new SimplexNoise(CreateSeedBasedOn(baseSeed));
+		}
+
+		private NoiseValueLimiter CreateNoiseValueLimiter(NoiseValueLimiterSettings settings, Seed baseSeed)
+		{
+			Noise3D baseNoise = Create(settings.BaseNoise, baseSeed);
+			return new NoiseValueLimiter(settings.ValueLimits, baseNoise);
 		}
 
 		private Seed CreateSeedBasedOn(Seed seed)

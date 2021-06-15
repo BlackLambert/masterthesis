@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: PerlinNoiseLayer_05_2
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: 87a1147bf29b49c4891974f334294bc5, type: 2}
-  _amplitude: 0.5
+  _weight: 0.5
   _frequencyFactor: 2
