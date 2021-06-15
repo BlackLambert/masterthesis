@@ -96,8 +96,8 @@ namespace SBaier.Master.Test
             ThenANoiseOfGivenTypeIsCreated(typeof(LayeredNoise));
         }
 
-        [Test(Description = "A created OctaveNoise has as many Octaves as provided by the OctaveNoiseSettings")]
-        public void ACreatedLayerNoiseHasExpectedOctaveCount()
+        [Test(Description = "A created LayeredNoise has as many Layers as provided by the LayeredNoiseSettings")]
+        public void ACreatedLayerNoiseHasExpectedLayersCount()
 		{
             GivenANewNoiseFactory();
             LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_threeOctavedNoiseSettingsPath);
@@ -105,7 +105,7 @@ namespace SBaier.Master.Test
             ThenTheLayerNoiseHasExpectedLayersCount(settings);
         }
 
-        [Test(Description = "The Octaves of a created OctaveNoise have the expected values based on the provided OctaveNoiseSettings")]
+        [Test(Description = "The Layers of a created LayeredNoise have the expected values based on the provided LayeredNoiseSettings")]
         public void LayersOfCreatedLayerNoiseHaveExpectedValues()
         {
             GivenANewNoiseFactory();
@@ -114,7 +114,7 @@ namespace SBaier.Master.Test
             ThenTheLayersHaveValuesBasedOn(settings);
         }
 
-        [Test(Description = "Creation of an octave noise throws an ArgumentException if the provided octave settings have no octaves.")]
+        [Test(Description = "Creation of an LayeredNoise throws an ArgumentException if the provided octave settings have no layers.")]
         public void EmptyLayersCauseException()
 		{
             GivenANewNoiseFactory();
@@ -123,7 +123,16 @@ namespace SBaier.Master.Test
             ThenAnArgumentExceptionIsThrown(test);
         }
 
-        [Test(Description = "The Create method creates an OctaveNoise if provided with an OctaveNoiseSetting.")]
+        [Test(Description = "The created LayeredNoise has expected mapping value")]
+        public void CreatedLayeredNoiseHaasExpectedMapping()
+        {
+            GivenANewNoiseFactory();
+            LayeredNoiseSettings settings = Resources.Load<LayeredNoiseSettings>(_threeOctavedNoiseSettingsPath);
+            WhenCreateIsCalledWithLayerNoiseSettings(settings);
+            ThenTheLayeredNoiseHasMappingBasedOn(settings);
+        }
+
+		[Test(Description = "The Create method creates an OctaveNoise if provided with an OctaveNoiseSetting.")]
         public void CreatesOctaveNoiseOnOctaveNoiseSettings()
         {
             GivenANewNoiseFactory();
@@ -261,21 +270,27 @@ namespace SBaier.Master.Test
         private void ThenTheLayerNoiseHasExpectedLayersCount(LayeredNoiseSettings settings)
         {
             LayeredNoise octaveNoise = (LayeredNoise)_noise;
-            Assert.AreEqual(settings.Layers.Count, octaveNoise.OctavesCopy.Count);
+            Assert.AreEqual(settings.Layers.Count, octaveNoise.LayersCopy.Count);
         }
 
         private void ThenTheLayersHaveValuesBasedOn(LayeredNoiseSettings settings)
         {
-            LayeredNoise octaveNoise = (LayeredNoise)_noise;
-            List<LayeredNoise.NoiseLayer> octaves = octaveNoise.OctavesCopy;
+            LayeredNoise layeredNoise = (LayeredNoise)_noise;
+            List<LayeredNoise.NoiseLayer> octaves = layeredNoise.LayersCopy;
             for (int i = 0; i < settings.Layers.Count; i++)
 			{
                 NoiseLayerSettings octaveSetting = settings.Layers[i];
                 LayeredNoise.NoiseLayer octave = octaves[i];
-                Assert.AreEqual(octaveSetting.Weight, octave.Amplitude);
+                Assert.AreEqual(octaveSetting.Weight, octave.Weight);
                 Assert.AreEqual(octaveSetting.FrequencyFactor, octave.FrequencyFactor);
                 Assert.AreEqual(octaveSetting.NoiseSettings.GetNoiseType(), octave.Noise.NoiseType);
             }
+        }
+
+        private void ThenTheLayeredNoiseHasMappingBasedOn(LayeredNoiseSettings settings)
+        {
+            LayeredNoise layeredNoise = (LayeredNoise)_noise;
+            Assert.AreEqual(settings.Mapping, layeredNoise.Mapping);
         }
 
         private void ThenAnArgumentExceptionIsThrown(TestDelegate test)

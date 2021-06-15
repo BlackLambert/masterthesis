@@ -6,26 +6,28 @@ namespace SBaier.Master
 {
 	public class LayeredNoise : Noise3D
 	{
-		public LayeredNoise(List<NoiseLayer> octaves)
-		{
-			_octaves = octaves;
-		}
-
-		private List<NoiseLayer> _octaves;
-		public List<NoiseLayer> OctavesCopy => new List<NoiseLayer>(_octaves);
-
+		private List<NoiseLayer> _layers;
+		public List<NoiseLayer> LayersCopy => new List<NoiseLayer>(_layers);
+		public MappingMode Mapping { get; }
 		public NoiseType NoiseType => NoiseType.Layered;
+
+		public LayeredNoise(List<NoiseLayer> layers, MappingMode mapping)
+		{
+			_layers = layers;
+			Mapping = mapping;
+		}
 
 		public double Evaluate(double x, double y, double z)
 		{
+			double mappingValue = Mapping == MappingMode.ZeroToOne ? 0 : 0.5;
 			double result = 0;
-			foreach (NoiseLayer octave in _octaves)
+			foreach (NoiseLayer layer in _layers)
 			{
-				double ff = octave.FrequencyFactor;
-				double evaluatedValue = octave.Noise.Evaluate(x * ff, y * ff, z * ff) - 0.5;
-				result += evaluatedValue * octave.Amplitude;
+				double ff = layer.FrequencyFactor;
+				double evaluatedValue = layer.Noise.Evaluate(x * ff, y * ff, z * ff) - mappingValue;
+				result += evaluatedValue * layer.Weight;
 			}
-			return Clamp01(result + 0.5);
+			return Clamp01(result + mappingValue);
 		}
 
 		private double Clamp01(double result)
@@ -41,18 +43,24 @@ namespace SBaier.Master
 		public class NoiseLayer
 		{
 			public Noise3D Noise { get; }
-			public double Amplitude { get; }
+			public double Weight { get; }
 			public double FrequencyFactor { get; }
 
 			public NoiseLayer(
 				Noise3D noise,
-				double amplitude,
+				double weight,
 				double frequencyFactor)
 			{
 				Noise = noise;
-				Amplitude = amplitude;
+				Weight = weight;
 				FrequencyFactor = frequencyFactor;
 			}
+		}
+
+		public enum MappingMode
+		{
+			NegOneToOne = 0,
+			ZeroToOne = 1
 		}
 	}
 }

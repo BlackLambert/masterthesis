@@ -12,80 +12,119 @@ namespace SBaier.Master.Test
 	public class LayeredNoiseTest : NoiseTest
 	{
 		private const int _randomSeed = 43623;
-		private readonly Vector3 _testEvaluationPoint = new Vector3(3.2f, 5.8f, -1.7f);
+		private const LayeredNoise.MappingMode _defaultMappingMode = LayeredNoise.MappingMode.NegOneToOne;
+		private readonly Vector3[] _testEvaluationPoints = new Vector3[]
+		{
+			Vector3.zero,
+			new Vector3(-1.7f, 5.3f, -9.0f),
+			new Vector3(6.2f, 12.3f, 1.2f),
+			new Vector3(-0.2f, -5.3f, -21.2f)
+		};
 
 		protected override NoiseType ExpectedNoiseType => NoiseType.Layered;
 
-		[Test]
-		public void OctavesReturnsProvidedValues()
+		[Test (Description ="The LayersCopy property returns a copy of the layers put into the constructor.")]
+		public void LayersReturnProvidedValues()
 		{
-			GivenANew3DNoise();
-			ThenOctavesReturnsProvidedValues();
+			GivenALayeredNoise(_defaultMappingMode);
+			ThenLayersCopyReturnProvidedValues();
 		}
 
-		[Test]
-		public void EvaluateReturnsOctavedValue()
+		[Test (Description ="The Mapping property returns a the MappingMode put into the constructor.")]
+		public void MappingReturnsProvidedValue()
 		{
-			GivenANew3DNoise();
-			ThenEvaluateReturnsOctavedValue();
+			foreach (LayeredNoise.MappingMode mode in Enum.GetValues(typeof(LayeredNoise.MappingMode)))
+			{
+				GivenALayeredNoise(mode);
+				ThenMappingReturnProvidedValue(mode);
+				Teardown();
+				Setup();
+			}
 		}
 
-		[Test (Description = "The OctabesCopy property returns a copy of the octave list provided as argument to the constructor.")]
-		public void OctavesCopyReturnsExpectedValue()
+		[Test(Description = "Evaluate with NegOneToOne Mapping returns expected values")]
+		public void EvaluateReturnsNegOneToOneLayeredValue()
 		{
-			GivenANew3DNoise();
-			ThenOctavesCopyReturnsCopyOfProvidedOctaves();
+			GivenALayeredNoise(LayeredNoise.MappingMode.NegOneToOne);
+			foreach (Vector3 testEvaluationPoint in _testEvaluationPoints)
+			{
+				ThenEvaluateReturnsLayeredValue(LayeredNoise.MappingMode.NegOneToOne, testEvaluationPoint);
+			}
+		}
+
+		[Test(Description = "Evaluate with ZeroToOne Mapping returns expected values")]
+		public void EvaluateReturnsZeroToOneLayeredValue()
+		{
+			GivenALayeredNoise(LayeredNoise.MappingMode.ZeroToOne);
+			foreach (Vector3 testEvaluationPoint in _testEvaluationPoints)
+			{
+				ThenEvaluateReturnsLayeredValue(LayeredNoise.MappingMode.ZeroToOne, testEvaluationPoint);
+			}
 		}
 
 		protected override void GivenANew3DNoise()
 		{
-			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidOctaves).AsSingle();
-			Container.Bind(typeof(Noise3D), typeof(LayeredNoise)).To<LayeredNoise>().AsTransient();
+			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidLayers).AsSingle();
+			Container.Bind(typeof(Noise3D)).To<LayeredNoise>().AsTransient().WithArguments(_defaultMappingMode);
 		}
 
-		private void ThenOctavesReturnsProvidedValues()
+		protected void GivenALayeredNoise(LayeredNoise.MappingMode mappingMode)
 		{
-			List<LayeredNoise.NoiseLayer> octaves = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
-			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			Assert.True(Enumerable.SequenceEqual(octaves, noise.OctavesCopy));
+			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidLayers).AsSingle();
+			Container.Bind(typeof(LayeredNoise)).To<LayeredNoise>().AsTransient().WithArguments(mappingMode);
 		}
 
-		private void ThenEvaluateReturnsOctavedValue()
+		private void ThenLayersCopyReturnProvidedValues()
 		{
-			List<LayeredNoise.NoiseLayer> octaves = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
+			List<LayeredNoise.NoiseLayer> layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			List<LayeredNoise.NoiseLayer> noiseOctaves = noise.OctavesCopy;
-			Assert.AreEqual(octaves, noiseOctaves);
-			double sum = octaves.Sum(OctaveNoiseSum);
-			double expected = Clamp01(sum + 0.5);
-			double actual = noise.Evaluate(_testEvaluationPoint.x, _testEvaluationPoint.y, _testEvaluationPoint.z);
+			List<LayeredNoise.NoiseLayer> layersCopy = noise.LayersCopy;
+
+			Assert.True(Enumerable.SequenceEqual(layers, layersCopy));
+			Assert.AreEqual(layers, layersCopy);
+			Assert.AreNotSame(layers, layersCopy);
+		}
+
+		private void ThenEvaluateReturnsLayeredValue(LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
+		{
+			List<LayeredNoise.NoiseLayer> layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
+			LayeredNoise noise = Container.Resolve<LayeredNoise>();
+			List<LayeredNoise.NoiseLayer> noiseLayers = noise.LayersCopy;
+
+			double sum = layers.Sum((layer) => OctaveNoiseSum(layer, mappingMode, testEvaluationPoint));
+			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
+				sum += 0.5;
+			double expected = Clamp01(sum);
+			double actual = noise.Evaluate(testEvaluationPoint.x, testEvaluationPoint.y, testEvaluationPoint.z);
+
 			Assert.AreEqual(expected, actual);
 		}
 
-		private double OctaveNoiseSum(LayeredNoise.NoiseLayer octave)
+		private double OctaveNoiseSum(LayeredNoise.NoiseLayer layer, LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
 		{
-			double ff = octave.FrequencyFactor;
-			double evaluatedValue = octave.Noise.Evaluate(_testEvaluationPoint.x * ff, _testEvaluationPoint.y * ff, _testEvaluationPoint.z * ff) - 0.5;
-			return evaluatedValue * octave.Amplitude;
+			double ff = layer.FrequencyFactor;
+			double evaluatedValue = layer.Noise.Evaluate(testEvaluationPoint.x * ff, testEvaluationPoint.y * ff, testEvaluationPoint.z * ff);
+			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
+				evaluatedValue -= 0.5;
+			return evaluatedValue * layer.Weight;
 		}
 
-		private void ThenOctavesCopyReturnsCopyOfProvidedOctaves()
+		private void ThenMappingReturnProvidedValue(LayeredNoise.MappingMode expected)
 		{
-			List<LayeredNoise.NoiseLayer> octaves = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			List<LayeredNoise.NoiseLayer> octavesCopy = noise.OctavesCopy;
-			Assert.AreEqual(octaves, octavesCopy);
-			Assert.AreNotSame(octaves, octavesCopy);
+			Assert.AreEqual(expected, noise.Mapping);
 		}
 
-		private List<LayeredNoise.NoiseLayer> CreateValidOctaves()
+		private List<LayeredNoise.NoiseLayer> CreateValidLayers()
 		{
 			return new List<LayeredNoise.NoiseLayer>()
 			{
 				new LayeredNoise.NoiseLayer(CreateNoise(), 1, 1),
 				new LayeredNoise.NoiseLayer(CreateNoise(), 0.75f, 0.5f),
 				new LayeredNoise.NoiseLayer(CreateNoise(), 0.5f, 0.25f),
-				new LayeredNoise.NoiseLayer(CreateNoise(), 0.25f, 0.1f)
+				new LayeredNoise.NoiseLayer(CreateNoise(), 0.25f, 0.1f),
+				new LayeredNoise.NoiseLayer(CreateNoise(), 1.8f, 10f),
+				new LayeredNoise.NoiseLayer(CreateNoise(), 2.1f, 0.75f)
 			};
 		}
 

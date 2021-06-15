@@ -11,6 +11,10 @@ namespace SBaier.Master
 		private List<NoiseLayerSettings> _octaves = new List<NoiseLayerSettings>();
 		public List<NoiseLayerSettings> Layers => _octaves;
 
+		[SerializeField]
+		private LayeredNoise.MappingMode _mapping = LayeredNoise.MappingMode.NegOneToOne;
+		public LayeredNoise.MappingMode Mapping => _mapping;
+
 		public override NoiseType GetNoiseType()
 		{
 			return NoiseType.Layered;

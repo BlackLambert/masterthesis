@@ -450,7 +450,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _maxHeight
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseFactor
@@ -459,7 +459,7 @@ PrefabInstance:
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: b4fac70deea42f447a6b0b7e672f244a, type: 2}
+      objectReference: {fileID: 11400000, guid: 6cdb2eb4482f4a2428094db8068a37fc, type: 2}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _startPositionDelta.x
       value: 0.2
