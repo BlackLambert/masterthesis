@@ -3,7 +3,7 @@ using Zenject;
 
 namespace SBaier.Master
 {
-    public class MeshSubdividerInstaller : MonoInstaller
+    public class RecursiveMeshSubdividerInstaller : MonoInstaller
     {
         public override void InstallBindings()
         {

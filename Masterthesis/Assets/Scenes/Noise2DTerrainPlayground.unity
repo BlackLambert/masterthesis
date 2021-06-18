@@ -446,7 +446,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5401745615139937874, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _amount
-      value: 7
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _maxHeight
