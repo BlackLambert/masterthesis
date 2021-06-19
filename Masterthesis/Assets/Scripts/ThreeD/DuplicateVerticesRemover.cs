@@ -14,16 +14,18 @@ namespace SBaier.Master
 			int[] vertexIndices = testMesh.triangles;
 			int[] newVertexIndices = new int[vertexIndices.Length];
 			int index = 0;
+			Vector3 currentVertex;
 
 			for(int i = 0; i < vertexIndices.Length; i++)
 			{
+				currentVertex = vertices[vertexIndices[i]];
 				try
 				{
-					newVerticesToIndex.Add(vertices[vertexIndices[i]], index);
+					newVerticesToIndex.Add(currentVertex, index);
 					index++;
 				}
 				catch (ArgumentException) { }
-				newVertexIndices[i] = newVerticesToIndex[vertices[vertexIndices[i]]];
+				newVertexIndices[i] = newVerticesToIndex[currentVertex];
 			}
 
 			testMesh.triangles = newVertexIndices;

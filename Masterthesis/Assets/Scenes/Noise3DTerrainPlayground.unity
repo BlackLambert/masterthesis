@@ -472,11 +472,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2878180224719141820, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2882970802877584116, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _amount
-      value: 70
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5787136870965907365, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: _amount
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _valueRange.x
@@ -490,6 +494,10 @@ PrefabInstance:
       propertyPath: _noiseSettings
       value: 
       objectReference: {fileID: 11400000, guid: af939d382019e114b8eef280c1c7bc0a, type: 2}
+    - target: {fileID: 7411379567019944321, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8711234613290344003, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: m_RootOrder
       value: 3
