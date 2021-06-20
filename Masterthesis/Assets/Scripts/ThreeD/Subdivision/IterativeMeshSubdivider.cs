@@ -1,197 +1,328 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace SBaier.Master
 {
 	public class IterativeMeshSubdivider : MeshSubdivider
 	{
-		private const int _indicesPerTriangle = 3;
+		private const int _verticesPerTriangle = 3;
 		private const int _edgesPerTriangle = 3;
+
+		// mesh values
+		private int[] _meshVertexIndices;
+		private Vector3[] _meshVertices;
+
+		// current triangle values
+		private int[] _currentTriangle = new int[_verticesPerTriangle];
+		private Vector3[] _cornerVertices = new Vector3[_verticesPerTriangle];
+		private Vector3[] _edgeVectors = new Vector3[_verticesPerTriangle];
+		private Vector3[] _edgeDelta = new Vector3[_verticesPerTriangle];
+		private int[] _newVertexIndicesOfCurrentTriangle;
+
+		// shared edges
+		private Dictionary<Vector2Int, Vector2Int> _sharedEdges = new Dictionary<Vector2Int, Vector2Int>();
+		private Dictionary<Vector2Int, int[]> _sharedVertexIndices = new Dictionary<Vector2Int, int[]>();
+		private int[][] _sharedVertexIndicesToWrite = new int[_edgesPerTriangle][];
+		private bool[] _writeSharedEdge = new bool[_edgesPerTriangle];
+		private int[][] _sharedVerticesToRead = new int[_edgesPerTriangle][];
+		private bool[] _useSharedEdge = new bool[_edgesPerTriangle];
+		private Vector2Int[] _edges = new Vector2Int[_edgesPerTriangle];
+
+		// new mesh values
+		private List<Vector3> _newVertices;
+		private int[] _newVertexIndices;
+
+		int _vertexIndex = 0;
+		int _triangleIndex = 0;
+		int _currentVertexIndex = 0;
+		int _currentTriangleIndex = 0;
 
 		public void Subdivide(Mesh mesh)
 		{
 			Subdivide(mesh, 1);
 		}
 
-		public void Subdivide(Mesh mesh, int amount)
+		public void Subdivide(Mesh mesh, int subdivisionAmount)
 		{
-			CheckAmountValid(amount);
+			CheckAmountValid(subdivisionAmount);
 
-			int[] vertexIndices = mesh.triangles;
-			Vector3[] vertices = mesh.vertices;
+			InitCurrentMeshValues(mesh);
+			InitNewMeshValues(subdivisionAmount);
+			InitSharedEdgesIndices();
+			InitSharedVertexIndices(subdivisionAmount);
 
-			int[] currentTriangle = new int[_indicesPerTriangle];
-			Vector3[] cornerVertices = new Vector3[_indicesPerTriangle];
-			Vector3[] edgeVectors = new Vector3[_indicesPerTriangle];
-			Vector3[] edgeDelta = new Vector3[3];
+			CalculateNewMeshValues(subdivisionAmount);
 
-			int trianglesAmount = vertexIndices.Length / _indicesPerTriangle;
-			int newEdgesAmountPerEdge = amount + 1;
-			int newVerticesAmountPerEdge = amount + 2;
-			int newVerticesPerTriangle = (newVerticesAmountPerEdge * newVerticesAmountPerEdge + newVerticesAmountPerEdge) / 2;
-			int newTrianglesPerTriangleAmount = GetNewTrianglesAmountPerTriangleFor(amount);
-			int[] currentTriangleVetexIndices = new int[newVerticesPerTriangle];
+			SetNewMeshValues(mesh);
+		}
 
-			List<Vector3> newVertices = new List<Vector3>(newVerticesPerTriangle * trianglesAmount);
-			int[] newVertexIndices = new int[newTrianglesPerTriangleAmount * trianglesAmount * _indicesPerTriangle];
+		private void CalculateNewMeshValues(int subdivisionAmount)
+		{
+			int meshTrianglesAmount = GetMeshTrianglesAmount();
+			for (int triangleIdex = 0; triangleIdex < meshTrianglesAmount; triangleIdex++)
+				CalculateNewValuesOfTriangle(triangleIdex, subdivisionAmount);
+		}
 
-			// Shared edges handling
-			Dictionary<Vector2Int, Vector2Int> sharedEdgeIndices = GetSharedEdgesIndices(mesh);
-			Dictionary<Vector2Int, int[]> sharedVertexIndices = new Dictionary<Vector2Int, int[]>();
+		private void CalculateNewValuesOfTriangle(int triangleIndex, int subdivisionAmount)
+		{
+			int newVerticesAmountPerEdge = GetNewVerticesAmountPerEdge(subdivisionAmount);
 
-			foreach (Vector2Int sharedEdge in sharedEdgeIndices.Values)
-				sharedVertexIndices[sharedEdge] = new int[newVerticesAmountPerEdge];
-				
-			int[][] sharedVertexIndicesToFill = new int[3][];
-			bool[] fillSharedEdge = new bool[3];
-			int[][] sharedVerticesToRead = new int[3][];
-			bool[] useSharedEdge = new bool[3];
-			Vector2Int[] edges = new Vector2Int[3];
+			InitCurrentTriangle(triangleIndex, subdivisionAmount);
+			SetNewMeshValuesOfTheEdges(newVerticesAmountPerEdge);
+			CreateNewMeshValuesForCurrentTriangle(newVerticesAmountPerEdge);
+		}
 
-			int vertexIndex = 0;
-			int triangleIndex = 0;
+		private void InitCurrentTriangle(int triangleIndex, int subdivisionAmount)
+		{
+			_currentVertexIndex = 0;
+			_currentTriangleIndex = 0;
 
-			for (int i = 0; i < trianglesAmount; i++)
-			{
-				for(int j = 0; j < currentTriangle.Length; j++)
-					currentTriangle[j] = vertexIndices[i * _indicesPerTriangle + j];
+			InitCurrentTriangleVertexIndices(triangleIndex);
+			InitCornerVertices();
+			InitEdgeVectors();
+			InitEdgeDeltas(subdivisionAmount);
+			InitEdgesOf(triangleIndex);
+			InitSharedEdgesToWrite();
+			InitSharedEdgesToRead();
+			InitVertexIndiciesOfCurrentTriangle(subdivisionAmount);
+		}
 
-				for(int j = 0; j < cornerVertices.Length; j++)
-					cornerVertices[j] = vertices[currentTriangle[j]];
+		private void InitSharedEdgesToRead()
+		{
+			for (int i = 0; i < _currentTriangle.Length; i++)
+				InitSharedEdgeToRead(i);
+		}
 
-				for(int j = 0; j < edgeVectors.Length; j++)
-					edgeVectors[j] = cornerVertices[(j + 1) % 3] - cornerVertices[j];
+		private void InitSharedEdgesToWrite()
+		{
+			for (int i = 0; i < _currentTriangle.Length; i++)
+				InitSharedEdgeToWrite(i);
+		}
 
-				
-				edgeDelta[0] = edgeVectors[0] / newEdgesAmountPerEdge;
-				edgeDelta[1] = edgeVectors[1] / newEdgesAmountPerEdge;
-				edgeDelta[2] = edgeVectors[2] / newEdgesAmountPerEdge;
+		private void InitEdgesOf(int triangleIndex)
+		{
+			for (int edgeIndex = 0; edgeIndex < _currentTriangle.Length; edgeIndex++)
+				InitEdge(triangleIndex, edgeIndex);
+		}
 
+		private void InitEdgeDeltas(int subdivisionAmount)
+		{
+			int newEdgesAmountPerEdge = subdivisionAmount + 1;
+			for (int i = 0; i < _currentTriangle.Length; i++)
+				InitEdgeDelta(newEdgesAmountPerEdge, i);
+		}
 
-				// Shared edges handling
-				for (int j = 0; j < currentTriangle.Length; j++)
-					edges[j] = new Vector2Int(i * _indicesPerTriangle + j, i * _indicesPerTriangle + (j + 1) % _indicesPerTriangle);
-				// Set shared edges to fill the indices
-				for (int j = 0; j < currentTriangle.Length; j++)
-				{
-					fillSharedEdge[j] = sharedVertexIndices.ContainsKey(edges[j]);
-					sharedVertexIndicesToFill[j] = fillSharedEdge[j] ? sharedVertexIndices[edges[j]] : null;
-				}
-				// Set shared edges to read indices from
-				for (int j = 0; j < currentTriangle.Length; j++)
-				{
-					useSharedEdge[j] = sharedEdgeIndices.ContainsKey(edges[j]);
-					sharedVerticesToRead[j] = useSharedEdge[j] ? sharedVertexIndices[sharedEdgeIndices[edges[j]]] : null;
-				}
+		private void InitEdgeVectors()
+		{
+			for (int edgeIndex = 0; edgeIndex < _edgeVectors.Length; edgeIndex++)
+				InitEdgeVector(edgeIndex);
+		}
 
-				for (int j = 0; j < currentTriangleVetexIndices.Length; j++)
-					currentTriangleVetexIndices[j] = -1;
+		private void InitCornerVertices()
+		{
+			for (int edgeIndex = 0; edgeIndex < _cornerVertices.Length; edgeIndex++)
+				InitCornerVertex(edgeIndex);
+		}
 
-
-				int currentTriangleIndex = 0;
-				Vector3 pos = cornerVertices[0];
-
-				// Move around the three edges, determine indices, create vertices
-				for (int j = 0; j < _edgesPerTriangle; j++)
-				{
-					int maxE = newVerticesAmountPerEdge - 1;
-					for (int e = 0; e <= maxE; e++)
-					{
-						if (e == maxE)
-						{
-							if (useSharedEdge[j])
-								currentTriangleVetexIndices[currentTriangleIndex] = sharedVerticesToRead[j][maxE - e];
-							continue;
-						}
-
-						int index = currentTriangleVetexIndices[currentTriangleIndex] == -1 ? vertexIndex : currentTriangleVetexIndices[currentTriangleIndex];
-
-						if (useSharedEdge[j])
-							index = sharedVerticesToRead[j][maxE - e];
-						if(fillSharedEdge[j])
-							sharedVertexIndicesToFill[j][e] = index;
-
-						
-						if (index == vertexIndex)
-						{
-							newVertices.Add(pos);
-							vertexIndex++;
-						}
-						
-						currentTriangleVetexIndices[currentTriangleIndex] = index;
-
-						if (e == 0 && fillSharedEdge[(j + 2) % _edgesPerTriangle])
-							sharedVertexIndicesToFill[(j + 2) % _edgesPerTriangle][maxE] = currentTriangleVetexIndices[currentTriangleIndex];
-
-						pos += edgeDelta[j];
-						if (j == 0)
-							currentTriangleIndex += newVerticesAmountPerEdge - e;
-						else if (j == 1)
-							currentTriangleIndex -= (e + 1);
-						else if (j == 2)
-							currentTriangleIndex -= 1;
-					}
-				}
-
-				int currentVertexIndex = 0;
-				for (int y = 0; y < newVerticesAmountPerEdge; y++)
-				{
-					int maxX = newVerticesAmountPerEdge - y - 1;
-					int maxY = newVerticesAmountPerEdge - 1;
-
-					for (int x = 0; x <= maxX; x++)
-					{
-
-						if (x > 0 && y > 0 && x < maxX && y < maxY)
-						{
-							newVertices.Add(cornerVertices[0] + edgeDelta[0] * y + edgeDelta[2] * (-1) * x);
-							currentTriangleVetexIndices[currentVertexIndex] = vertexIndex;
-							vertexIndex++;
-						}
-
-						bool createTrianglePointingUp = y > 0;
-						bool createTrianglePointingDown = createTrianglePointingUp && y < newVerticesAmountPerEdge && x > 0;
-
-						// Triangle creation
-						if (createTrianglePointingUp)
-						{
-							// Create triangle pointing upwards
-							newVertexIndices[triangleIndex] = currentTriangleVetexIndices[currentVertexIndex];
-							newVertexIndices[triangleIndex + 1] = currentTriangleVetexIndices[currentVertexIndex - maxX - 1];
-							newVertexIndices[triangleIndex + 2] = currentTriangleVetexIndices[currentVertexIndex - maxX - 2];
-							triangleIndex += 3;
-
-							if (createTrianglePointingDown)
-							{
-								// Create triangle pointing downwards
-								newVertexIndices[triangleIndex] = currentTriangleVetexIndices[currentVertexIndex];
-								newVertexIndices[triangleIndex + 1] = currentTriangleVetexIndices[currentVertexIndex - maxX - 2];
-								newVertexIndices[triangleIndex + 2] = currentTriangleVetexIndices[currentVertexIndex - 1];
-								triangleIndex += 3;
-							}
-						}
-						currentVertexIndex++;
-					}
-				}
-				if(i == 20)
-				{
-					mesh.triangles = null;
-					mesh.vertices = newVertices.ToArray();
-					mesh.triangles = newVertexIndices;
-					break;
-				}
-			}
-			mesh.triangles = null;
-			mesh.vertices = newVertices.ToArray();
-			mesh.triangles = newVertexIndices;
+		private void InitCurrentTriangleVertexIndices(int triangleIndex)
+		{
+			for (int index = 0; index < _currentTriangle.Length; index++)
+				InitCurrentTriangleVertexIndex(triangleIndex, index);
 		}
 
 		private void CheckAmountValid(int amount)
 		{
 			if (amount < 1)
 				throw new ArgumentOutOfRangeException();
+		}
+
+		private void InitNewMeshValues(int subdivisionsAmount)
+		{
+			int currentTrianglesAmount = GetMeshTrianglesAmount();
+			int newVerticesAmountPerEdge = GetNewVerticesAmountPerEdge(subdivisionsAmount);
+			int newTrianglesPerTriangleAmount = GetNewTrianglesAmountPerTriangleFor(subdivisionsAmount);
+			int newVerticesPerTriangle = GetNewVerticesPerTriangle(newVerticesAmountPerEdge);
+
+			int newVerticesLength = newVerticesPerTriangle * currentTrianglesAmount;
+			_newVertices = new List<Vector3>(newVerticesLength);
+			int newVertexIndicesLength = newTrianglesPerTriangleAmount * currentTrianglesAmount * _verticesPerTriangle;
+			_newVertexIndices = new int[newVertexIndicesLength];
+
+			_vertexIndex = 0;
+			_triangleIndex = 0;
+		}
+
+		private void InitSharedEdgesIndices()
+		{
+			_sharedEdges.Clear();
+			Dictionary<Vector2Int, Vector2Int> edgeToIndices = new Dictionary<Vector2Int, Vector2Int>();
+			int trianglesCount = _meshVertexIndices.Length / _verticesPerTriangle;
+
+			for (int triangleIndex = 0; triangleIndex < trianglesCount; triangleIndex++)
+				InitSharedEdgeVerticesForTriangle(ref edgeToIndices, triangleIndex);
+		}
+
+		private void InitSharedEdgeVerticesForTriangle(ref Dictionary<Vector2Int, Vector2Int> edgeToIndices, int triangleIndex)
+		{
+			for (int edgeIndex = 0; edgeIndex < _edgesPerTriangle; edgeIndex++)
+				InitSharedEdgeVerticesFor(ref edgeToIndices, triangleIndex, edgeIndex);
+		}
+
+		private void InitSharedEdgeVerticesFor(ref Dictionary<Vector2Int, Vector2Int> edgeToIndices, int triangleIndex, int edgeIndex)
+		{
+			int startIndex = triangleIndex * _verticesPerTriangle + edgeIndex;
+			int endIndex = triangleIndex * _verticesPerTriangle + (edgeIndex + 1) % _verticesPerTriangle;
+			int meshVertexStartIndex = _meshVertexIndices[startIndex];
+			int meshVertexEndIndex = _meshVertexIndices[endIndex];
+			Vector2Int edge = new Vector2Int(meshVertexStartIndex, meshVertexEndIndex);
+			Vector2Int reverseEdge = new Vector2Int(meshVertexEndIndex, meshVertexStartIndex);
+			Vector2Int meshVertexIndices = new Vector2Int(startIndex, endIndex);
+
+			if (edgeToIndices.ContainsKey(edge))
+				_sharedEdges.Add(meshVertexIndices, edgeToIndices[edge]);
+			else if (edgeToIndices.ContainsKey(reverseEdge))
+				_sharedEdges.Add(meshVertexIndices, edgeToIndices[reverseEdge]);
+			else
+				edgeToIndices.Add(edge, meshVertexIndices);
+		}
+
+		private void InitSharedVertexIndices(int subivisionsAmount)
+		{
+			int newVerticesAmountPerEdge = GetNewVerticesAmountPerEdge(subivisionsAmount);
+			_sharedVertexIndices.Clear();
+			foreach (Vector2Int sharedEdge in _sharedEdges.Values)
+				_sharedVertexIndices[sharedEdge] = new int[newVerticesAmountPerEdge];
+		}
+
+		private void InitVertexIndiciesOfCurrentTriangle(int subdivisionAmount)
+		{
+			int newVerticesAmountPerEdge = GetNewVerticesAmountPerEdge(subdivisionAmount);
+			int newVerticesPerTriangle = GetNewVerticesPerTriangle(newVerticesAmountPerEdge);
+			_newVertexIndicesOfCurrentTriangle = new int[newVerticesPerTriangle];
+			for (int j = 0; j < _newVertexIndicesOfCurrentTriangle.Length; j++)
+				_newVertexIndicesOfCurrentTriangle[j] = -1;
+		}
+
+		private void SetNewMeshValuesOfTheEdges(int newVerticesAmountPerEdge)
+		{
+			for (int edgeIndex = 0; edgeIndex < _edgesPerTriangle; edgeIndex++)
+				SetNewMeshValuesOfEdge(newVerticesAmountPerEdge, _cornerVertices[edgeIndex], edgeIndex);
+		}
+
+		private void SetNewMeshValuesOfEdge(int newVerticesAmountPerEdge, Vector3 startPos, int edgeIndex)
+		{
+			Vector3 pos = startPos;
+			int maxEdgeVertexIndex = newVerticesAmountPerEdge - 1;
+			for (int edgeVertexIndex = 0; edgeVertexIndex <= maxEdgeVertexIndex; edgeVertexIndex++)
+			{
+				bool isEdgeEnd = edgeVertexIndex == maxEdgeVertexIndex;
+				if (isEdgeEnd)
+				{
+					if (_useSharedEdge[edgeIndex])
+						_newVertexIndicesOfCurrentTriangle[_currentTriangleIndex] = _sharedVerticesToRead[edgeIndex][maxEdgeVertexIndex - edgeVertexIndex];
+					continue;
+				}
+
+				int index = _newVertexIndicesOfCurrentTriangle[_currentTriangleIndex] == -1 ? _vertexIndex : _newVertexIndicesOfCurrentTriangle[_currentTriangleIndex];
+
+				if (_useSharedEdge[edgeIndex])
+					index = _sharedVerticesToRead[edgeIndex][maxEdgeVertexIndex - edgeVertexIndex];
+				if (_writeSharedEdge[edgeIndex])
+					_sharedVertexIndicesToWrite[edgeIndex][edgeVertexIndex] = index;
+
+
+				if (index == _vertexIndex)
+					CreateVertex(pos);
+				_newVertexIndicesOfCurrentTriangle[_currentTriangleIndex] = index;
+
+				if (edgeVertexIndex == 0 && _writeSharedEdge[(edgeIndex + 2) % _edgesPerTriangle])
+					_sharedVertexIndicesToWrite[(edgeIndex + 2) % _edgesPerTriangle][maxEdgeVertexIndex] = _newVertexIndicesOfCurrentTriangle[_currentTriangleIndex];
+
+				pos += _edgeDelta[edgeIndex];
+				_currentTriangleIndex += GetCurrentTriangleIndexDelta(newVerticesAmountPerEdge, edgeIndex, edgeVertexIndex);
+			}
+		}
+
+		private int GetCurrentTriangleIndexDelta(int newVerticesAmountPerEdge, int edgeIndex, int edgeVertexIndex)
+		{
+			switch(edgeIndex)
+			{
+				case 0:
+					return newVerticesAmountPerEdge - edgeVertexIndex;
+				case 1:
+					return -(edgeVertexIndex + 1);
+				case 2:
+					return -1;
+				default:
+					throw new NotImplementedException();
+			}
+		}
+
+		private void CreateNewMeshValuesForCurrentTriangle(int newVerticesAmountPerEdge)
+		{
+			_currentVertexIndex = 0;
+			int maxRow = newVerticesAmountPerEdge - 1;
+			for (int row = 0; row <= maxRow; row++)
+				CreateNewMeshValueForRow(row, maxRow);
+		}
+
+		private void CreateNewMeshValueForRow(int row, int maxRow)
+		{
+			int maxColumn = maxRow - row;
+			for (int column = 0; column <= maxColumn; column++)
+				CreateNewMeshValuesAt(column, row, maxColumn, maxRow);
+		}
+
+		private void CreateNewMeshValuesAt(int column, int row, int maxColumn, int maxRow)
+		{
+			CreateInnerVertexAt(column, row, maxColumn, maxRow);
+			CreateTrianglesAt(column, row, maxColumn, maxRow);
+			_currentVertexIndex++;
+		}
+
+		private void CreateInnerVertexAt(int column, int row, int maxColumn, int maxRow)
+		{
+			bool notFirstColumn = column > 0;
+			bool notLastColumn = column < maxColumn;
+			bool notFirstRow = row > 0;
+			bool notLastRow = row < maxRow;
+			bool createVertex = notFirstColumn && notLastColumn && notFirstRow && notLastRow;
+
+			if (!createVertex)
+				return;
+
+			Vector3 columnDelta = _edgeDelta[2] * (-1) * column;
+			Vector3 rowDelta = _edgeDelta[0] * row;
+			Vector3 newVertexPos = _cornerVertices[0] + columnDelta + rowDelta;
+			_newVertexIndicesOfCurrentTriangle[_currentVertexIndex] = _vertexIndex;
+			CreateVertex(newVertexPos);
+		}
+
+		private void CreateVertex(Vector3 pos)
+		{
+			_newVertices.Add(pos);
+			_vertexIndex++;
+		}
+
+		private void CreateTrianglesAt(int column, int row, int maxColumn, int maxRow)
+		{
+			bool notFirstRow = row > 0;
+			bool notFirstCollumn = column > 0;
+			bool notLastRow = row < maxRow;
+
+			bool createTrianglePointingUp = notFirstRow;
+			bool createTrianglePointingDown = createTrianglePointingUp && notLastRow && notFirstCollumn;
+
+			int i0 = _currentVertexIndex;
+			int i1 = _currentVertexIndex - maxColumn - 1;
+			int i2 = _currentVertexIndex - maxColumn - 2;
+			int i3 = _currentVertexIndex - 1;
+
+			if (createTrianglePointingUp)
+				CreateTriangle(new Vector3Int(i0, i1, i2));
+			if (createTrianglePointingDown)
+				CreateTriangle(new Vector3Int(i0, i2, i3));
 		}
 
 		private int GetNewTrianglesAmountPerTriangleFor(int subdivisions)
@@ -202,37 +333,84 @@ namespace SBaier.Master
 			return result;
 		}
 
-		private Dictionary<Vector2Int, Vector2Int> GetSharedEdgesIndices(Mesh mesh)
+		private int GetMeshTrianglesAmount()
 		{
-			Dictionary<Vector2Int, Vector2Int> result = new Dictionary<Vector2Int, Vector2Int>();
-			Dictionary<Vector2Int, Vector2Int> edgeToIndices = new Dictionary<Vector2Int, Vector2Int>();
+			return _meshVertexIndices.Length / _verticesPerTriangle;
+		}
 
-			int[] vertexIndices = mesh.triangles;
-			int verticesPerTriangle = 3;
-			int trianglesCount = vertexIndices.Length / verticesPerTriangle;
-			int edgesPerTriangle = 3;
+		private static int GetNewVerticesAmountPerEdge(int subdivisionsAmount)
+		{
+			return subdivisionsAmount + 2;
+		}
 
-			for (int i = 0; i < trianglesCount; i++)
-			{
-				for (int j = 0; j < edgesPerTriangle; j++)
-				{
-					int index = i * verticesPerTriangle + j;
-					int nextIndex = i * verticesPerTriangle + (j + 1) % verticesPerTriangle;
-					int vertexIndex1 = vertexIndices[index];
-					int vertexIndex2 = vertexIndices[nextIndex];
-					Vector2Int edge = new Vector2Int(vertexIndex1, vertexIndex2);
-					Vector2Int reverseEdge = new Vector2Int(vertexIndex2, vertexIndex1);
-					Vector2Int indices = new Vector2Int(index, nextIndex);
+		private static int GetNewVerticesPerTriangle(int newVerticesAmountPerEdge)
+		{
+			return (newVerticesAmountPerEdge * newVerticesAmountPerEdge + newVerticesAmountPerEdge) / 2;
+		}
 
-					if (edgeToIndices.ContainsKey(edge))
-						result.Add(indices, edgeToIndices[edge]);
-					else if(edgeToIndices.ContainsKey(reverseEdge))
-						result.Add(indices, edgeToIndices[reverseEdge]);
-					else
-						edgeToIndices.Add(edge, indices);
-				}
-			}
-			return result;
+		private void SetNewMeshValues(Mesh mesh)
+		{
+			mesh.vertices = _newVertices.ToArray();
+			mesh.triangles = _newVertexIndices;
+		}
+
+		private void CreateTriangle(Vector3Int indices)
+		{
+			_newVertexIndices[_triangleIndex] = _newVertexIndicesOfCurrentTriangle[indices.x];
+			_newVertexIndices[_triangleIndex + 1] = _newVertexIndicesOfCurrentTriangle[indices.y];
+			_newVertexIndices[_triangleIndex + 2] = _newVertexIndicesOfCurrentTriangle[indices.z];
+			_triangleIndex += 3;
+		}
+
+		private void InitSharedEdgeToRead(int j)
+		{
+			_useSharedEdge[j] = _sharedEdges.ContainsKey(_edges[j]);
+			_sharedVerticesToRead[j] = _useSharedEdge[j] ? _sharedVertexIndices[_sharedEdges[_edges[j]]] : null;
+		}
+
+		private void InitSharedEdgeToWrite(int j)
+		{
+			_writeSharedEdge[j] = _sharedVertexIndices.ContainsKey(_edges[j]);
+			_sharedVertexIndicesToWrite[j] = _writeSharedEdge[j] ? _sharedVertexIndices[_edges[j]] : null;
+		}
+
+		private void InitEdge(int triangleIndex, int edgeIndex)
+		{
+			int start = triangleIndex * _verticesPerTriangle + edgeIndex;
+			int end = triangleIndex * _verticesPerTriangle + (edgeIndex + 1) % _verticesPerTriangle;
+			_edges[edgeIndex] = new Vector2Int(start, end);
+		}
+
+		private void InitEdgeDelta(int newEdgesAmountPerEdge, int edgeIndex)
+		{
+			Vector3 edge = _edgeVectors[edgeIndex];
+			_edgeDelta[edgeIndex] = edge / newEdgesAmountPerEdge;
+		}
+
+		private void InitEdgeVector(int edgeIndex)
+		{
+			int endVectorIndex = (edgeIndex + 1) % _verticesPerTriangle;
+			Vector3 endVector = _cornerVertices[endVectorIndex];
+			Vector3 startVector = _cornerVertices[edgeIndex];
+			_edgeVectors[edgeIndex] = endVector - startVector;
+		}
+
+		private void InitCornerVertex(int edgeIndex)
+		{
+			int triangleIndex = _currentTriangle[edgeIndex];
+			_cornerVertices[edgeIndex] = _meshVertices[triangleIndex];
+		}
+
+		private void InitCurrentMeshValues(Mesh mesh)
+		{
+			_meshVertexIndices = mesh.triangles;
+			_meshVertices = mesh.vertices;
+		}
+
+		private void InitCurrentTriangleVertexIndex(int triangleIndex, int triangleVerticesIndex)
+		{
+			int meshVerticesIndex = triangleIndex * _verticesPerTriangle + triangleVerticesIndex;
+			_currentTriangle[triangleVerticesIndex] = _meshVertexIndices[meshVerticesIndex];
 		}
 	}
 }
