@@ -239,7 +239,7 @@ namespace SBaier.Master
 				if (edgeVertexIndex == 0 && _writeSharedEdge[(edgeIndex + 2) % _edgesPerTriangle])
 					_sharedVertexIndicesToWrite[(edgeIndex + 2) % _edgesPerTriangle][maxEdgeVertexIndex] = _newVertexIndicesOfCurrentTriangle[_currentTriangleIndex];
 
-				pos += _edgeDelta[edgeIndex];
+				pos = pos.FastAdd(_edgeDelta[edgeIndex]);
 				_currentTriangleIndex += GetCurrentTriangleIndexDelta(newVerticesAmountPerEdge, edgeIndex, edgeVertexIndex);
 			}
 		}
@@ -292,9 +292,9 @@ namespace SBaier.Master
 			if (!createVertex)
 				return;
 
-			Vector3 columnDelta = _edgeDelta[2] * (-1) * column;
-			Vector3 rowDelta = _edgeDelta[0] * row;
-			Vector3 newVertexPos = _cornerVertices[0] + columnDelta + rowDelta;
+			Vector3 columnDelta = _edgeDelta[2].FastMultiply(-1).FastMultiply(column);
+			Vector3 rowDelta = _edgeDelta[0].FastMultiply(row);
+			Vector3 newVertexPos = _cornerVertices[0].FastAdd(columnDelta).FastAdd(rowDelta);
 			_newVertexIndicesOfCurrentTriangle[_currentVertexIndex] = _vertexIndex;
 			CreateVertex(newVertexPos);
 		}
@@ -319,6 +319,7 @@ namespace SBaier.Master
 			int i2 = _currentVertexIndex - maxColumn - 2;
 			int i3 = _currentVertexIndex - 1;
 
+			
 			if (createTrianglePointingUp)
 				CreateTriangle(new Vector3Int(i0, i1, i2));
 			if (createTrianglePointingDown)

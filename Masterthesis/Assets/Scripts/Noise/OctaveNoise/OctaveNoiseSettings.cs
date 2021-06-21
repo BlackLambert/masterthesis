@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace SBaier.Master
@@ -14,8 +13,8 @@ namespace SBaier.Master
 		private NoiseSettings _baseNoise;
 		public NoiseSettings BaseNoise => _baseNoise;
 		[SerializeField]
-		private double _startFrequency = 1;
-		public double StartFrequency => _startFrequency;
+		private float _startFrequency = 1;
+		public float StartFrequency => _startFrequency;
 		[SerializeField]
 		private double _startWeight = 1;
 		public double StartWeight => _startWeight;

@@ -1,9 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using Unity.Collections;
+using Unity.Jobs;
+using System;
+using System.Collections.Generic;
 
 namespace SBaier.Master
 {
@@ -14,7 +15,7 @@ namespace SBaier.Master
 	/// </summary>
 	public class PerlinNoise : Noise3D, Seedbased
 	{
-		private readonly static short[][] _grad3 = new short[][] 
+		public readonly static short[][] Grad3 = new short[][] 
 		{
 			new short[] {1,1,0},
 			new short[] {-1,1,0},
@@ -32,9 +33,10 @@ namespace SBaier.Master
 
 		private const short _permutationCount = 256;
 		private const short _doublePermutationCount = _permutationCount * 2;
+		private const int _innerloopBatchCount = 64;
 
-		private readonly short[] _dP = new short[_doublePermutationCount];
-		private readonly short[] _dPMod12 = new short[_doublePermutationCount];
+		private short[] _dP;
+		private short[] _dPMod12;
 
 		public Seed Seed { get; }
 
@@ -44,6 +46,75 @@ namespace SBaier.Master
 		{
 			Seed = seed;
 			InitPermutation(seed);
+		}
+
+		private void InitPermutation(Seed seed)
+		{
+			short[] permutation = new short[_permutationCount];
+			for (short i = 0; i < permutation.Length; i++)
+				permutation[i] = i;
+
+			_dP = new short[_doublePermutationCount];
+			_dPMod12 = new short[_doublePermutationCount];
+
+			permutation = permutation.OrderBy(x => seed.Random.Next()).ToArray();
+			for (int i = 0; i < _permutationCount; i++)
+			{
+				_dP[_permutationCount + i] = _dP[i] = permutation[i];
+				_dPMod12[_permutationCount + i] = _dPMod12[i] = (short)(permutation[i] % 12);
+			}
+		}
+
+		public double[] Evaluate(Vector3[] points)
+		{
+			NativeArray<double> evaluatedPoints = new NativeArray<double>(points.Length, Allocator.TempJob);
+			NativeArray<Vector3> p = new NativeArray<Vector3>(points, Allocator.TempJob);
+			IndexableNativeArray<short> dP = new IndexableNativeArray<short>(_dP, Allocator.TempJob);
+			IndexableNativeArray<short> dPMod12 = new IndexableNativeArray<short>(_dPMod12, Allocator.TempJob);
+
+			PerlinNoise3DEvaluationJob job = new PerlinNoise3DEvaluationJob()
+			{
+				_dP = dP,
+				_dPMod12 = dPMod12,
+				_result = evaluatedPoints,
+				_points = p
+			};
+
+			job.Schedule(points.Length, _innerloopBatchCount).Complete();
+			double[] result = evaluatedPoints.ToArray();
+
+			evaluatedPoints.Dispose();
+			p.Dispose();
+			dP.Dispose();
+			dPMod12.Dispose();
+
+			return result;
+		}
+
+		public double[] Evaluate(Vector2[] points)
+		{
+			NativeArray<double> evaluatedPoints = new NativeArray<double>(points.Length, Allocator.TempJob);
+			NativeArray<Vector2> p = new NativeArray<Vector2>(points, Allocator.TempJob);
+			IndexableNativeArray<short> dP = new IndexableNativeArray<short>(_dP, Allocator.TempJob);
+			IndexableNativeArray<short> dPMod12 = new IndexableNativeArray<short>(_dPMod12, Allocator.TempJob);
+
+			PerlinNoise2DEvaluationJob job = new PerlinNoise2DEvaluationJob()
+			{
+				_dP = dP,
+				_dPMod12 = dPMod12,
+				_result = evaluatedPoints,
+				_points = p
+			};
+
+			job.Schedule(points.Length, _innerloopBatchCount).Complete();
+			double[] result = evaluatedPoints.ToArray();
+
+			evaluatedPoints.Dispose();
+			p.Dispose();
+			dP.Dispose();
+			dPMod12.Dispose();
+
+			return result;
 		}
 
 		public double Evaluate(double x, double y)
@@ -59,15 +130,13 @@ namespace SBaier.Master
 			short gi10 = _dPMod12[X + 1 + _dP[Y]];
 			short gi11 = _dPMod12[X + 1 + _dP[Y + 1]];
 
-			//Debug.Log($"[{x}|{y}] [{gi00}|{gi01}|{gi10}|{gi11}|]");
-
 			x -= flooredX;
 			y -= flooredY;
 
-			double n00 = Dot(_grad3[gi00], x, y);
-			double n10 = Dot(_grad3[gi10], x - 1, y);
-			double n01 = Dot(_grad3[gi01], x, y - 1);
-			double n11 = Dot(_grad3[gi11], x - 1, y - 1);
+			double n00 = Dot(Grad3[gi00], x, y);
+			double n10 = Dot(Grad3[gi10], x - 1, y);
+			double n01 = Dot(Grad3[gi01], x, y - 1);
+			double n11 = Dot(Grad3[gi11], x - 1, y - 1);
 
 			double u = Fade(x);
 			double v = Fade(y);
@@ -107,14 +176,14 @@ namespace SBaier.Master
 			short gi111 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z + 1]]];
 
 			// Calculate noise contributions from each of the eight corners
-			double n000 = Dot(_grad3[gi000], x, y, z);
-			double n100 = Dot(_grad3[gi100], x - 1, y, z);
-			double n010 = Dot(_grad3[gi010], x, y - 1, z);
-			double n110 = Dot(_grad3[gi110], x - 1, y - 1, z);
-			double n001 = Dot(_grad3[gi001], x, y, z - 1);
-			double n101 = Dot(_grad3[gi101], x - 1, y, z - 1);
-			double n011 = Dot(_grad3[gi011], x, y - 1, z - 1);
-			double n111 = Dot(_grad3[gi111], x - 1, y - 1, z - 1);
+			double n000 = Dot(Grad3[gi000], x, y, z);
+			double n100 = Dot(Grad3[gi100], x - 1, y, z);
+			double n010 = Dot(Grad3[gi010], x, y - 1, z);
+			double n110 = Dot(Grad3[gi110], x - 1, y - 1, z);
+			double n001 = Dot(Grad3[gi001], x, y, z - 1);
+			double n101 = Dot(Grad3[gi101], x - 1, y, z - 1);
+			double n011 = Dot(Grad3[gi011], x, y - 1, z - 1);
+			double n111 = Dot(Grad3[gi111], x - 1, y - 1, z - 1);
 
 			// Compute the fade curve value for each of x, y, z
 			double u = Fade(x);
@@ -137,48 +206,28 @@ namespace SBaier.Master
 			return (nxyz + 1) / 2;
 		}
 
-
-		private void InitPermutation(Seed seed)
-		{
-			short[] permutation = new short[_permutationCount];
-			for (short i = 0; i < permutation.Length; i++)
-				permutation[i] = i;
-
-			permutation = permutation.OrderBy(x => seed.Random.Next()).ToArray();
-			for (int i = 0; i < _permutationCount; i++)
-			{
-				_dP[_permutationCount + i] = _dP[i] = permutation[i];
-				_dPMod12[_permutationCount + i] = _dPMod12[i] = (short) (permutation[i] % 12);
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static double Fade(double t)
+		public static double Fade(double t)
 		{
 			return t * t * t * (t * (t * 6 - 15) + 10);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static double Lerp(double min, double max, double t)
+		public static double Lerp(double min, double max, double t)
 		{
 			return min + t * (max - min);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static short Floor(double value)
+		public static short Floor(double value)
 		{
 			short xi = (short)value;
 			return (short)(value < xi ? xi - 1 : xi);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static double Dot(short[] gradient, double x, double y, double z)
+		public static double Dot(short[] gradient, double x, double y, double z)
 		{
 			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static double Dot(short[] gradient, double x, double y)
+		public static double Dot(short[] gradient, double x, double y)
 		{
 			return gradient[0] * x + gradient[1] * y;
 		}

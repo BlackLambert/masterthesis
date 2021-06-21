@@ -23,6 +23,9 @@ namespace SBaier.Master.Test
 
 		protected override NoiseType ExpectedNoiseType => NoiseType.Layered;
 
+		private LayeredNoise _noise;
+		private List<LayeredNoise.NoiseLayer> _layers;
+
 		[Test (Description ="The LayersCopy property returns a copy of the layers put into the constructor.")]
 		public void LayersReturnProvidedValues()
 		{
@@ -64,7 +67,7 @@ namespace SBaier.Master.Test
 
 		protected override void GivenANew3DNoise()
 		{
-			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidLayers).AsSingle();
+			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidLayers).AsTransient();
 			Container.Bind(typeof(Noise3D)).To<LayeredNoise>().AsTransient().WithArguments(_defaultMappingMode);
 		}
 
@@ -76,22 +79,21 @@ namespace SBaier.Master.Test
 
 		private void ThenLayersCopyReturnProvidedValues()
 		{
-			List<LayeredNoise.NoiseLayer> layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
+			_layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			List<LayeredNoise.NoiseLayer> layersCopy = noise.LayersCopy;
+			LayeredNoise.NoiseLayer[] noiseLayers = noise.Layers;
 
-			Assert.True(Enumerable.SequenceEqual(layers, layersCopy));
-			Assert.AreEqual(layers, layersCopy);
-			Assert.AreNotSame(layers, layersCopy);
+			Assert.True(Enumerable.SequenceEqual(_layers, noiseLayers));
+			Assert.AreEqual(_layers, noiseLayers);
 		}
 
 		private void ThenEvaluateReturnsLayeredValue(LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
 		{
-			List<LayeredNoise.NoiseLayer> layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
+			_layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			List<LayeredNoise.NoiseLayer> noiseLayers = noise.LayersCopy;
+			LayeredNoise.NoiseLayer[] noiseLayers = noise.Layers;
 
-			double sum = layers.Sum((layer) => OctaveNoiseSum(layer, mappingMode, testEvaluationPoint));
+			double sum = _layers.Sum((layer) => OctaveNoiseSum(layer, mappingMode, testEvaluationPoint));
 			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
 				sum += 0.5;
 			double expected = Clamp01(sum);

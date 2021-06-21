@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -14,20 +14,40 @@ namespace SBaier.Master
 			BaseNoise = baseNoise;
 		}
 
+		public double[] Evaluate(Vector3[] points)
+		{
+			return ApplyNoise(BaseNoise.Evaluate(points));
+		}
+
+		public double[] Evaluate(Vector2[] points)
+		{
+			return ApplyNoise(BaseNoise.Evaluate(points));
+		}
+
 		public double Evaluate(double x, double y)
 		{
-			return Evaluate(x, y, 0);
+			return ApplyNoise(BaseNoise.Evaluate(x, y));
 		}
 
 		public double Evaluate(double x, double y, double z)
 		{
-			double perlinValue = BaseNoise.Evaluate(x, y, z);
-			double stretchedValue = stretchToNegativeValueRange(perlinValue);
+			return ApplyNoise(BaseNoise.Evaluate(x, y, z));
+		}
+
+		private static double[] ApplyNoise(double[] evaluatedValue)
+		{
+			for (int i = 0; i < evaluatedValue.Length; i++)
+				evaluatedValue[i] = ApplyNoise(evaluatedValue[i]);
+			return evaluatedValue;
+		}
+
+		private static double ApplyNoise(double baseValue)
+		{
+			double stretchedValue = StretchToNegativeValueRange(baseValue);
 			return Math.Abs(stretchedValue);
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private double stretchToNegativeValueRange(double perlinValue)
+		private static double StretchToNegativeValueRange(double perlinValue)
 		{
 			return perlinValue * 2 - 1;
 		}

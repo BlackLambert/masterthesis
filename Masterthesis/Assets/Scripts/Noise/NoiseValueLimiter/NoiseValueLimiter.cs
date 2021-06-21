@@ -18,6 +18,16 @@ namespace SBaier.Master
 
 		public NoiseType NoiseType => NoiseType.NoiseValueLimiter;
 
+		public double[] Evaluate(Vector2[] points)
+		{
+			return ApplyNoise(BaseNoise.Evaluate(points));
+		}
+
+		public double[] Evaluate(Vector3[] points)
+		{
+			return ApplyNoise(BaseNoise.Evaluate(points));
+		}
+
 		public double Evaluate(double x, double y, double z)
 		{
 			return Limit(BaseNoise.Evaluate(x, y, z));
@@ -26,6 +36,14 @@ namespace SBaier.Master
 		public double Evaluate(double x, double y)
 		{
 			return Limit(BaseNoise.Evaluate(x, y));
+		}
+
+
+		private double[] ApplyNoise(double[] baseValues)
+		{
+			for (int i = 0; i < baseValues.Length; i++)
+				baseValues[i] = Limit(baseValues[i]);
+			return baseValues;
 		}
 
 		private double Limit(double baseNoiseValue)

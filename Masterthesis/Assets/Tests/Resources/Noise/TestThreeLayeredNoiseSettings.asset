@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: TestThreeLayeredNoiseSettings
   m_EditorClassIdentifier: 
-  _octaves:
+  _layers:
   - {fileID: 11400000, guid: 02c6bb77eae1dfd4fb7a24dbe86eb327, type: 2}
   - {fileID: 11400000, guid: c9ec24f78bf3224498c47083778f22fc, type: 2}
   - {fileID: 11400000, guid: 87eccb7a8f4a0dc40bfd5b58cc333cbf, type: 2}
+  _mapping: 0

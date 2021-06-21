@@ -14,7 +14,7 @@ namespace SBaier.Master
 		public double Weight => _weight;
 
 		[SerializeField]
-		private double _frequencyFactor = 1;
-		public double FrequencyFactor => _frequencyFactor;
+		private float _frequencyFactor = 1;
+		public float FrequencyFactor => _frequencyFactor;
 	}
 }

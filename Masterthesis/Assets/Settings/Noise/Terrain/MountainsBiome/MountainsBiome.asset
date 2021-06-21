@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: MountainsBiome
   m_EditorClassIdentifier: 
-  _octaves:
+  _layers:
   - {fileID: 11400000, guid: 527830e6115f531459fc698fc2e43186, type: 2}
   - {fileID: 11400000, guid: aeb4725c10a570548bbf2fc38a88828f, type: 2}
-  - {fileID: 11400000, guid: 7f3eec40a6b61f44e9d33948ab875d3e, type: 2}
   - {fileID: 11400000, guid: 5b363ff3795c8134da62679d70981c79, type: 2}
+  - {fileID: 11400000, guid: 7f3eec40a6b61f44e9d33948ab875d3e, type: 2}
   _mapping: 1

@@ -15,21 +15,19 @@ namespace SBaier.Master
         [SerializeField]
         private float _maxHeight = 5f;
         [SerializeField]
-        private float _noiseFactor = 0.01f;
-        [SerializeField]
         private Vector3 _startPositionDelta = new Vector3(0.02f, 0, 0.03f);
         [SerializeField]
         private Vector3 _startPosition = Vector3.zero;
-        [SerializeField]
-        private bool _cacheVertices = true;
 
         private NoiseFactory _noiseFactory;
         private Seed _seed;
 
         private Noise3D _noise;
         private Vector3 _currentStartPositionDelta;
-        private Vector3[] _newVertices;
         private Vector3[] _formerVertices;
+        private Vector3[] _newVertices;
+        private Vector2[] _evaluationPoints;
+        private double[] _evaluatedValues;
 
         [Inject]
         private void Construct(NoiseFactory noiseFactory,
@@ -43,8 +41,6 @@ namespace SBaier.Master
 		{
             CreateNoise();
             _currentStartPositionDelta = _startPosition;
-            if (_cacheVertices)
-                _formerVertices = _meshFilter.sharedMesh.vertices;
         }
 
         protected virtual void Update()
@@ -59,24 +55,56 @@ namespace SBaier.Master
         }
 
         private void ApplyNoise()
-        {
-            Mesh mesh = _meshFilter.sharedMesh;
-            if(_newVertices == null || _newVertices.Length != mesh.vertexCount)
-                _newVertices = new Vector3[mesh.vertexCount];
-            _formerVertices = _cacheVertices && _formerVertices.Length == mesh.vertexCount ? _formerVertices : mesh.vertices;
+		{
+			Mesh mesh = _meshFilter.sharedMesh;
+			InitFormerVertices(mesh);
+			InitNewVertices(mesh);
+			InitEvaluationPoints(mesh);
+			UpdateEvaluationPoints();
+			SetNewVertices();
+			UpdateMesh(mesh);
+		}
 
-            for(int i = 0; i< _newVertices.Length; i++)
+		private void InitFormerVertices(Mesh mesh)
+		{
+			_formerVertices = mesh.vertices;
+		}
+
+		private void InitNewVertices(Mesh mesh)
+		{
+			if (_newVertices == null || _newVertices.Length != mesh.vertexCount)
+				_newVertices = new Vector3[mesh.vertexCount];
+		}
+
+		private void InitEvaluationPoints(Mesh mesh)
+		{
+			if (_evaluationPoints == null || _evaluationPoints.Length != mesh.vertexCount)
+				_evaluationPoints = new Vector2[mesh.vertexCount];
+		}
+
+		private void UpdateEvaluationPoints()
+		{
+			for (int i = 0; i < _formerVertices.Length; i++)
 			{
-                Vector3 former = _formerVertices[i];
-                Vector3 evaluationVector = former + _currentStartPositionDelta;
-                float noiseValue = (float) _noise.Evaluate(evaluationVector.x * _noiseFactor, evaluationVector.z * _noiseFactor);
-                _newVertices[i] = new Vector3(former.x, noiseValue * _maxHeight, former.z);
-            }
+				Vector3 former = _formerVertices[i];
+				_evaluationPoints[i] = new Vector2(former.x + _currentStartPositionDelta.x, former.z + _currentStartPositionDelta.z);
+			}
+			_evaluatedValues = _noise.Evaluate(_evaluationPoints);
+		}
 
-            mesh.vertices = _newVertices;
-            mesh.RecalculateNormals();
-            if (_cacheVertices)
-                _formerVertices = _newVertices;
-        }
-    }
+		private void SetNewVertices()
+		{
+			for (int i = 0; i < _newVertices.Length; i++)
+			{
+				Vector3 formerVertex = _formerVertices[i];
+				_newVertices[i] = new Vector3(formerVertex.x, (float)_evaluatedValues[i] * _maxHeight, formerVertex.z);
+			}
+		}
+
+		private void UpdateMesh(Mesh mesh)
+		{
+			mesh.vertices = _newVertices;
+			mesh.RecalculateNormals();
+		}
+	}
 }

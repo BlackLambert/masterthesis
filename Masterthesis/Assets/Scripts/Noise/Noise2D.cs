@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -7,5 +6,6 @@ namespace SBaier.Master
 	public interface Noise2D : Noise
 	{
 		double Evaluate(double x, double y);
+		double[] Evaluate(Vector2[] points);
 	}
 }

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: SeldomMediumMountains
   m_EditorClassIdentifier: 
   _valueLimits: {x: 0.85, y: 1}
-  _baseNoise: {fileID: 11400000, guid: 98641819870fae842a26edbccffd4461, type: 2}
+  _baseNoise: {fileID: 11400000, guid: 1e6f27d04bb37fc4a864bfbe26c2c9b6, type: 2}

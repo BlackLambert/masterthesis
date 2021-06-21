@@ -10,20 +10,21 @@ namespace SBaier.Master.Test
     public class OctaveNoiseTest : NoiseTest
     {
 		private const int _octavesCount = 3;
-		private const double _startFrequency = 4;
+		private const float _startFrequency = 4;
 		private readonly Vector2 _startWeightRange = new Vector2(0, 1); 
 		private const double _startWeight = 0.5;
-		private const double _startWeightSmallerRange = -0.23;
-		private const double _startWeightLargerRange = 1.12;
-		private const double _startFrequencySmallerOne = -1.3;
+		private const float _startFrequencySmallerOne = -1.3f;
 		private const int _testSeed = 1234;
 		private const double _doubleDelta = 0.001;
 		private readonly Vector3 _testValue = new Vector3(2.1f, 4.7f, -2.4f);
+
 		private OctaveNoise _noise;
 		private Noise3D _baseNoise;
+		private OctaveNoise.Arguments _args;
 
 		protected override NoiseType ExpectedNoiseType => NoiseType.Octave;
 
+		
 		[Test(Description = "The OctavesCount property returns value put into the constructor")]
         public void OctavesCount_ReturnsExpectedValue()
         {
@@ -57,8 +58,6 @@ namespace SBaier.Master.Test
 		{
 			TestDelegate test = () => CreateTestArgsWithStartWeightSmallerThanRange();
 			ThenThrowsArgumentOutOfRangeException(test);
-			test = () => CreateTestArgsWithStartWeightLargerThanRange();
-			ThenThrowsArgumentOutOfRangeException(test);
 		}
 
 		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Frequency is smaller than 1.")]
@@ -77,12 +76,13 @@ namespace SBaier.Master.Test
 
 		protected override void GivenANew3DNoise()
 		{
-			GivenAnOctaveNoise(CreateValidArgs());
+			GivenAnOctaveNoise(CreateValidArgs);
 		}
 
-		private void GivenAnOctaveNoise(OctaveNoise.Arguments args)
+		private void GivenAnOctaveNoise(Func<OctaveNoise.Arguments> args)
 		{
-			Container.Bind(typeof(Noise3D), typeof(OctaveNoise)).To<OctaveNoise>().AsTransient().WithArguments(args);
+			Container.Bind<OctaveNoise.Arguments>().FromMethod(args).AsTransient();
+			Container.Bind(typeof(Noise3D), typeof(OctaveNoise)).To<OctaveNoise>().AsTransient();
 			_noise = Container.Resolve<OctaveNoise>();
 		}
 

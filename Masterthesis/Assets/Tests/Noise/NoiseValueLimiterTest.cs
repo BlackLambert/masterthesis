@@ -81,8 +81,7 @@ namespace SBaier.Master.Test
 
 		protected override void GivenANew3DNoise()
 		{
-			_baseNoise = new PerlinNoise(new Seed(_baseSeed));
-			Container.Bind<Noise3D>().To<NoiseValueLimiter>().AsTransient().WithArguments(_baseNoise, _validLimits[0]);
+			Container.Bind<Noise3D>().To<NoiseValueLimiter>().FromMethod(() => CreateLimiter(_validLimits[0])).AsTransient();
 		}
 
 		private void GivenADefaultSetup(Vector2 limits)

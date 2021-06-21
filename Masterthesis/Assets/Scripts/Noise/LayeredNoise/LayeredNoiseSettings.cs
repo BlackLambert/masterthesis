@@ -8,8 +8,8 @@ namespace SBaier.Master
 	public class LayeredNoiseSettings : NoiseSettings
 	{
 		[SerializeField]
-		private List<NoiseLayerSettings> _octaves = new List<NoiseLayerSettings>();
-		public List<NoiseLayerSettings> Layers => _octaves;
+		private List<NoiseLayerSettings> _layers = new List<NoiseLayerSettings>();
+		public List<NoiseLayerSettings> Layers => _layers;
 
 		[SerializeField]
 		private LayeredNoise.MappingMode _mapping = LayeredNoise.MappingMode.NegOneToOne;

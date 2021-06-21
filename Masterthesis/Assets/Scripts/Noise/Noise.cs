@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 namespace SBaier.Master
 {
-    public interface Noise 
+    public interface Noise
     {
         NoiseType NoiseType { get; }
     }

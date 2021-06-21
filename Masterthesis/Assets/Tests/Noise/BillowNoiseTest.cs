@@ -1,5 +1,6 @@
 using Zenject;
 using NUnit.Framework;
+using System;
 
 namespace SBaier.Master.Test
 {
@@ -12,15 +13,12 @@ namespace SBaier.Master.Test
 
 		protected override void GivenANew3DNoise()
 		{
-			Container.Bind<Seed>().To<Seed>().FromMethod(CreateSeed).AsTransient();
-			Container.Bind<PerlinNoise>().To<PerlinNoise>().AsTransient();
-			PerlinNoise baseNoise = Container.Resolve<PerlinNoise>();
-			Container.Bind<Noise3D>().To<BillowNoise>().AsTransient().WithArguments(baseNoise);
+			Container.Bind<Noise3D>().To<BillowNoise>().FromMethod(CreateNoise).AsTransient();
 		}
 
-		private Seed CreateSeed()
+		private BillowNoise CreateNoise()
 		{
-			return new Seed(_testSeed);
+			return new BillowNoise(new PerlinNoise(new Seed(_testSeed)));
 		}
 	}
 }

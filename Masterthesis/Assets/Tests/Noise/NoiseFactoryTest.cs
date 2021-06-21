@@ -270,13 +270,13 @@ namespace SBaier.Master.Test
         private void ThenTheLayerNoiseHasExpectedLayersCount(LayeredNoiseSettings settings)
         {
             LayeredNoise octaveNoise = (LayeredNoise)_noise;
-            Assert.AreEqual(settings.Layers.Count, octaveNoise.LayersCopy.Count);
+            Assert.AreEqual(settings.Layers.Count, octaveNoise.Layers.Length);
         }
 
         private void ThenTheLayersHaveValuesBasedOn(LayeredNoiseSettings settings)
         {
             LayeredNoise layeredNoise = (LayeredNoise)_noise;
-            List<LayeredNoise.NoiseLayer> octaves = layeredNoise.LayersCopy;
+            LayeredNoise.NoiseLayer[] octaves = layeredNoise.Layers;
             for (int i = 0; i < settings.Layers.Count; i++)
 			{
                 NoiseLayerSettings octaveSetting = settings.Layers[i];

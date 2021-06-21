@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -13,18 +13,33 @@ namespace SBaier.Master
 			_bollowNoise = billowNoise;
 		}
 
+		public double[] Evaluate(Vector2[] points)
+		{
+			return ApplyNoise(_bollowNoise.Evaluate(points));
+		}
+
+		public double[] Evaluate(Vector3[] points)
+		{
+			return ApplyNoise(_bollowNoise.Evaluate(points));
+		}
+
 		public double Evaluate(double x, double y)
 		{
-			return Evaluate(x, y, 0);
+			return InvertValue(_bollowNoise.Evaluate(x, y));
 		}
 
 		public double Evaluate(double x, double y, double z)
 		{
-			double billowValue = _bollowNoise.Evaluate(x, y, z);
-			return InvertValue(billowValue);
+			return InvertValue(_bollowNoise.Evaluate(x, y, z));
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private double[] ApplyNoise(double[] evaluatedValue)
+		{
+			for (int i = 0; i < evaluatedValue.Length; i++)
+				evaluatedValue[i] = InvertValue(evaluatedValue[i]);
+			return evaluatedValue;
+		}
+
 		private double InvertValue(double billowValue)
 		{
 			return billowValue * (-1) + 1;
