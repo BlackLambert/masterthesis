@@ -13,6 +13,7 @@ namespace SBaier.Master.Test
 	{
 		private const int _randomSeed = 43623;
 		private const LayeredNoise.MappingMode _defaultMappingMode = LayeredNoise.MappingMode.NegOneToOne;
+		private const double _epsilon = 0.0001;
 		private readonly Vector3[] _testEvaluationPoints = new Vector3[]
 		{
 			Vector3.zero,
@@ -93,21 +94,21 @@ namespace SBaier.Master.Test
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
 			LayeredNoise.NoiseLayer[] noiseLayers = noise.Layers;
 
-			double sum = _layers.Sum((layer) => OctaveNoiseSum(layer, mappingMode, testEvaluationPoint));
+			float sum = _layers.Sum((layer) => OctaveNoiseSum(layer, mappingMode, testEvaluationPoint));
 			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
-				sum += 0.5;
-			double expected = Clamp01(sum);
-			double actual = noise.Evaluate(testEvaluationPoint.x, testEvaluationPoint.y, testEvaluationPoint.z);
+				sum += 0.5f;
+			float expected = Mathf.Clamp01(sum);
+			float actual = noise.Evaluate3D(testEvaluationPoint);
 
-			Assert.AreEqual(expected, actual);
+			Assert.AreEqual(expected, actual, _epsilon);
 		}
 
-		private double OctaveNoiseSum(LayeredNoise.NoiseLayer layer, LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
+		private float OctaveNoiseSum(LayeredNoise.NoiseLayer layer, LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
 		{
-			double ff = layer.FrequencyFactor;
-			double evaluatedValue = layer.Noise.Evaluate(testEvaluationPoint.x * ff, testEvaluationPoint.y * ff, testEvaluationPoint.z * ff);
+			float ff = layer.FrequencyFactor;
+			float evaluatedValue = layer.Noise.Evaluate3D(testEvaluationPoint * ff);
 			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
-				evaluatedValue -= 0.5;
+				evaluatedValue -= 0.5f;
 			return evaluatedValue * layer.Weight;
 		}
 
@@ -135,11 +136,6 @@ namespace SBaier.Master.Test
 			Seed seed = new Seed(_randomSeed);
 			PerlinNoise noise = new PerlinNoise(seed);
 			return noise;
-		}
-
-		private double Clamp01(double result)
-		{
-			return (result > 1) ? 1 : (result < 0) ? 0 : result;
 		}
 	}
 }

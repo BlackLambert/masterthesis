@@ -1,8 +1,4 @@
-
-
 using System;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -12,7 +8,7 @@ namespace SBaier.Master
 		public int OctavesCount { get; }
 		public Noise3D BaseNoise { get; }
 		public float StartFrequency { get; }
-		public double StartWeight { get; }
+		public float StartWeight { get; }
 
 		public NoiseType NoiseType => NoiseType.Octave;
 
@@ -25,9 +21,9 @@ namespace SBaier.Master
 			StartWeight = args.StartWeight;
 		}
 
-		public double[] Evaluate(Vector2[] points)
+		public float[] Evaluate2D(Vector2[] points)
 		{
-			double[] result = new double[points.Length];
+			float[] result = new float[points.Length];
 
 			// Base evaluations
 			for (int octave = 0; octave < OctavesCount; octave++)
@@ -42,10 +38,10 @@ namespace SBaier.Master
 					baseEvaluationPoints[j] *= ff;
 
 				// Evaluate
-				double[] baseEvaluations = BaseNoise.Evaluate(baseEvaluationPoints);
+				float[] baseEvaluations = BaseNoise.Evaluate2D(baseEvaluationPoints);
 
 				// Add weight base value to result
-				double weight = StartWeight / factor;
+				float weight = StartWeight / factor;
 				for (int i = 0; i < baseEvaluations.Length; i++)
 					result[i] += (baseEvaluations[i] - 0.5f) * weight;
 			}
@@ -57,9 +53,9 @@ namespace SBaier.Master
 			return result;
 		}
 
-		public double[] Evaluate(Vector3[] points)
+		public float[] Evaluate3D(Vector3[] points)
 		{
-			double[] result = new double[points.Length];
+			float[] result = new float[points.Length];
 
 			// Base evaluations
 			for (int octave = 0; octave < OctavesCount; octave++)
@@ -74,10 +70,10 @@ namespace SBaier.Master
 					baseEvaluationPoints[j] *= ff;
 
 				// Evaluate
-				double[] baseEvaluations = BaseNoise.Evaluate(baseEvaluationPoints);
+				float[] baseEvaluations = BaseNoise.Evaluate3D(baseEvaluationPoints);
 
 				// Add weight base value to result
-				double weight = StartWeight / factor;
+				float weight = StartWeight / factor;
 				for (int i = 0; i < baseEvaluations.Length; i++)
 					result[i] += (baseEvaluations[i] - 0.5f) * weight;
 			}
@@ -89,35 +85,35 @@ namespace SBaier.Master
 			return result;
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float Evaluate3D(Vector3 point)
 		{
-			Func<double, double> baseEvaluation = ff => BaseNoise.Evaluate(x * ff, y * ff, z * ff);
+			Func<float, float> baseEvaluation = ff => BaseNoise.Evaluate3D(point * ff);
 			return EvaluateOctaves(baseEvaluation);
 		}
 
-		public double Evaluate(double x, double y)
+		public float Evaluate2D(Vector2 point)
 		{
-			Func<double, double> baseEvaluation = ff => BaseNoise.Evaluate(x * ff, y * ff);
+			Func<float, float> baseEvaluation = ff => BaseNoise.Evaluate2D(point * ff);
 			return EvaluateOctaves(baseEvaluation);
 		}
 
-		public double EvaluateOctaves(Func<double, double> baseEvaluation)
+		public float EvaluateOctaves(Func<float, float> baseEvaluation)
 		{
-			double result = 0;
+			float result = 0;
 			for (int octave = 0; octave < OctavesCount; octave++)
 				result += EvaluateOctave(octave, baseEvaluation);
 			return Clamp01(result + 0.5f);
 		}
 
-		private double EvaluateOctave(int octave, Func<double, double> baseEvaluation)
+		private float EvaluateOctave(int octave, Func<float, float> baseEvaluation)
 		{
-			double factor = Math.Pow(2, octave);
-			double ff = StartFrequency * factor;
-			double weight = StartWeight / factor;
+			float factor = Mathf.Pow(2, octave);
+			float ff = StartFrequency * factor;
+			float weight = StartWeight / factor;
 			return (baseEvaluation(ff) - 0.5f) * weight;
 		}
 
-		private double Clamp01(double result)
+		private float Clamp01(float result)
 		{
 			return (result > 1) ? 1 : (result < 0) ? 0 : result;
 		}
@@ -127,10 +123,10 @@ namespace SBaier.Master
 			public int OctavesCount { get; }
 			public Noise3D BaseNoise { get; }
 			public float StartFrequency { get; }
-			public double StartWeight { get; }
+			public float StartWeight { get; }
 
 
-			public Arguments(int octavesCount, Noise3D baseNoise, float startFrequency, double startWeight)
+			public Arguments(int octavesCount, Noise3D baseNoise, float startFrequency, float startWeight)
 			{
 				CheckStartWeightOutOfRange(startWeight);
 				CheckStartFrequencyOutOfRange(startFrequency);
@@ -141,13 +137,13 @@ namespace SBaier.Master
 				StartWeight = startWeight;
 			}
 
-			private void CheckStartWeightOutOfRange(double startWeight)
+			private void CheckStartWeightOutOfRange(float startWeight)
 			{
 				if (startWeight < 0)
 					throw new ArgumentOutOfRangeException();
 			}
 
-			private void CheckStartFrequencyOutOfRange(double startFrequency)
+			private void CheckStartFrequencyOutOfRange(float startFrequency)
 			{
 				if (startFrequency < 0)
 					throw new ArgumentOutOfRangeException();

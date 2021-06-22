@@ -13,6 +13,7 @@ namespace SBaier.Master
         Layered = 8,
         Octave = 16,
         Simplex = 32,
-        NoiseValueLimiter = 64
+        NoiseValueLimiter = 64,
+        WhiteNoise = 128
     }
 }

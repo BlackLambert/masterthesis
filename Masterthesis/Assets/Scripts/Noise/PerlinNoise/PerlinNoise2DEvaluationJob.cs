@@ -1,33 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace SBaier.Master
 {
+	[Unity.Burst.BurstCompile]
     public struct PerlinNoise2DEvaluationJob : IJobParallelFor
     {
-		public NativeArray<double> _result;
+		[WriteOnly]
+		public NativeArray<float> _result;
 		[ReadOnly]
 		public NativeArray<Vector2> _points;
 		[ReadOnly]
-		public IndexableNativeArray<short> _dP;
+		public NativeArray<short> _dP;
 		[ReadOnly]
-		public IndexableNativeArray<short> _dPMod12;
+		public NativeArray<short> _dPMod12;
+		[ReadOnly]
+		public NativeArray<Vector2Int> _grad2;
 
 		public void Execute(int index)
 		{
-			Vector3 point = _points[index];
-			_result[index] = Evaluate(point.x, point.y);
+			Vector2 point = _points[index];
+			_result[index] = Evaluate(point);
 		}
 
-		public double Evaluate(double x, double y)
+		public float Evaluate(Vector2 point)
 		{
-			short[][] Grad3 = PerlinNoise.Grad3;
-
-			short flooredX = PerlinNoise.Floor(x);
-			short flooredY = PerlinNoise.Floor(y);
+			float x = point.x;
+			float y = point.y;
+			short flooredX = Floor(x);
+			short flooredY = Floor(y);
 
 			short X = (short)(flooredX & 255);
 			short Y = (short)(flooredY & 255);
@@ -40,19 +42,40 @@ namespace SBaier.Master
 			x -= flooredX;
 			y -= flooredY;
 
-			double n00 = PerlinNoise.Dot(Grad3[gi00], x, y);
-			double n10 = PerlinNoise.Dot(Grad3[gi10], x - 1, y);
-			double n01 = PerlinNoise.Dot(Grad3[gi01], x, y - 1);
-			double n11 = PerlinNoise.Dot(Grad3[gi11], x - 1, y - 1);
+			double n00 = Dot(_grad2[gi00], x, y);
+			double n10 = Dot(_grad2[gi10], x - 1, y);
+			double n01 = Dot(_grad2[gi01], x, y - 1);
+			double n11 = Dot(_grad2[gi11], x - 1, y - 1);
 
-			double u = PerlinNoise.Fade(x);
-			double v = PerlinNoise.Fade(y);
+			double u = Fade(x);
+			double v = Fade(y);
 
-			double nx0 = PerlinNoise.Lerp(n00, n10, u);
-			double nx1 = PerlinNoise.Lerp(n01, n11, u);
+			double nx0 = Lerp(n00, n10, u);
+			double nx1 = Lerp(n01, n11, u);
 
-			double nxy = PerlinNoise.Lerp(nx0, nx1, v);
-			return (nxy + 1) / 2;
+			double nxy = Lerp(nx0, nx1, v);
+			return (float) (nxy + 1) / 2;
+		}
+
+
+		private static double Dot(Vector2 gradient, double x, double y)
+		{
+			return gradient[0] * x + gradient[1] * y;
+		}
+		private static double Fade(double t)
+		{
+			return t * t * t * (t * (t * 6 - 15) + 10);
+		}
+
+		private static double Lerp(double min, double max, double t)
+		{
+			return min + t * (max - min);
+		}
+
+		private static short Floor(double value)
+		{
+			short xi = (short)value;
+			return (short)(value < xi ? xi - 1 : xi);
 		}
 	}
 }

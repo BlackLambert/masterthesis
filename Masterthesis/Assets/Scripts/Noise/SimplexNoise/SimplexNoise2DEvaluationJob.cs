@@ -5,26 +5,34 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public struct SimplexNoise2DEvaluationJob : IJobParallelFor
+	[Unity.Burst.BurstCompile]
+	public struct SimplexNoise2DEvaluationJob : IJobParallelFor
     {
 		[WriteOnly]
-		public NativeArray<double> _result;
+		public NativeArray<float> _result;
 		[ReadOnly]
 		public NativeArray<Vector2> _points;
 		[ReadOnly]
-		public IndexableNativeArray<short> _dP;
+		public NativeArray<short> _dP;
 		[ReadOnly]
-		public IndexableNativeArray<short> _dPMod;
+		public NativeArray<short> _dPMod;
+		[ReadOnly]
+		public NativeArray<Vector2Int> _grad2;
 
-		public SimplexNoise2DEvaluationJob(NativeArray<double> result,
+		private static readonly double F2 = 0.5 * (Math.Sqrt(3.0) - 1.0);
+		private static readonly double G2 = (3.0 - Math.Sqrt(3.0)) / 6.0;
+
+		public SimplexNoise2DEvaluationJob(NativeArray<float> result,
 			NativeArray<Vector2> points,
-			IndexableNativeArray<short> dP,
-			IndexableNativeArray<short> dPMod)
+			NativeArray<short> dP,
+			NativeArray<short> dPMod,
+			NativeArray<Vector2Int> grad2)
 		{
 			_result = result;
 			_points = points;
 			_dP = dP;
 			_dPMod = dPMod;
+			_grad2 = grad2;
 		}
 
 		public void Execute(int index)
@@ -32,17 +40,14 @@ namespace SBaier.Master
 			Vector2 p = _points[index];
 			_result[index] = Evaluate(p.x, p.y);
 		}
-		public double Evaluate(double x, double y)
-		{
-			double G2 = SimplexNoise.G2;
-			double F2 = SimplexNoise.F2;
-			short[][] Grad3 = SimplexNoise.Grad3;
 
+		public float Evaluate(double x, double y)
+		{
 			// Skew the input space to determine which simplex cell we're in
 			// Hairy factor for 2D
 			double s = (x + y) * F2;
-			int i = SimplexNoise.Floor(x + s);
-			int j = SimplexNoise.Floor(y + s);
+			int i = Floor(x + s);
+			int j = Floor(y + s);
 			double t = (i + j) * G2;
 
 			// Unskew the cell origin back to (x,y) space
@@ -99,7 +104,7 @@ namespace SBaier.Master
 			{
 				t0 *= t0;
 				// (x,y) of grad3 used for 2D gradient
-				n0 = t0 * t0 * SimplexNoise.Dot(Grad3[gi0], x0, y0);
+				n0 = t0 * t0 * Dot(_grad2[gi0], x0, y0);
 			}
 
 			double t1 = 0.5 - x1 * x1 - y1 * y1;
@@ -108,7 +113,7 @@ namespace SBaier.Master
 			else
 			{
 				t1 *= t1;
-				n1 = t1 * t1 * SimplexNoise.Dot(Grad3[gi1], x1, y1);
+				n1 = t1 * t1 * Dot(_grad2[gi1], x1, y1);
 			}
 
 			double t2 = 0.5 - x2 * x2 - y2 * y2;
@@ -117,12 +122,22 @@ namespace SBaier.Master
 			else
 			{
 				t2 *= t2;
-				n2 = t2 * t2 * SimplexNoise.Dot(Grad3[gi2], x2, y2);
+				n2 = t2 * t2 * Dot(_grad2[gi2], x2, y2);
 			}
 
 			// Add contributions from each corner to get the final noise value.
 			// The result is scaled to return values in the interval [0,1].
-			return (70.0 * (n0 + n1 + n2) + 1) / 2;
+			return (float)(70.0 * (n0 + n1 + n2) + 1) / 2;
+		}
+
+		private static double Dot(Vector2Int gradient, double x, double y)
+		{
+			return gradient[0] * x + gradient[1] * y;
+		}
+		private static int Floor(double value)
+		{
+			int xi = (int)value;
+			return value < xi ? xi - 1 : xi;
 		}
 	}
 }

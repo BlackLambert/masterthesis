@@ -18,38 +18,38 @@ namespace SBaier.Master
 
 		public NoiseType NoiseType => NoiseType.NoiseValueLimiter;
 
-		public double[] Evaluate(Vector2[] points)
+		public float[] Evaluate2D(Vector2[] points)
 		{
-			return ApplyNoise(BaseNoise.Evaluate(points));
+			return ApplyNoise(BaseNoise.Evaluate2D(points));
 		}
 
-		public double[] Evaluate(Vector3[] points)
+		public float[] Evaluate3D(Vector3[] points)
 		{
-			return ApplyNoise(BaseNoise.Evaluate(points));
+			return ApplyNoise(BaseNoise.Evaluate3D(points));
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float Evaluate3D(Vector3 point)
 		{
-			return Limit(BaseNoise.Evaluate(x, y, z));
+			return Limit(BaseNoise.Evaluate3D(point));
 		}
 
-		public double Evaluate(double x, double y)
+		public float Evaluate2D(Vector2 point)
 		{
-			return Limit(BaseNoise.Evaluate(x, y));
+			return Limit(BaseNoise.Evaluate2D(point));
 		}
 
 
-		private double[] ApplyNoise(double[] baseValues)
+		private float[] ApplyNoise(float[] baseValues)
 		{
 			for (int i = 0; i < baseValues.Length; i++)
 				baseValues[i] = Limit(baseValues[i]);
 			return baseValues;
 		}
 
-		private double Limit(double baseNoiseValue)
+		private float Limit(float baseNoiseValue)
 		{
-			double result = baseNoiseValue - Limits.x;
-			double upperLimit = Limits.y - Limits.x;
+			float result = baseNoiseValue - Limits.x;
+			float upperLimit = Limits.y - Limits.x;
 			result = result < 0 ? 0 : result > upperLimit ? upperLimit : result;
 			return result;
 		}

@@ -43,7 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _upperLeft: {x: 0, y: 0}
+  _noiseSettings: {fileID: 11400000, guid: 015a3a34833b85b40b786ade3068821b, type: 2}
+  _bottomLeft: {x: 0, y: 0}
   _delta: {x: 0.1, y: 0.1}
   _imageSize: {x: 32, y: 32}
   _fileName: Noise

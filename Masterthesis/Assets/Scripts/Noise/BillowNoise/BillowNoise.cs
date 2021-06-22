@@ -1,10 +1,15 @@
 using System;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
+using Unity.Burst;
 
 namespace SBaier.Master
 {
 	public class BillowNoise : Noise3D
 	{
+		private const int _innerloopBatchCount = 1;
+
 		public Noise3D BaseNoise { get; }
 
 		public NoiseType NoiseType => NoiseType.Billow;
@@ -14,42 +19,68 @@ namespace SBaier.Master
 			BaseNoise = baseNoise;
 		}
 
-		public double[] Evaluate(Vector3[] points)
+		public float[] Evaluate3D(Vector3[] points)
 		{
-			return ApplyNoise(BaseNoise.Evaluate(points));
+			return ApplyNoise(BaseNoise.Evaluate3D(points));
 		}
 
-		public double[] Evaluate(Vector2[] points)
+		public float Evaluate3D(Vector3 point)
 		{
-			return ApplyNoise(BaseNoise.Evaluate(points));
+			return ApplyNoise(BaseNoise.Evaluate3D(point));
 		}
 
-		public double Evaluate(double x, double y)
+		public float[] Evaluate2D(Vector2[] points)
 		{
-			return ApplyNoise(BaseNoise.Evaluate(x, y));
+			return ApplyNoise(BaseNoise.Evaluate2D(points));
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float Evaluate2D(Vector2 point)
 		{
-			return ApplyNoise(BaseNoise.Evaluate(x, y, z));
+			return ApplyNoise(BaseNoise.Evaluate2D(point));
 		}
 
-		private static double[] ApplyNoise(double[] evaluatedValue)
+		private static float[] ApplyNoise(float[] evaluatedValues)
 		{
-			for (int i = 0; i < evaluatedValue.Length; i++)
-				evaluatedValue[i] = ApplyNoise(evaluatedValue[i]);
-			return evaluatedValue;
+			return ApplyNoiseParallel(evaluatedValues);
 		}
 
-		private static double ApplyNoise(double baseValue)
+		private static float[] ApplyNoiseSequencial(float[] evaluatedValues)
 		{
-			double stretchedValue = StretchToNegativeValueRange(baseValue);
-			return Math.Abs(stretchedValue);
+			for (int i = 0; i < evaluatedValues.Length; i++)
+				evaluatedValues[i] = ApplyNoise(evaluatedValues[i]);
+			return evaluatedValues;
 		}
 
-		private static double StretchToNegativeValueRange(double perlinValue)
+		private static float[] ApplyNoiseParallel(float[] evaluatedValues)
 		{
-			return perlinValue * 2 - 1;
+			NativeArray<float> result = new NativeArray<float>(evaluatedValues, Allocator.TempJob);
+			EvaluateJob job = new EvaluateJob { _result = result };
+			job.Schedule(result.Length, _innerloopBatchCount).Complete();
+			evaluatedValues = result.ToArray();
+			result.Dispose();
+			return evaluatedValues;
+		}
+
+		private static float ApplyNoise(float baseValue)
+		{
+			float stretchedValue = StretchToNegativeValueRange(baseValue);
+			return Mathf.Abs(stretchedValue);
+		}
+
+		private static float StretchToNegativeValueRange(float baseValue)
+		{
+			return baseValue * 2 - 1;
+		}
+
+		[BurstCompile]
+		public struct EvaluateJob : IJobParallelFor
+		{
+			public NativeArray<float> _result;
+
+			public void Execute(int index)
+			{
+				_result[index] = Math.Abs(_result[index] * 2 - 1);
+			}
 		}
 	}
 }

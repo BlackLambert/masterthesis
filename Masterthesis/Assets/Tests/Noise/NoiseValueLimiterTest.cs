@@ -61,7 +61,7 @@ namespace SBaier.Master.Test
 				foreach(Vector3 testVertex in _testVertices)
 				{
 					WhenEvaluateCalledWith(testVertex);
-					double baseEvaluatedValue = _baseNoise.Evaluate(testVertex.x, testVertex.y, testVertex.z);
+					double baseEvaluatedValue = _baseNoise.Evaluate3D(testVertex);
 					ThenEvaluatedValueIsAsExpected(baseEvaluatedValue, limits);
 				}
 				Teardown();
@@ -98,7 +98,7 @@ namespace SBaier.Master.Test
 
 		private void WhenEvaluateCalledWith(Vector3 testVertex)
 		{
-			_evaluatedValue = _limiter.Evaluate(testVertex.x, testVertex.y, testVertex.z);
+			_evaluatedValue = _limiter.Evaluate3D(testVertex);
 		}
 
 		private void ThenEvaluatedValueIsAsExpected(double baseNoiseValue, Vector2 limits)

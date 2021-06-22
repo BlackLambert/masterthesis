@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
@@ -27,7 +24,7 @@ namespace SBaier.Master
         private Vector3[] _formerVertices;
         private Vector3[] _newVertices;
         private Vector2[] _evaluationPoints;
-        private double[] _evaluatedValues;
+        private float[] _evaluatedValues;
 
         [Inject]
         private void Construct(NoiseFactory noiseFactory,
@@ -89,7 +86,7 @@ namespace SBaier.Master
 				Vector3 former = _formerVertices[i];
 				_evaluationPoints[i] = new Vector2(former.x + _currentStartPositionDelta.x, former.z + _currentStartPositionDelta.z);
 			}
-			_evaluatedValues = _noise.Evaluate(_evaluationPoints);
+			_evaluatedValues = _noise.Evaluate2D(_evaluationPoints);
 		}
 
 		private void SetNewVertices()
@@ -97,7 +94,7 @@ namespace SBaier.Master
 			for (int i = 0; i < _newVertices.Length; i++)
 			{
 				Vector3 formerVertex = _formerVertices[i];
-				_newVertices[i] = new Vector3(formerVertex.x, (float)_evaluatedValues[i] * _maxHeight, formerVertex.z);
+				_newVertices[i] = new Vector3(formerVertex.x, _evaluatedValues[i] * _maxHeight, formerVertex.z);
 			}
 		}
 

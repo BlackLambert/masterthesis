@@ -14,8 +14,6 @@ namespace SBaier.Master
         [SerializeField]
         private NoiseSettings _noiseSettings;
         [SerializeField]
-        private Text _sequencialText;
-        [SerializeField]
         private Text _parallelText;
         [SerializeField]
         private InputField _iterationsInput;
@@ -46,7 +44,7 @@ namespace SBaier.Master
 		{
             int iterations = int.Parse(_iterationsInput.text);
             FillEvalPoints(iterations);
-            DoTest(DoSequencialTest, "Sequencial Test", _sequencialText, iterations);
+            //DoTest(DoSequencialTest, "Sequencial Test", _sequencialText, iterations);
             DoTest(DoParallelTest, "Parallel Test", _parallelText, iterations);
         }
 
@@ -64,13 +62,13 @@ namespace SBaier.Master
             {
                 Thread.Sleep(_threadSleepTime);
                 Vector3 point = _evalPoints[i];
-                _noise.Evaluate(point.x, point.y, point.z);
+                _noise.Evaluate3D(point);
             }
         }
 
         private void DoParallelTest(int iterations)
 		{
-            _noise.Evaluate(_evalPoints);
+            _noise.Evaluate3D(_evalPoints);
         }
 
         private void FillEvalPoints(int iterations)

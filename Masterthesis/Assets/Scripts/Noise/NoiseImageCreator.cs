@@ -62,7 +62,7 @@ namespace SBaier.Master
 		private void SetPixel(ref Texture2D texture, int y, int x)
 		{
 			Vector2 evaluationValue = _bottomLeft + new Vector2(_delta.x * y, _delta.y * x);
-			float noiseValue = (float)_noise.Evaluate(evaluationValue.x, evaluationValue.y);
+			float noiseValue = _noise.Evaluate2D(evaluationValue);
 			texture.SetPixel(x, y, new Color(noiseValue, noiseValue, noiseValue));
 		}
 

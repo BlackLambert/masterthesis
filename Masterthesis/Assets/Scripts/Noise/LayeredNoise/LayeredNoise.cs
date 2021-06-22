@@ -16,10 +16,10 @@ namespace SBaier.Master
 			Mapping = mapping;
 		}
 
-		public double[] Evaluate(Vector2[] points)
+		public float[] Evaluate2D(Vector2[] points)
 		{
-			double[] result = new double[points.Length];
-			double mappingValue = Mapping == MappingMode.ZeroToOne ? 0 : 0.5;
+			float[] result = new float[points.Length];
+			float mappingValue = GetMappingValue();
 
 			// Base evaluations
 			for (int layer = 0; layer < Layers.Length; layer++)
@@ -33,10 +33,10 @@ namespace SBaier.Master
 					baseEvaluationPoints[j] *= ff;
 
 				// Evaluate
-				double[] baseEvaluations = Layers[layer].Noise.Evaluate(baseEvaluationPoints);
+				float[] baseEvaluations = Layers[layer].Noise.Evaluate2D(baseEvaluationPoints);
 
 				// Add weight base value to result
-				double weight = Layers[layer].Weight;
+				float weight = Layers[layer].Weight;
 				for (int i = 0; i < baseEvaluations.Length; i++)
 					result[i] += (baseEvaluations[i] - mappingValue) * weight;
 			}
@@ -48,10 +48,10 @@ namespace SBaier.Master
 			return result;
 		}
 
-		public double[] Evaluate(Vector3[] points)
+		public float[] Evaluate3D(Vector3[] points)
 		{
-			double[] result = new double[points.Length];
-			double mappingValue = Mapping == MappingMode.ZeroToOne ? 0 : 0.5;
+			float[] result = new float[points.Length];
+			float mappingValue = GetMappingValue();
 
 			// Base evaluations
 			for (int layer = 0; layer < Layers.Length; layer++)
@@ -65,10 +65,10 @@ namespace SBaier.Master
 					baseEvaluationPoints[j] *= ff;
 
 				// Evaluate
-				double[] baseEvaluations = Layers[layer].Noise.Evaluate(baseEvaluationPoints);
+				float[] baseEvaluations = Layers[layer].Noise.Evaluate3D(baseEvaluationPoints);
 
 				// Add weight base value to result
-				double weight = Layers[layer].Weight;
+				float weight = Layers[layer].Weight;
 				for (int i = 0; i < baseEvaluations.Length; i++)
 					result[i] += (baseEvaluations[i] - mappingValue) * weight;
 			}
@@ -82,33 +82,38 @@ namespace SBaier.Master
 
 
 
-		public double Evaluate(double x, double y)
+		public float Evaluate2D(Vector2 point)
 		{
-			Func<NoiseLayer, double> baseEvaluation =
-				l => l.Noise.Evaluate(x * l.FrequencyFactor, y * l.FrequencyFactor);
+			Func<NoiseLayer, float> baseEvaluation =
+				l => l.Noise.Evaluate2D(point * l.FrequencyFactor);
 			return ApplyNoise(baseEvaluation);
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float Evaluate3D(Vector3 point)
 		{
-			Func<NoiseLayer, double> baseEvaluation = 
-				l => l.Noise.Evaluate(x * l.FrequencyFactor, y * l.FrequencyFactor, z * l.FrequencyFactor);
+			Func<NoiseLayer, float> baseEvaluation = 
+				l => l.Noise.Evaluate3D(point * l.FrequencyFactor);
 			return ApplyNoise(baseEvaluation);
 		}
 
-		private double ApplyNoise(Func<NoiseLayer, double> baseEvaluation)
+		private float ApplyNoise(Func<NoiseLayer, float> baseEvaluation)
 		{
-			double mappingValue = Mapping == MappingMode.ZeroToOne ? 0 : 0.5;
-			double result = 0;
+			float mappingValue = GetMappingValue();
+			float result = 0;
 			foreach (NoiseLayer layer in Layers)
 			{
-				double evaluatedValue = baseEvaluation(layer) - mappingValue;
+				float evaluatedValue = baseEvaluation(layer) - mappingValue;
 				result += evaluatedValue * layer.Weight;
 			}
 			return Clamp01(result + mappingValue);
 		}
 
-		private double Clamp01(double result)
+		private float GetMappingValue()
+		{
+			return Mapping == MappingMode.ZeroToOne ? 0 : 0.5f;
+		}
+
+		private float Clamp01(float result)
 		{
 			return (result > 1) ? 1 : (result < 0) ? 0 : result;
 		}
@@ -116,12 +121,12 @@ namespace SBaier.Master
 		public class NoiseLayer
 		{
 			public Noise3D Noise { get; }
-			public double Weight { get; }
+			public float Weight { get; }
 			public float FrequencyFactor { get; }
 
 			public NoiseLayer(
 				Noise3D noise,
-				double weight,
+				float weight,
 				float frequencyFactor)
 			{
 				Noise = noise;

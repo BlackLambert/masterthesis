@@ -11,13 +11,13 @@ namespace SBaier.Master.Test
     public class NoiseImageCreatorTest : ZenjectIntegrationTestFixture
     {
 		private const string _prefabPath = "Noise/TestNoiseImageCreator";
-        private const double _evaluationDelta = 0.1f;
+        private const float _evaluationDelta = 0.1f;
 		private const float _epsilon = 0.002f;
 		private const int _testSeed = 1234;
 		private Mock<NoiseFactory> _noiseFactoryMock;
         private Mock<Noise3D> _noiseMock;
         private NoiseImageCreator _creator;
-        private double _evaluationValue = 0;
+        private float _evaluationValue = 0;
 
 
         [TearDown]
@@ -105,13 +105,15 @@ namespace SBaier.Master.Test
 
 		private void GivenNoiseEvaluateReturnsOne()
         {
-            _noiseMock.Setup(n => n.Evaluate(It.IsAny<double>(), It.IsAny<double>())).Returns(1);
+            _noiseMock.Setup(n => n.Evaluate3D(It.IsAny<Vector3>())).Returns(1);
+            _noiseMock.Setup(n => n.Evaluate2D(It.IsAny<Vector2>())).Returns(1);
         }
 
         private void GivenNoiseEvaluateReturnsIncreasingValue()
         {
             _evaluationValue = 0;
-            _noiseMock.Setup(n => n.Evaluate(It.IsAny<double>(), It.IsAny<double>())).Returns(GetIncreasingEvaluationValue);
+            _noiseMock.Setup(n => n.Evaluate3D(It.IsAny<Vector3>())).Returns(GetIncreasingEvaluationValue);
+            _noiseMock.Setup(n => n.Evaluate2D(It.IsAny<Vector2>())).Returns(GetIncreasingEvaluationValue);
         }
 
         private void GivenNoiseFactoryReturnsMockedNoise()
@@ -180,10 +182,10 @@ namespace SBaier.Master.Test
                 Directory.Delete(_creator.DirectoryPath);
         }
 
-        private double GetIncreasingEvaluationValue()
+        private float GetIncreasingEvaluationValue()
 		{
-            double value = _evaluationValue;
-            _evaluationValue = (_evaluationValue + _evaluationDelta) % 1.0;
+            float value = _evaluationValue;
+            _evaluationValue = (_evaluationValue + _evaluationDelta) % 1.0f;
             return value;
         }
     }

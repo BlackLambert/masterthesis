@@ -15,7 +15,7 @@ namespace SBaier.Master.Test
 		protected override void GivenANew3DNoise()
 		{
 			Container.Bind<Seed>().To<Seed>().FromMethod(CreateSeed).AsTransient();
-			Container.Bind<Noise3D>().To<SimplexNoise>().AsTransient();
+			Container.Bind(typeof(Noise3D), typeof(Noise2D)).To<SimplexNoise>().AsTransient();
 		}
 
 		private Seed CreateSeed()

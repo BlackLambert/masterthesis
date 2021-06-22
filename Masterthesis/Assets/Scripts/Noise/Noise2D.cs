@@ -5,7 +5,7 @@ namespace SBaier.Master
 {
 	public interface Noise2D : Noise
 	{
-		double Evaluate(double x, double y);
-		double[] Evaluate(Vector2[] points);
+		float Evaluate2D(Vector2 point);
+		float[] Evaluate2D(Vector2[] points);
 	}
 }

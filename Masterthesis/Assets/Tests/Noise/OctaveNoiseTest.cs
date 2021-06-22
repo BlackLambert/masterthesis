@@ -12,10 +12,10 @@ namespace SBaier.Master.Test
 		private const int _octavesCount = 3;
 		private const float _startFrequency = 4;
 		private readonly Vector2 _startWeightRange = new Vector2(0, 1); 
-		private const double _startWeight = 0.5;
+		private const float _startWeight = 0.5f;
 		private const float _startFrequencySmallerOne = -1.3f;
 		private const int _testSeed = 1234;
-		private const double _doubleDelta = 0.001;
+		private const float _epsilon = 0.001f;
 		private readonly Vector3 _testValue = new Vector3(2.1f, 4.7f, -2.4f);
 
 		private OctaveNoise _noise;
@@ -113,8 +113,8 @@ namespace SBaier.Master.Test
 
 		private void ThenTheTestValueEvaluatesToExpectedValue()
 		{
-			double actual = _noise.Evaluate(_testValue.x, _testValue.y, _testValue.z);
-			double expected = CreateExpected(_testValue);
+			float actual = _noise.Evaluate3D(_testValue);
+			float expected = CreateExpected(_testValue);
 			Assert.AreEqual(expected, actual);
 		}
 
@@ -132,32 +132,32 @@ namespace SBaier.Master.Test
 		private OctaveNoise.Arguments CreateTestArgsWithStartWeightSmallerThanRange()
 		{
 			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.x - _doubleDelta);
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.x - _epsilon);
 		}
 
 		private OctaveNoise.Arguments CreateTestArgsWithStartWeightLargerThanRange()
 		{
 			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.y + _doubleDelta);
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.y + _epsilon);
 		}
 
 		private OctaveNoise.Arguments CreateTestArgsWithStartFrequencySmallerThanOne()
 		{
 			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequencySmallerOne, 1 - _doubleDelta);
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequencySmallerOne, 1 - _epsilon);
 		}
 
-		private double CreateExpected(Vector3 testValue)
+		private float CreateExpected(Vector3 testValue)
 		{
-			double result = 0;
+			float result = 0;
 			for(int i = 0; i < _octavesCount; i++)
 			{
-				double factor = Math.Pow(2, i);
-				double ff = _startFrequency * factor;
-				double weight = _startWeight / factor;
-				result += (_baseNoise.Evaluate(testValue.x * ff, testValue.y * ff, testValue.z * ff) - 0.5f) * weight;
+				float factor = Mathf.Pow(2, i);
+				float ff = _startFrequency * factor;
+				float weight = _startWeight / factor;
+				result += (_baseNoise.Evaluate3D(testValue * ff) - 0.5f) * weight;
 			}
-			return Clamp01(result + 0.5f);
+			return Mathf.Clamp01(result + 0.5f);
 		}
 
 		private double Clamp01(double result)

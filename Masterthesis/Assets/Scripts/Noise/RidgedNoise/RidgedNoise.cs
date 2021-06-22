@@ -13,34 +13,34 @@ namespace SBaier.Master
 			_bollowNoise = billowNoise;
 		}
 
-		public double[] Evaluate(Vector2[] points)
+		public float Evaluate2D(Vector2 point)
 		{
-			return ApplyNoise(_bollowNoise.Evaluate(points));
+			return InvertValue(_bollowNoise.Evaluate2D(point));
 		}
 
-		public double[] Evaluate(Vector3[] points)
+		public float[] Evaluate2D(Vector2[] points)
 		{
-			return ApplyNoise(_bollowNoise.Evaluate(points));
+			return ApplyNoise(_bollowNoise.Evaluate2D(points));
 		}
 
-		public double Evaluate(double x, double y)
+		public float Evaluate3D(Vector3 point)
 		{
-			return InvertValue(_bollowNoise.Evaluate(x, y));
+			return InvertValue(_bollowNoise.Evaluate3D(point));
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float[] Evaluate3D(Vector3[] points)
 		{
-			return InvertValue(_bollowNoise.Evaluate(x, y, z));
+			return ApplyNoise(_bollowNoise.Evaluate3D(points));
 		}
 
-		private double[] ApplyNoise(double[] evaluatedValue)
+		private float[] ApplyNoise(float[] evaluatedValue)
 		{
 			for (int i = 0; i < evaluatedValue.Length; i++)
 				evaluatedValue[i] = InvertValue(evaluatedValue[i]);
 			return evaluatedValue;
 		}
 
-		private double InvertValue(double billowValue)
+		private float InvertValue(float billowValue)
 		{
 			return billowValue * (-1) + 1;
 		}

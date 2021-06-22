@@ -109,14 +109,10 @@ namespace SBaier.Master.Test
 		private void ThenTwoEvaluatedValuesWithTheSameInputAreEqual()
 		{
 			_noiseOne = Container.Resolve<Noise3D>();
-			double evaluatedValueOne = _noiseOne.Evaluate(
-				_testEvaluationPoint.x,
-				_testEvaluationPoint.y,
-				_testEvaluationPoint.z);
-			double evaluatedValueTwo = _noiseOne.Evaluate(
-				_testEvaluationPoint.x,
-				_testEvaluationPoint.y,
-				_testEvaluationPoint.z);
+			double evaluatedValueOne = _noiseOne.Evaluate3D(
+				_testEvaluationPoint);
+			double evaluatedValueTwo = _noiseOne.Evaluate3D(
+				_testEvaluationPoint);
 			Assert.AreEqual(evaluatedValueOne, evaluatedValueTwo);
 		}
 
@@ -129,11 +125,11 @@ namespace SBaier.Master.Test
 		private void ThenEvaluateWithVector3ArrayReturnsSameValuesAsSingleEvaluation()
 		{
 			_noiseOne = Container.Resolve<Noise3D>();
-			double[] result = _noiseOne.Evaluate(_testEvaluationPoints);
+			float[] result = _noiseOne.Evaluate3D(_testEvaluationPoints);
 			for(int i = 0; i < _testEvaluationPoints.Length; i++)
 			{
 				Vector3 v = _testEvaluationPoints[i];
-				double expected = _noiseOne.Evaluate(v.x, v.y, v.z);
+				float expected = _noiseOne.Evaluate3D(v);
 				Assert.AreEqual(expected, result[i], _epsilon);
 			}
 		}
@@ -141,11 +137,11 @@ namespace SBaier.Master.Test
 		private void ThenEvaluateWithVector2ArrayReturnsSameValuesAsSingleEvaluation()
 		{
 			_noiseOne = Container.Resolve<Noise3D>();
-			double[] result = _noiseOne.Evaluate(_testEvaluationPoints2D);
+			float[] result = _noiseOne.Evaluate2D(_testEvaluationPoints2D);
 			for (int i = 0; i < _testEvaluationPoints2D.Length; i++)
 			{
 				Vector2 v = _testEvaluationPoints2D[i];
-				double expected = _noiseOne.Evaluate(v.x, v.y);
+				float expected = _noiseOne.Evaluate2D(v);
 				Assert.AreEqual(expected, result[i], _epsilon);
 			}
 		}
@@ -157,12 +153,12 @@ namespace SBaier.Master.Test
 			Assert.LessOrEqual(actual, _valueRange.y);
 		}
 
-		private double EvaluateRandom3DSample(Noise3D noise, System.Random random)
+		private float EvaluateRandom3DSample(Noise3D noise, System.Random random)
 		{
-			double x = random.NextDouble() * random.Next(_sampleRange.x);
-			double y = random.NextDouble() * random.Next(_sampleRange.y);
-			double z = random.NextDouble() * random.Next(_sampleRange.z);
-			return noise.Evaluate(x, y, z);
+			float x = (float) random.NextDouble() * random.Next(_sampleRange.x);
+			float y = (float) random.NextDouble() * random.Next(_sampleRange.y);
+			float z = (float) random.NextDouble() * random.Next(_sampleRange.z);
+			return noise.Evaluate3D(new Vector3(x, y, z));
 		}
 	}
 }

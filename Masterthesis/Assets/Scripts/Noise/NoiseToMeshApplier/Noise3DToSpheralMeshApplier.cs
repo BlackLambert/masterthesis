@@ -45,13 +45,10 @@ namespace SBaier.Master
 		private void ApplyEvaluatedDataToVertices(Noise3D noise)
 		{
 			float delta = Range.y - Range.x;
+			float[] evaluateData = noise.Evaluate3D(_formerVertices);
 
-			for (int i = 0; i < _formerVertices.Length; i++)
-			{
-				Vector3 vertex = _formerVertices[i];
-				double evaluatedData = noise.Evaluate(vertex.x, vertex.y, vertex.z);
-				_newVertices[i] = _formerVertices[i].normalized * (float)(Range.x + delta * evaluatedData);
-			}
+			for(int i = 0; i< evaluateData.Length; i++)
+				_newVertices[i] = _formerVertices[i].normalized * (float)(Range.x + delta * evaluateData[i]);
 		}
 	}
 }

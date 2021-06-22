@@ -1,34 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace SBaier.Master
 {
-    public struct PerlinNoise3DEvaluationJob : IJobParallelFor
+	[Unity.Burst.BurstCompile]
+	public struct PerlinNoise3DEvaluationJob : IJobParallelFor
     {
-		public NativeArray<double> _result;
+		public NativeArray<float> _result;
 		[ReadOnly]
 		public NativeArray<Vector3> _points;
 		[ReadOnly]
-		public IndexableNativeArray<short> _dP;
+		public NativeArray<short> _dP;
 		[ReadOnly]
-		public IndexableNativeArray<short> _dPMod12;
+		public NativeArray<short> _dPMod12;
+		[ReadOnly]
+		public NativeArray<Vector3Int> _grad3;
 
 		public void Execute(int index)
 		{
 			Vector3 point = _points[index];
-			_result[index] = Evaluate(point.x, point.y, point.z);
+			_result[index] = Evaluate(point);
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float Evaluate(Vector3 point)
 		{
-			short[][] Grad3 = PerlinNoise.Grad3;
+			float x = point.x;
+			float y = point.y;
+			float z = point.z;
 
-			short flooredX = PerlinNoise.Floor(x);
-			short flooredY = PerlinNoise.Floor(y);
-			short flooredZ = PerlinNoise.Floor(z);
+			short flooredX = Floor(x);
+			short flooredY = Floor(y);
+			short flooredZ = Floor(z);
 
 			// Find unit grid cell containing point
 			// Wrap the integer cells at 255 (smaller integer period can be introduced here)
@@ -52,34 +55,54 @@ namespace SBaier.Master
 			short gi111 = _dPMod12[X + 1 + _dP[Y + 1 + _dP[Z + 1]]];
 
 			// Calculate noise contributions from each of the eight corners
-			double n000 = PerlinNoise.Dot(Grad3[gi000], x, y, z);
-			double n100 = PerlinNoise.Dot(Grad3[gi100], x - 1, y, z);
-			double n010 = PerlinNoise.Dot(Grad3[gi010], x, y - 1, z);
-			double n110 = PerlinNoise.Dot(Grad3[gi110], x - 1, y - 1, z);
-			double n001 = PerlinNoise.Dot(Grad3[gi001], x, y, z - 1);
-			double n101 = PerlinNoise.Dot(Grad3[gi101], x - 1, y, z - 1);
-			double n011 = PerlinNoise.Dot(Grad3[gi011], x, y - 1, z - 1);
-			double n111 = PerlinNoise.Dot(Grad3[gi111], x - 1, y - 1, z - 1);
+			double n000 = Dot(_grad3[gi000], x, y, z);
+			double n100 = Dot(_grad3[gi100], x - 1, y, z);
+			double n010 = Dot(_grad3[gi010], x, y - 1, z);
+			double n110 = Dot(_grad3[gi110], x - 1, y - 1, z);
+			double n001 = Dot(_grad3[gi001], x, y, z - 1);
+			double n101 = Dot(_grad3[gi101], x - 1, y, z - 1);
+			double n011 = Dot(_grad3[gi011], x, y - 1, z - 1);
+			double n111 = Dot(_grad3[gi111], x - 1, y - 1, z - 1);
 
 			// Compute the fade curve value for each of x, y, z
-			double u = PerlinNoise.Fade(x);
-			double v = PerlinNoise.Fade(y);
-			double w = PerlinNoise.Fade(z);
+			double u = Fade(x);
+			double v = Fade(y);
+			double w = Fade(z);
 
 			// Interpolate along x the contributions from each of the corners
-			double nx00 = PerlinNoise.Lerp(n000, n100, u);
-			double nx01 = PerlinNoise.Lerp(n001, n101, u);
-			double nx10 = PerlinNoise.Lerp(n010, n110, u);
-			double nx11 = PerlinNoise.Lerp(n011, n111, u);
+			double nx00 = Lerp(n000, n100, u);
+			double nx01 = Lerp(n001, n101, u);
+			double nx10 = Lerp(n010, n110, u);
+			double nx11 = Lerp(n011, n111, u);
 
 			// Interpolate the four results along y
-			double nxy0 = PerlinNoise.Lerp(nx00, nx10, v);
-			double nxy1 = PerlinNoise.Lerp(nx01, nx11, v);
+			double nxy0 = Lerp(nx00, nx10, v);
+			double nxy1 = Lerp(nx01, nx11, v);
 
 			// Interpolate the two last results along z
-			double nxyz = PerlinNoise.Lerp(nxy0, nxy1, w);
+			double nxyz = Lerp(nxy0, nxy1, w);
 
-			return (nxyz + 1) / 2;
+			return (float)(nxyz + 1) / 2;
+		}
+		private static double Fade(double t)
+		{
+			return t * t * t * (t * (t * 6 - 15) + 10);
+		}
+
+		private static double Lerp(double min, double max, double t)
+		{
+			return min + t * (max - min);
+		}
+
+		private static short Floor(double value)
+		{
+			short xi = (short)value;
+			return (short)(value < xi ? xi - 1 : xi);
+		}
+
+		private static double Dot(Vector3 gradient, double x, double y, double z)
+		{
+			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
 		}
 	}
 }

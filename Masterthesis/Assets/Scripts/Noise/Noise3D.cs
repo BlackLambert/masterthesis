@@ -5,8 +5,8 @@ namespace SBaier.Master
 {
 	public interface Noise3D : Noise2D
 	{
-		double Evaluate(double x,double y,double z);
-		double[] Evaluate(Vector3[] points);
+		float Evaluate3D(Vector3 point );
+		float[] Evaluate3D(Vector3[] points);
 
 	}
 }

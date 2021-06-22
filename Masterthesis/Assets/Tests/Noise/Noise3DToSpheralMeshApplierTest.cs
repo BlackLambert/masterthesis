@@ -139,7 +139,7 @@ namespace SBaier.Master.Test
                 Vector3 testVertex = _testVertices[i].magnitude > 0 ? _testVertices[i] : Vector3.up;
                 Vector3 actualVertex = actualVertices[i];
                 testVertex = testVertex.normalized * range.x;
-                double noiseValue = _noise.Evaluate(testVertex.x, testVertex.y, testVertex.z);
+                float noiseValue = _noise.Evaluate3D(testVertex);
                 Vector3 expected = testVertex.normalized * (float)(range.x + delta * noiseValue);
                 Assert.AreEqual(expected.x, actualVertex.x, _epsilon);
                 Assert.AreEqual(expected.y, actualVertex.y, _epsilon);

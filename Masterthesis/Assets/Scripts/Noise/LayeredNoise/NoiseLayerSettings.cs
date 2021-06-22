@@ -10,8 +10,8 @@ namespace SBaier.Master
 		public NoiseSettings NoiseSettings => _noiseSettings;
 
 		[SerializeField]
-		private double _weight = 1;
-		public double Weight => _weight;
+		private float _weight = 1;
+		public float Weight => _weight;
 
 		[SerializeField]
 		private float _frequencyFactor = 1;
