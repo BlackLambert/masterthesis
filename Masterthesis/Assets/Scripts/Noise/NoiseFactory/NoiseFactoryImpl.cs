@@ -46,6 +46,10 @@ namespace SBaier.Master
 					return CreateSimplexNoise(baseSeed);
 				case NoiseType.NoiseValueLimiter:
 					return CreateNoiseValueLimiter((NoiseValueLimiterSettings)settings, baseSeed, recursionDepth + 1);
+				case NoiseType.Static:
+					return CreateStaticValueNoise((StaticValueNoiseSettings)settings);
+				case NoiseType.Amplifier:
+					return CreateNoiseAmplifier((NoiseAmplifierSettings)settings, baseSeed, recursionDepth + 1);
 				default:
 					throw new NotImplementedException();
 			}
@@ -97,6 +101,18 @@ namespace SBaier.Master
 		{
 			Noise3D baseNoise = Create(settings.BaseNoise, baseSeed, recursionDepth);
 			return new NoiseValueLimiter(settings.ValueLimits, baseNoise);
+		}
+
+		private StaticValueNoise CreateStaticValueNoise(StaticValueNoiseSettings settings)
+		{
+			return new StaticValueNoise(settings.Value);
+		}
+
+		private NoiseAmplifier CreateNoiseAmplifier(NoiseAmplifierSettings settings, Seed baseSeed, int recursionDepth)
+		{
+			Noise3D baseA = Create(settings.BaseNoise, baseSeed, recursionDepth);
+			Noise3D baseB = Create(settings.AmplifierNoise, baseSeed, recursionDepth);
+			return new NoiseAmplifier(baseA, baseB);
 		}
 
 		private Seed CreateSeedBasedOn(Seed seed)

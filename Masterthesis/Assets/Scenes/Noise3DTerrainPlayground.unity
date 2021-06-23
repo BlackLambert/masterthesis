@@ -351,7 +351,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1424059973}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.25, y: 3.46, z: -13.05}
+  m_LocalPosition: {x: -2.25, y: 3.46, z: -19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -638,16 +638,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _valueRange.x
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _valueRange.y
-      value: 3.5
+      value: 6.8
       objectReference: {fileID: 0}
     - target: {fileID: 7266284977456134382, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: af939d382019e114b8eef280c1c7bc0a, type: 2}
+      objectReference: {fileID: 11400000, guid: 08cf6dee79323fc459c3bb9bfd4625b8, type: 2}
     - target: {fileID: 7411379567019944321, guid: 6d1c02380ed8fa1458d9c0f7befa5219, type: 3}
       propertyPath: m_IsActive
       value: 1

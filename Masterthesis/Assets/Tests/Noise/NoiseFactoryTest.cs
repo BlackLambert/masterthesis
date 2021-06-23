@@ -19,6 +19,8 @@ namespace SBaier.Master.Test
         private const string _octaveNoiseSettingsPath = "Noise/TestOctaveNoiseSettings";
         private const string _simplexNoiseSettingsPath = "Noise/TestSimplexNoiseSettings";
         private const string _noiseValueLimiterSettingsPath = "Noise/TestNoiseValueLimiterSettings";
+        private const string _staticValueNoiseSettingsPath = "Noise/TestStaticValueNoiseSettings";
+        private const string _noiseAmplifierSettingsPath = "Noise/TestNoiseAmplifierSettings";
         private Noise3D _noise;
 
 		[Test]
@@ -180,6 +182,38 @@ namespace SBaier.Master.Test
             ThenTheNoiseValueLimiterPropertiesAreAsExpected();
         }
 
+        [Test(Description = "The Create method creates an StaticValueNoise if provided with an StaticValueNoiseSetting.")]
+        public void CreatesStaticValueNoiseOnStaticValueNoiseSettings()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithStaticValueNoiseSettings();
+            ThenANoiseOfGivenTypeIsCreated(typeof(StaticValueNoise));
+        }
+
+        [Test(Description = "The created StaticValueNoise has property values provided by the settings")]
+        public void CreatedStaticValueNoiseHasExpectedProperties()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithStaticValueNoiseSettings();
+            ThenTheStaticValueNoisePropertiesAreAsExpected();
+        }
+
+        [Test(Description = "The Create method creates an NoiseAmplifier if provided with an NoiseAmplifierSetting.")]
+        public void CreatesNoiseAmplifierOnNoiseAmplifierSettings()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithNoiseAmplifierSettings();
+            ThenANoiseOfGivenTypeIsCreated(typeof(NoiseAmplifier));
+        }
+
+        [Test(Description = "The created NoiseAmplifier has property values provided by the settings")]
+        public void CreatedNoiseAmplifierHasExpectedProperties()
+        {
+            GivenANewNoiseFactory();
+            WhenCreateIsCalledWithNoiseAmplifierSettings();
+            ThenTheNoiseAmplifierPropertiesAreAsExpected();
+        }
+
 		private void GivenANewNoiseFactory()
 		{
             Container.Bind<Seed>().AsTransient().WithArguments(_seedValue);
@@ -241,6 +275,18 @@ namespace SBaier.Master.Test
         private void WhenCreateIsCalledWithNoiseValueLimiterSettings()
         {
             NoiseValueLimiterSettings settings = Resources.Load<NoiseValueLimiterSettings>(_noiseValueLimiterSettingsPath);
+            CreateNoise(settings);
+        }
+
+        private void WhenCreateIsCalledWithStaticValueNoiseSettings()
+        {
+            StaticValueNoiseSettings settings = Resources.Load<StaticValueNoiseSettings>(_staticValueNoiseSettingsPath);
+            CreateNoise(settings);
+        }
+
+        private void WhenCreateIsCalledWithNoiseAmplifierSettings()
+        {
+            NoiseAmplifierSettings settings = Resources.Load<NoiseAmplifierSettings>(_noiseAmplifierSettingsPath);
             CreateNoise(settings);
         }
 
@@ -328,6 +374,21 @@ namespace SBaier.Master.Test
             Assert.AreEqual(settings.ValueLimits.x, limiter.Limits.x);
             Assert.AreEqual(settings.ValueLimits.y, limiter.Limits.y);
             Assert.AreEqual(settings.BaseNoise.GetNoiseType(), limiter.BaseNoise.NoiseType);
+        }
+
+        private void ThenTheStaticValueNoisePropertiesAreAsExpected()
+        {
+            StaticValueNoiseSettings settings = Resources.Load<StaticValueNoiseSettings>(_staticValueNoiseSettingsPath);
+            StaticValueNoise noise = (StaticValueNoise)_noise;
+            Assert.AreEqual(settings.Value, noise.Value);
+        }
+
+        private void ThenTheNoiseAmplifierPropertiesAreAsExpected()
+        {
+            NoiseAmplifierSettings settings = Resources.Load<NoiseAmplifierSettings>(_noiseAmplifierSettingsPath);
+            NoiseAmplifier noise = (NoiseAmplifier)_noise;
+            Assert.AreEqual(settings.BaseNoise.GetNoiseType(), noise.BaseNoise.NoiseType);
+            Assert.AreEqual(settings.AmplifierNoise.GetNoiseType(), noise.AmplifierNoise.NoiseType);
         }
 
         private void CreateNoise(NoiseSettings settings)

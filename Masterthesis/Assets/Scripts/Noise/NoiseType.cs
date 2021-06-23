@@ -14,6 +14,7 @@ namespace SBaier.Master
         Octave = 16,
         Simplex = 32,
         NoiseValueLimiter = 64,
-        WhiteNoise = 128
+        Static = 128,
+        Amplifier = 256
     }
 }
