@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -8,8 +6,8 @@ namespace SBaier.Master
 	public class RidgedNoiseSettings : NoiseSettings
 	{
 		[SerializeField]
-		private BillowNoiseSettings _billowNoiseSettings;
-		public BillowNoiseSettings BillowNoiseSettings => _billowNoiseSettings;
+		private NoiseSettings _baseNoiseSettings;
+		public NoiseSettings BaseNoiseSettings => _baseNoiseSettings;
 
 		public override NoiseType GetNoiseType()
 		{

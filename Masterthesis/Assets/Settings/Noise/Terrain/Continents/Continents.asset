@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: Continents
+  m_EditorClassIdentifier: 
+  _layers:
+  - {fileID: 11400000, guid: de4b746017242634e907d61e38034ac6, type: 2}
+  - {fileID: 11400000, guid: 7893e8cd19fa56a4ea32e57d4ff4d456, type: 2}
+  _mapping: 1

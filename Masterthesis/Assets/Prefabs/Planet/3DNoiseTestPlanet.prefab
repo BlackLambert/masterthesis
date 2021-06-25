@@ -367,7 +367,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6f6d42a7bad5e45a3a47b5d09321d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: 7c1bcb67ef9cc3e41a60d589d4347ded, type: 2}
   _meshFilter: {fileID: 7319222656762423585}
   _valueRange: {x: 1, y: 1.5}
 --- !u!114 &5057274909055646039
@@ -395,6 +394,7 @@ GameObject:
   - component: {fileID: 8711234613290344014}
   - component: {fileID: 8711234613290344001}
   - component: {fileID: 8711234613290344000}
+  - component: {fileID: 2172371701855249577}
   - component: {fileID: 2624570305799692079}
   m_Layer: 0
   m_Name: 3DNoiseTestPlanet
@@ -435,6 +435,7 @@ MonoBehaviour:
   _monoInstallers:
   - {fileID: 8711234613290344001}
   - {fileID: 8711234613290344000}
+  - {fileID: 2172371701855249577}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -462,6 +463,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc2c6f4b21eb13e4ba400c064c69930b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2172371701855249577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8711234613290344004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4928a3aae898dcc47b0012d38340b218, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _noise: {fileID: 11400000, guid: 0b44136e0ed39924f8634cd7b7eee824, type: 2}
 --- !u!114 &2624570305799692079
 MonoBehaviour:
   m_ObjectHideFlags: 0

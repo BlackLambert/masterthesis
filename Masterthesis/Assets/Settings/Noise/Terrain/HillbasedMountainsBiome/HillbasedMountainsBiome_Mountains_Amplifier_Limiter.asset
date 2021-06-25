@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: HillbasedMountainsBiome_Mountains_Amplifier_Limiter
   m_EditorClassIdentifier: 
   _valueLimits: {x: 0.6, y: 1}
-  _baseNoise: {fileID: 11400000, guid: e370c55e666352e4899e0ac79b109266, type: 2}
+  _baseNoise: {fileID: 11400000, guid: 3d3b4125c4011b64f86320e60b328275, type: 2}

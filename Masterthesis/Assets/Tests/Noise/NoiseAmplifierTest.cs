@@ -47,7 +47,7 @@ namespace SBaier.Master.Test
 			{
 				float baseValueA = _baseNoiseA.Evaluate3D(_points[i]);
 				float baseValueB = _baseNoiseB.Evaluate3D(_points[i]);
-				float expected = baseValueA * baseValueB;
+				float expected = baseValueA * baseValueB * baseValueB;
 				Assert.AreEqual(expected, result[i]);
 			}
 		}

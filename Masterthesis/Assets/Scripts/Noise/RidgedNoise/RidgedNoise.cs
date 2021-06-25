@@ -4,33 +4,33 @@ namespace SBaier.Master
 {
 	public class RidgedNoise : Noise3D
 	{
-		private BillowNoise _bollowNoise;
+		private Noise3D _baseNoise;
 
 		public NoiseType NoiseType => NoiseType.Ridged;
 
-		public RidgedNoise(BillowNoise billowNoise)
+		public RidgedNoise(Noise3D baseNoise)
 		{
-			_bollowNoise = billowNoise;
+			_baseNoise = baseNoise;
 		}
 
 		public float Evaluate2D(Vector2 point)
 		{
-			return InvertValue(_bollowNoise.Evaluate2D(point));
+			return InvertValue(_baseNoise.Evaluate2D(point));
 		}
 
 		public float[] Evaluate2D(Vector2[] points)
 		{
-			return ApplyNoise(_bollowNoise.Evaluate2D(points));
+			return ApplyNoise(_baseNoise.Evaluate2D(points));
 		}
 
 		public float Evaluate3D(Vector3 point)
 		{
-			return InvertValue(_bollowNoise.Evaluate3D(point));
+			return InvertValue(_baseNoise.Evaluate3D(point));
 		}
 
 		public float[] Evaluate3D(Vector3[] points)
 		{
-			return ApplyNoise(_bollowNoise.Evaluate3D(points));
+			return ApplyNoise(_baseNoise.Evaluate3D(points));
 		}
 
 		private float[] ApplyNoise(float[] evaluatedValue)

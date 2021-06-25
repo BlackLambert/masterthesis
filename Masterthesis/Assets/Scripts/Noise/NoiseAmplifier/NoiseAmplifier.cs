@@ -19,14 +19,14 @@ namespace SBaier.Master
 		{
 			float baseValue = BaseNoise.Evaluate2D(point);
 			float amplifierValue = AmplifierNoise.Evaluate2D(point);
-			return baseValue * amplifierValue;
+			return baseValue * amplifierValue * amplifierValue;
 		}
 
 		public float Evaluate3D(Vector3 point)
 		{
 			float baseValue = BaseNoise.Evaluate3D(point);
 			float amplifierValue = AmplifierNoise.Evaluate3D(point);
-			return baseValue * amplifierValue;
+			return baseValue * amplifierValue * amplifierValue;
 		}
 
 		public float[] Evaluate2D(Vector2[] points)

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: HillbasedMountainsBiome_MountainsLayer
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
-  _weight: 1.5
-  _frequencyFactor: 1
+  _weight: 1.8
+  _frequencyFactor: 0.66

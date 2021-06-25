@@ -6,7 +6,7 @@ namespace SBaier.Master
 {
 	public class NoiseFactoryImpl : NoiseFactory
 	{
-		private int _recursionDepthLimit = 8;
+		private int _recursionDepthLimit = 20;
 
 		public int RecursionDepthLimit
 		{
@@ -68,7 +68,7 @@ namespace SBaier.Master
 
 		private RidgedNoise CreateRidgedNoise(RidgedNoiseSettings settings, Seed baseSeed, int recursionDepth)
 		{
-			BillowNoise baseNoise = (BillowNoise)Create(settings.BillowNoiseSettings, baseSeed, recursionDepth);
+			Noise3D baseNoise = Create(settings.BaseNoiseSettings, baseSeed, recursionDepth);
 			return new RidgedNoise(baseNoise);
 		}
 

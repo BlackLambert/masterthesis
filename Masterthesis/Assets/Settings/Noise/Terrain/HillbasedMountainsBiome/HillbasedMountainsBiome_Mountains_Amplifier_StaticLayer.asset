@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6019cc812c1faa4faab7be072c16e08, type: 3}
   m_Name: HillbasedMountainsBiome_Mountains_Amplifier_StaticLayer
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: b4a618ffe9d3b7f47bf76dc3f18640ee, type: 2}
-  _weight: 1
+  _noiseSettings: {fileID: 11400000, guid: 9cc05d95ef7147247b26217c8b8e37b0, type: 2}
+  _weight: 0
   _frequencyFactor: 1

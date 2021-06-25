@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4218c09bf387bbc4b808e81698411d31, type: 3}
   m_Name: TestNoiseAmplifierSettings
   m_EditorClassIdentifier: 
-  _baseNoiseA: {fileID: 11400000, guid: 015a3a34833b85b40b786ade3068821b, type: 2}
-  _baseNoiseB: {fileID: 11400000, guid: 1c68958656495fb419a2f73f85fe34ea, type: 2}
+  _baseNoise: {fileID: 11400000, guid: 015a3a34833b85b40b786ade3068821b, type: 2}
+  _amplifierNoise: {fileID: 11400000, guid: 1c68958656495fb419a2f73f85fe34ea, type: 2}

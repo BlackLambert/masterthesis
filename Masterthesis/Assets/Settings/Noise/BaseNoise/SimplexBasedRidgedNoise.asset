@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22bc051a7d716134ea88b0f45514c304, type: 3}
   m_Name: SimplexBasedRidgedNoise
   m_EditorClassIdentifier: 
-  _billowNoiseSettings: {fileID: 11400000, guid: a804139ffdc9308499f07c0582561ec8, type: 2}
+  _baseNoiseSettings: {fileID: 11400000, guid: a804139ffdc9308499f07c0582561ec8, type: 2}
