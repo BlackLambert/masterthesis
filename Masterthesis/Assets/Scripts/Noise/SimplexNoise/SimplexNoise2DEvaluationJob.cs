@@ -6,8 +6,8 @@ using UnityEngine;
 namespace SBaier.Master
 {
 	[Unity.Burst.BurstCompile]
-	public struct SimplexNoise2DEvaluationJob : IJobParallelFor
-    {
+	public struct SimplexNoise2DEvaluationJob : NoiseEvaluationJob, IJobParallelFor
+	{
 		[WriteOnly]
 		public NativeArray<float> _result;
 		[ReadOnly]
@@ -21,6 +21,8 @@ namespace SBaier.Master
 
 		private static readonly double F2 = 0.5 * (Math.Sqrt(3.0) - 1.0);
 		private static readonly double G2 = (3.0 - Math.Sqrt(3.0)) / 6.0;
+		private const int _innerloopBatchCount = 64;
+		public NativeArray<float> Result => _result;
 
 		public SimplexNoise2DEvaluationJob(NativeArray<float> result,
 			NativeArray<Vector2> points,
@@ -33,6 +35,13 @@ namespace SBaier.Master
 			_dP = dP;
 			_dPMod = dPMod;
 			_grad2 = grad2;
+		}
+
+		public void Dispose()
+		{
+			_dP.Dispose();
+			_dPMod.Dispose();
+			_grad2.Dispose();
 		}
 
 		public void Execute(int index)
@@ -138,6 +147,16 @@ namespace SBaier.Master
 		{
 			int xi = (int)value;
 			return value < xi ? xi - 1 : xi;
+		}
+
+		public JobHandle Schedule()
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount);
+		}
+
+		public JobHandle Schedule(JobHandle dependency)
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount, dependency);
 		}
 	}
 }

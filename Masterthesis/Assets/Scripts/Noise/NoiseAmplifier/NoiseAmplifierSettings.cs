@@ -13,6 +13,9 @@ namespace SBaier.Master
 		[SerializeField]
 		private NoiseSettings _amplifierNoise;
 		public NoiseSettings AmplifierNoise => _amplifierNoise;
+		[SerializeField]
+		private NoiseAmplifier.Mode _mode = NoiseAmplifier.Mode.Linear;
+		public NoiseAmplifier.Mode Mode => _mode;
 
 		public override NoiseType GetNoiseType()
 		{

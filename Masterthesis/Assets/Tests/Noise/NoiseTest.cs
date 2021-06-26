@@ -2,13 +2,14 @@ using Zenject;
 using NUnit.Framework;
 using UnityEngine;
 using System;
+using Unity.Collections;
 
 namespace SBaier.Master.Test
 {
     [TestFixture]
     public abstract class NoiseTest : ZenjectUnitTestFixture
     {
-		private const int _testSamplesCount = 1000;
+		private const int _testSamplesCount = 10;
 		private const int _randomSeed = 1234;
 		private const double _epsilon = 0.0001;
 		private readonly Vector2 _valueRange = new Vector2(0, 1);
@@ -29,6 +30,7 @@ namespace SBaier.Master.Test
 			new Vector2 (-1.3f, 0.1f),
 			new Vector2 (7.4f, -3.2f)
 		};
+
 		private readonly Vector3Int _sampleRange = new Vector3Int(100, 100, 100);
 
 		private Noise3D _noiseOne;
@@ -125,8 +127,8 @@ namespace SBaier.Master.Test
 		private void ThenEvaluateWithVector3ArrayReturnsSameValuesAsSingleEvaluation()
 		{
 			_noiseOne = Container.Resolve<Noise3D>();
-			float[] result = _noiseOne.Evaluate3D(_testEvaluationPoints);
-			for(int i = 0; i < _testEvaluationPoints.Length; i++)
+			float[] result = WhenNoiseEvaluate3DIsCalledWithTestPoints(_noiseOne);
+			for (int i = 0; i < _testEvaluationPoints.Length; i++)
 			{
 				Vector3 v = _testEvaluationPoints[i];
 				float expected = _noiseOne.Evaluate3D(v);
@@ -134,16 +136,36 @@ namespace SBaier.Master.Test
 			}
 		}
 
+		private float[] WhenNoiseEvaluate3DIsCalledWithTestPoints(Noise3D noise)
+		{
+			NativeArray<Vector3> pointsNative = new NativeArray<Vector3>(_testEvaluationPoints, Allocator.TempJob);
+			NativeArray<float> resultNative = noise.Evaluate3D(pointsNative);
+			float[] result = resultNative.ToArray();
+			pointsNative.Dispose();
+			resultNative.Dispose();
+			return result;
+		}
+
 		private void ThenEvaluateWithVector2ArrayReturnsSameValuesAsSingleEvaluation()
 		{
 			_noiseOne = Container.Resolve<Noise3D>();
-			float[] result = _noiseOne.Evaluate2D(_testEvaluationPoints2D);
+			float[] result = WhenNoiseEvaluate2DIsCalledWithTestPoints(_noiseOne);
 			for (int i = 0; i < _testEvaluationPoints2D.Length; i++)
 			{
 				Vector2 v = _testEvaluationPoints2D[i];
 				float expected = _noiseOne.Evaluate2D(v);
 				Assert.AreEqual(expected, result[i], _epsilon);
 			}
+		}
+
+		private float[] WhenNoiseEvaluate2DIsCalledWithTestPoints(Noise2D noise)
+		{
+			NativeArray<Vector2> pointsNative = new NativeArray<Vector2>(_testEvaluationPoints2D, Allocator.TempJob);
+			NativeArray<float> resultNative = noise.Evaluate2D(pointsNative);
+			float[] result = resultNative.ToArray();
+			pointsNative.Dispose();
+			resultNative.Dispose();
+			return result;
 		}
 
 		private void TestRandomSampleWithinRange(Noise3D noise, System.Random random)

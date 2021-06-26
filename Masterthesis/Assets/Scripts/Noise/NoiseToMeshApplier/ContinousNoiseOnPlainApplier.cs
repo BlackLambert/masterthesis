@@ -1,3 +1,4 @@
+using Unity.Collections;
 using UnityEngine;
 using Zenject;
 
@@ -23,7 +24,7 @@ namespace SBaier.Master
         private Vector3 _currentStartPositionDelta;
         private Vector3[] _formerVertices;
         private Vector3[] _newVertices;
-        private Vector2[] _evaluationPoints;
+        private NativeArray<Vector2> _evaluationPoints;
         private float[] _evaluatedValues;
 
         [Inject]
@@ -49,6 +50,11 @@ namespace SBaier.Master
 		{
 
 			_currentStartPositionDelta += _startPositionDelta * Time.deltaTime;
+		}
+
+		protected virtual void OnDestroy()
+		{
+			_evaluationPoints.Dispose();
 		}
 
 		private void CreateNoise()
@@ -80,8 +86,13 @@ namespace SBaier.Master
 
 		private void InitEvaluationPoints(Mesh mesh)
 		{
-			if (_evaluationPoints == null || _evaluationPoints.Length != mesh.vertexCount)
-				_evaluationPoints = new Vector2[mesh.vertexCount];
+			if (_evaluationPoints != default && _evaluationPoints.Length != mesh.vertexCount)
+			{
+				_evaluationPoints.Dispose();
+				_evaluationPoints = default;
+			}
+			if (_evaluationPoints == default)
+				_evaluationPoints = new NativeArray<Vector2>(mesh.vertexCount, Allocator.Persistent);
 		}
 
 		private void UpdateEvaluationPoints()
@@ -91,7 +102,9 @@ namespace SBaier.Master
 				Vector3 former = _formerVertices[i];
 				_evaluationPoints[i] = new Vector2(former.x + _currentStartPositionDelta.x, former.z + _currentStartPositionDelta.z);
 			}
-			_evaluatedValues = _noise.Evaluate2D(_evaluationPoints);
+			NativeArray<float> result = _noise.Evaluate2D(_evaluationPoints);
+			_evaluatedValues = result.ToArray();
+			result.Dispose();
 		}
 
 		private void SetNewVertices()

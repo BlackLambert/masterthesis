@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -16,65 +17,80 @@ namespace SBaier.Master
 			Mapping = mapping;
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
-			float[] result = new float[points.Length];
+			NativeArray<float> result = new NativeArray<float>(points.Length, Allocator.TempJob);
 			float mappingValue = GetMappingValue();
 
 			// Base evaluations
 			for (int layer = 0; layer < Layers.Length; layer++)
 			{
-				Vector2[] baseEvaluationPoints = new Vector2[points.Length];
-				points.CopyTo(baseEvaluationPoints, 0);
+				NativeArray<Vector2> baseEvaluationPoints = new NativeArray<Vector2>(points, Allocator.TempJob);
 				float ff = Layers[layer].FrequencyFactor;
+				int baseEvaluationPointsLength = baseEvaluationPoints.Length;
 
 				// Apply FrequencyFactor to evaluation points
-				for (int j = 0; j < baseEvaluationPoints.Length; j++)
-					baseEvaluationPoints[j] *= ff;
+				for (int j = 0; j < baseEvaluationPointsLength; j++)
+				{
+					Vector2 v = baseEvaluationPoints[j];
+					baseEvaluationPoints[j] = v.FastMultiply(ff);
+				}
 
 				// Evaluate
-				float[] baseEvaluations = Layers[layer].Noise.Evaluate2D(baseEvaluationPoints);
+				NativeArray<float> baseEvaluations = Layers[layer].Noise.Evaluate2D(baseEvaluationPoints);
 
 				// Add weight base value to result
 				float weight = Layers[layer].Weight;
-				for (int i = 0; i < baseEvaluations.Length; i++)
+				int baseEvaluationsLength = baseEvaluations.Length;
+				for (int i = 0; i < baseEvaluationsLength; i++)
 					result[i] += (baseEvaluations[i] - mappingValue) * weight;
+				baseEvaluationPoints.Dispose();
+				baseEvaluations.Dispose();
 			}
 
+
 			// Clamp result values
-			for (int i = 0; i < result.Length; i++)
+			int resultLength = result.Length;
+			for (int i = 0; i < resultLength; i++)
 				result[i] = Clamp01(result[i] + mappingValue);
 
 			return result;
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
-			float[] result = new float[points.Length];
+			NativeArray<float> result = new NativeArray<float>(points.Length, Allocator.TempJob);
 			float mappingValue = GetMappingValue();
 
 			// Base evaluations
 			for (int layer = 0; layer < Layers.Length; layer++)
 			{
-				Vector3[] baseEvaluationPoints = new Vector3[points.Length];
-				points.CopyTo(baseEvaluationPoints, 0);
+				NativeArray<Vector3> baseEvaluationPoints = new NativeArray<Vector3>(points, Allocator.TempJob);
 				float ff = Layers[layer].FrequencyFactor;
 
 				// Apply FrequencyFactor to evaluation points
-				for (int j = 0; j < baseEvaluationPoints.Length; j++)
-					baseEvaluationPoints[j] *= ff;
+				int baseEvaluationPointsLength = baseEvaluationPoints.Length;
+				for (int j = 0; j < baseEvaluationPointsLength; j++)
+				{
+					Vector3 v = baseEvaluationPoints[j];
+					baseEvaluationPoints[j] = v.FastMultiply(ff);
+				}
 
 				// Evaluate
-				float[] baseEvaluations = Layers[layer].Noise.Evaluate3D(baseEvaluationPoints);
+				NativeArray<float> baseEvaluations = Layers[layer].Noise.Evaluate3D(baseEvaluationPoints);
 
 				// Add weight base value to result
 				float weight = Layers[layer].Weight;
-				for (int i = 0; i < baseEvaluations.Length; i++)
+				int baseEvaluationsLength = baseEvaluations.Length;
+				for (int i = 0; i < baseEvaluationsLength; i++)
 					result[i] += (baseEvaluations[i] - mappingValue) * weight;
+				baseEvaluationPoints.Dispose();
+				baseEvaluations.Dispose();
 			}
 
 			// Clamp result values
-			for (int i = 0; i < result.Length; i++)
+			int resultLength = result.Length;
+			for (int i = 0; i < resultLength; i++)
 				result[i] = Clamp01(result[i] + mappingValue);
 
 			return result;

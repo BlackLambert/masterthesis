@@ -8,7 +8,7 @@ namespace SBaier.Master
 {
 	public class BillowNoise : Noise3D
 	{
-		private const int _innerloopBatchCount = 1;
+		private const int _innerloopBatchCount = 128;
 
 		public Noise3D BaseNoise { get; }
 
@@ -19,7 +19,7 @@ namespace SBaier.Master
 			BaseNoise = baseNoise;
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
 			return ApplyNoise(BaseNoise.Evaluate3D(points));
 		}
@@ -29,7 +29,7 @@ namespace SBaier.Master
 			return ApplyNoise(BaseNoise.Evaluate3D(point));
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
 			return ApplyNoise(BaseNoise.Evaluate2D(points));
 		}
@@ -39,25 +39,10 @@ namespace SBaier.Master
 			return ApplyNoise(BaseNoise.Evaluate2D(point));
 		}
 
-		private static float[] ApplyNoise(float[] evaluatedValues)
+		private static NativeArray<float> ApplyNoise(NativeArray<float> evaluatedValues)
 		{
-			return ApplyNoiseParallel(evaluatedValues);
-		}
-
-		private static float[] ApplyNoiseSequencial(float[] evaluatedValues)
-		{
-			for (int i = 0; i < evaluatedValues.Length; i++)
-				evaluatedValues[i] = ApplyNoise(evaluatedValues[i]);
-			return evaluatedValues;
-		}
-
-		private static float[] ApplyNoiseParallel(float[] evaluatedValues)
-		{
-			NativeArray<float> result = new NativeArray<float>(evaluatedValues, Allocator.TempJob);
-			EvaluateJob job = new EvaluateJob { _result = result };
-			job.Schedule(result.Length, _innerloopBatchCount).Complete();
-			evaluatedValues = result.ToArray();
-			result.Dispose();
+			EvaluateJob job = new EvaluateJob { _result = evaluatedValues };
+			job.Schedule(evaluatedValues.Length, _innerloopBatchCount).Complete();
 			return evaluatedValues;
 		}
 

@@ -7,8 +7,8 @@ using Unity.Burst;
 namespace SBaier.Master
 {
 	[BurstCompile]
-    public struct SimplexNoise3DEvaluationJob : IJobParallelFor
-    {
+    public struct SimplexNoise3DEvaluationJob : NoiseEvaluationJob, IJobParallelFor
+	{
 		[WriteOnly]
 		public NativeArray<float> _result;
 		[ReadOnly]
@@ -22,6 +22,9 @@ namespace SBaier.Master
 
 		private static readonly double F3 = 1.0 / 3.0;
 		private static readonly double G3 = 1.0 / 6.0;
+		private const int _innerloopBatchCount = 8;
+
+		public NativeArray<float> Result => _result;
 
 		public SimplexNoise3DEvaluationJob(NativeArray<float> result,
 			NativeArray<Vector3> points,
@@ -38,8 +41,16 @@ namespace SBaier.Master
 
 		public void Execute(int index)
 		{
+			//Debug.Log($"SimplexNoise {index}");
 			Vector3 p = _points[index];
 			_result[index] = Evaluate(p.x, p.y, p.z);
+		}
+
+		public void Dispose()
+		{
+			_dP.Dispose();
+			_dPMod.Dispose();
+			_grad3.Dispose();
 		}
 
 		public float Evaluate(double x, double y, double z)
@@ -223,6 +234,16 @@ namespace SBaier.Master
 		private static double Dot(Vector3Int gradient, double x, double y, double z)
 		{
 			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
+		}
+
+		public JobHandle Schedule()
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount);
+		}
+
+		public JobHandle Schedule(JobHandle dependency)
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount, dependency);
 		}
 	}
 }

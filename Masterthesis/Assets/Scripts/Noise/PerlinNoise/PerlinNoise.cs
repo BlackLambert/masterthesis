@@ -33,7 +33,6 @@ namespace SBaier.Master
 
 		private const short _permutationCount = 256;
 		private const short _doublePermutationCount = _permutationCount * 2;
-		private const int _innerloopBatchCount = 64;
 
 		private short[] _dP;
 		private short[] _dPMod12;
@@ -65,10 +64,9 @@ namespace SBaier.Master
 			}
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
 			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
-			NativeArray<Vector3> p = new NativeArray<Vector3>(points, Allocator.TempJob);
 			NativeArray<short> dP = new NativeArray<short>(_dP, Allocator.TempJob);
 			NativeArray<short> dPMod12 = new NativeArray<short>(_dPMod12, Allocator.TempJob);
 			NativeArray<Vector3Int> grad3 = CreateNativeGradients3D();
@@ -78,26 +76,18 @@ namespace SBaier.Master
 				_dP = dP,
 				_dPMod12 = dPMod12,
 				_result = evaluatedPoints,
-				_points = p,
+				_points = points,
 				_grad3 = grad3
 			};
 
-			job.Schedule(points.Length, _innerloopBatchCount).Complete();
-			float[] result = evaluatedPoints.ToArray();
-
-			evaluatedPoints.Dispose();
-			p.Dispose();
-			dP.Dispose();
-			dPMod12.Dispose();
-			grad3.Dispose();
-
-			return result;
+			job.Schedule().Complete();
+			job.Dispose();
+			return evaluatedPoints;
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
 			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
-			NativeArray<Vector2> p = new NativeArray<Vector2>(points, Allocator.TempJob);
 			NativeArray<short> dP = new NativeArray<short>(_dP, Allocator.TempJob);
 			NativeArray<short> dPMod12 = new NativeArray<short>(_dPMod12, Allocator.TempJob);
 			NativeArray<Vector2Int> grad2 = CreateNativeGradients2D();
@@ -107,32 +97,35 @@ namespace SBaier.Master
 				_dP = dP,
 				_dPMod12 = dPMod12,
 				_result = evaluatedPoints,
-				_points = p,
+				_points = points,
 				_grad2 = grad2
 			};
 
-			job.Schedule(points.Length, _innerloopBatchCount).Complete();
-			float[] result = evaluatedPoints.ToArray();
-
-			evaluatedPoints.Dispose();
-			p.Dispose();
-			dP.Dispose();
-			dPMod12.Dispose();
-			grad2.Dispose();
-
-			return result;
+			job.Schedule().Complete();
+			job.Dispose();
+			return evaluatedPoints;
 		}
 
 		public float Evaluate2D(Vector2 point)
 		{
-			Vector2[] points = new Vector2[] { point };
-			return Evaluate2D(points)[0];
+			NativeArray<Vector2> points = new NativeArray<Vector2> (1, Allocator.TempJob);
+			points[0] = point;
+			NativeArray<float> values = Evaluate2D(points);
+			float value = values[0];
+			values.Dispose();
+			points.Dispose();
+			return value;
 		}
 
 		public float Evaluate3D(Vector3 point)
 		{
-			Vector3[] points = new Vector3[] { point };
-			return Evaluate3D(points)[0];
+			NativeArray<Vector3> points = new NativeArray<Vector3>(1, Allocator.TempJob);
+			points[0] = point;
+			NativeArray<float> values = Evaluate3D(points);
+			float value = values[0];
+			values.Dispose();
+			points.Dispose();
+			return value;
 		}
 
 		private NativeArray<Vector3Int> CreateNativeGradients3D()

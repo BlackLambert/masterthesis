@@ -975,7 +975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c20d464cd291534e8e8ca3782c2238d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _seed: 1
+  _seed: 2
 --- !u!114 &1734195421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1623,7 +1623,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5401745615139937874, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _amount
-      value: 200
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _delay
@@ -1640,7 +1640,7 @@ PrefabInstance:
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: 03292ae781369ef41ada0a09ad88df9d, type: 2}
+      objectReference: {fileID: 11400000, guid: 0b44136e0ed39924f8634cd7b7eee824, type: 2}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _startPositionDelta.x
       value: 0.3

@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -8,8 +9,7 @@ namespace SBaier.Master
 {
     public class ParallelNoiseTest : MonoBehaviour
     {
-        private const int _threadSleepTime = 0;
-        private const int _defaultEvaluationAmount = 100000;
+        private const int _defaultEvaluationAmount = 10000;
 
         [SerializeField]
         private NoiseSettings _noiseSettings;
@@ -56,19 +56,12 @@ namespace SBaier.Master
             textField.text = $"The {testName} with {iterations} iterations of {_noise.NoiseType} took {duration} seconds";
         }
 
-        private void DoSequencialTest(int iterations)
-		{
-            for (int i = 0; i < iterations; i++)
-            {
-                Thread.Sleep(_threadSleepTime);
-                Vector3 point = _evalPoints[i];
-                _noise.Evaluate3D(point);
-            }
-        }
-
         private void DoParallelTest(int iterations)
 		{
-            _noise.Evaluate3D(_evalPoints);
+            NativeArray<Vector3> points = new NativeArray<Vector3>(_evalPoints, Allocator.Persistent);
+            NativeArray<float> result = _noise.Evaluate3D(points);
+            result.Dispose();
+            points.Dispose();
         }
 
         private void FillEvalPoints(int iterations)
@@ -77,7 +70,7 @@ namespace SBaier.Master
             Vector3 startVector = Vector3.zero;
             Vector3 delta = new Vector3(-0.01f, 0.005f, 0.002f);
             for (int i = 0; i < _evalPoints.Length; i++)
-                _evalPoints[i] = startVector + delta * i;
+                _evalPoints[i] = startVector.FastAdd(delta).FastMultiply(i);
         }
     }
 }

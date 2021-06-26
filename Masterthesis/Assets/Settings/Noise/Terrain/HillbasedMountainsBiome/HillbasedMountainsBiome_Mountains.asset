@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _baseNoise: {fileID: 11400000, guid: 8eeb81e7a2e37ae4096e5f9be7a65e78, type: 2}
   _amplifierNoise: {fileID: 11400000, guid: fc9d677344dd88347af8ec66b86078f4, type: 2}
+  _mode: 2

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SBaier.Master
 {
 	[Unity.Burst.BurstCompile]
-    public struct PerlinNoise2DEvaluationJob : IJobParallelFor
+    public struct PerlinNoise2DEvaluationJob : IJobParallelFor, NoiseEvaluationJob
     {
 		[WriteOnly]
 		public NativeArray<float> _result;
@@ -17,6 +17,9 @@ namespace SBaier.Master
 		public NativeArray<short> _dPMod12;
 		[ReadOnly]
 		public NativeArray<Vector2Int> _grad2;
+		private const int _innerloopBatchCount = 8;
+
+		public NativeArray<float> Result => _result;
 
 		public void Execute(int index)
 		{
@@ -76,6 +79,23 @@ namespace SBaier.Master
 		{
 			short xi = (short)value;
 			return (short)(value < xi ? xi - 1 : xi);
+		}
+
+		public JobHandle Schedule()
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount);
+		}
+
+		public JobHandle Schedule(JobHandle dependency)
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount, dependency);
+		}
+
+		public void Dispose()
+		{
+			_dP.Dispose();
+			_dPMod12.Dispose();
+			_grad2.Dispose();
 		}
 	}
 }

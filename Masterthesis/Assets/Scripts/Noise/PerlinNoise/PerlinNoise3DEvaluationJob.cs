@@ -5,8 +5,9 @@ using UnityEngine;
 namespace SBaier.Master
 {
 	[Unity.Burst.BurstCompile]
-	public struct PerlinNoise3DEvaluationJob : IJobParallelFor
+	public struct PerlinNoise3DEvaluationJob : IJobParallelFor, NoiseEvaluationJob
     {
+		private const int _innerloopBatchCount = 8;
 		public NativeArray<float> _result;
 		[ReadOnly]
 		public NativeArray<Vector3> _points;
@@ -16,6 +17,8 @@ namespace SBaier.Master
 		public NativeArray<short> _dPMod12;
 		[ReadOnly]
 		public NativeArray<Vector3Int> _grad3;
+
+		public NativeArray<float> Result => _result;
 
 		public void Execute(int index)
 		{
@@ -103,6 +106,23 @@ namespace SBaier.Master
 		private static double Dot(Vector3 gradient, double x, double y, double z)
 		{
 			return gradient[0] * x + gradient[1] * y + gradient[2] * z;
+		}
+
+		public JobHandle Schedule()
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount);
+		}
+
+		public JobHandle Schedule(JobHandle dependency)
+		{
+			return this.Schedule(_result.Length, _innerloopBatchCount, dependency);
+		}
+
+		public void Dispose()
+		{
+			_dP.Dispose();
+			_dPMod12.Dispose();
+			_grad3.Dispose();
 		}
 	}
 }

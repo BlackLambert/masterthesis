@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -6,6 +7,6 @@ namespace SBaier.Master
 	public interface Noise2D : Noise
 	{
 		float Evaluate2D(Vector2 point);
-		float[] Evaluate2D(Vector2[] points);
+		NativeArray<float> Evaluate2D(NativeArray<Vector2> points);
 	}
 }

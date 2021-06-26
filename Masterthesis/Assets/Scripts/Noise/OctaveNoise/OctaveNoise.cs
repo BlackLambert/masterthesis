@@ -1,10 +1,15 @@
 using System;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace SBaier.Master
 {
 	public class OctaveNoise : Noise3D
 	{
+		private const int _fillBaseEvaluationPointsInnerloopBatchCount = 64;
+
 		public int OctavesCount { get; }
 		public Noise3D BaseNoise { get; }
 		public float StartFrequency { get; }
@@ -21,80 +26,123 @@ namespace SBaier.Master
 			StartWeight = args.StartWeight;
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
-			float[] result = new float[points.Length];
-
-			// Base evaluations
-			for (int octave = 0; octave < OctavesCount; octave++)
-			{
-				Vector2[] baseEvaluationPoints = new Vector2[points.Length];
-				points.CopyTo(baseEvaluationPoints, 0);
-				float factor = Mathf.Pow(2, octave);
-				float ff = StartFrequency * factor;
-
-				// Apply FrequencyFactor to evaluation points
-				for (int j = 0; j < baseEvaluationPoints.Length; j++)
-					baseEvaluationPoints[j] *= ff;
-
-				// Evaluate
-				float[] baseEvaluations = BaseNoise.Evaluate2D(baseEvaluationPoints);
-
-				// Add weight base value to result
-				float weight = StartWeight / factor;
-				for (int i = 0; i < baseEvaluations.Length; i++)
-					result[i] += (baseEvaluations[i] - 0.5f) * weight;
-			}
-
-			// Clamp result values
-			for (int i = 0; i < result.Length; i++)
-				result[i] = Clamp01(result[i] + 0.5f);
-
+			NativeArray<Vector2> baseEvaluationPoints = FillBaseEvaluationPoints(points);
+			NativeArray<float> baseValues = BaseNoise.Evaluate2D(baseEvaluationPoints);
+			NativeArray<float> result = CalculateResult(baseValues);
+			baseEvaluationPoints.Dispose();
+			baseValues.Dispose();
 			return result;
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
-			float[] result = new float[points.Length];
-
-			// Base evaluations
-			for (int octave = 0; octave < OctavesCount; octave++)
-			{
-				Vector3[] baseEvaluationPoints = new Vector3[points.Length];
-				points.CopyTo(baseEvaluationPoints, 0);
-				float factor = Mathf.Pow(2, octave);
-				float ff = StartFrequency * factor;
-
-				// Apply FrequencyFactor to evaluation points
-				for (int j = 0; j < baseEvaluationPoints.Length; j++)
-					baseEvaluationPoints[j] *= ff;
-
-				// Evaluate
-				float[] baseEvaluations = BaseNoise.Evaluate3D(baseEvaluationPoints);
-
-				// Add weight base value to result
-				float weight = StartWeight / factor;
-				for (int i = 0; i < baseEvaluations.Length; i++)
-					result[i] += (baseEvaluations[i] - 0.5f) * weight;
-			}
-
-			// Clamp result values
-			for (int i = 0; i < result.Length; i++)
-				result[i] = Clamp01(result[i] + 0.5f);
-
+			//float time = Time.realtimeSinceStartup;
+			NativeArray<Vector3> baseEvaluationPoints = FillBaseEvaluationPoints(points);
+			//Debug.Log($"FillBaseEvaluationPoints {Time.realtimeSinceStartup - time}");
+			//time = Time.realtimeSinceStartup;
+			NativeArray<float> baseValues = BaseNoise.Evaluate3D(baseEvaluationPoints);
+			//Debug.Log($"Evaluate3DBaseValues {Time.realtimeSinceStartup - time}");
+			//time = Time.realtimeSinceStartup;
+			NativeArray<float> result = CalculateResult(baseValues);
+			//Debug.Log($"CalculateResult {Time.realtimeSinceStartup - time}");
+			baseEvaluationPoints.Dispose();
+			baseValues.Dispose();
 			return result;
 		}
 
 		public float Evaluate3D(Vector3 point)
 		{
-			Func<float, float> baseEvaluation = ff => BaseNoise.Evaluate3D(point * ff);
-			return EvaluateOctaves(baseEvaluation);
+			NativeArray<Vector3> points = new NativeArray<Vector3>(1, Allocator.TempJob);
+			points[0] = point;
+			NativeArray<float> results = Evaluate3D(points);
+			float result = results[0];
+			results.Dispose();
+			points.Dispose();
+			return result;
 		}
 
 		public float Evaluate2D(Vector2 point)
 		{
-			Func<float, float> baseEvaluation = ff => BaseNoise.Evaluate2D(point * ff);
-			return EvaluateOctaves(baseEvaluation);
+			NativeArray<Vector2> points = new NativeArray<Vector2>(1, Allocator.TempJob);
+			points[0] = point;
+			NativeArray<float> results = Evaluate2D(points);
+			float result = results[0];
+			results.Dispose();
+			points.Dispose();
+			return result;
+		}
+
+		private NativeArray<float> CalculateResult(NativeArray<float> baseValues)
+		{
+			int pointsCount = baseValues.Length / OctavesCount;
+			NativeArray<float> nativeResult = new NativeArray<float>(pointsCount, Allocator.TempJob);
+			NativeArray<float> weights = new NativeArray<float>(GetWeights(), Allocator.TempJob);
+
+			CalculateResultJob job = new CalculateResultJob()
+			{
+				_baseValues = baseValues,
+				_result = nativeResult,
+				_weights = weights,
+				_octavesAmount = OctavesCount
+			};
+
+			job.Schedule(pointsCount, _fillBaseEvaluationPointsInnerloopBatchCount).Complete();
+			weights.Dispose();
+			return nativeResult;
+		}
+
+		private NativeArray<Vector3> FillBaseEvaluationPoints(NativeArray<Vector3> points)
+		{
+			NativeArray<Vector3> nativeResult = new NativeArray<Vector3>(points.Length * OctavesCount, Allocator.TempJob);
+			NativeArray<float> ffs = new NativeArray<float>(GetFrequencyFactors(), Allocator.TempJob);
+
+			FillBaseEvaluationPoints3DJob job = new FillBaseEvaluationPoints3DJob()
+			{
+				_formerPoints = points,
+				_frequencyFactors = ffs,
+				_octavesAmount = OctavesCount,
+				_points = nativeResult
+			};
+
+			job.Schedule(nativeResult.Length, _fillBaseEvaluationPointsInnerloopBatchCount).Complete();
+			ffs.Dispose();
+			return nativeResult;
+		}
+
+		private NativeArray<Vector2> FillBaseEvaluationPoints(NativeArray<Vector2> points)
+		{
+			NativeArray<Vector2> nativeResult = new NativeArray<Vector2>(points.Length * OctavesCount, Allocator.TempJob);
+			NativeArray<float> ffs = new NativeArray<float>(GetFrequencyFactors(), Allocator.TempJob);
+
+			FillBaseEvaluationPoints2DJob job = new FillBaseEvaluationPoints2DJob()
+			{
+				_formerPoints = points,
+				_frequencyFactors = ffs,
+				_octavesAmount = OctavesCount,
+				_points = nativeResult
+			};
+
+			job.Schedule(nativeResult.Length, _fillBaseEvaluationPointsInnerloopBatchCount).Complete();
+			ffs.Dispose();
+			return nativeResult;
+		}
+
+		private float[] GetFrequencyFactors()
+		{
+			float[] result = new float[OctavesCount];
+			for(int i = 0; i < result.Length; i++)
+				result [i] = StartFrequency * Mathf.Pow(2, i);
+			return result;
+		}
+
+		private float[] GetWeights()
+		{
+			float[] result = new float[OctavesCount];
+			for(int i = 0; i < result.Length; i++)
+				result [i] = StartWeight / Mathf.Pow(2, i);
+			return result;
 		}
 
 		public float EvaluateOctaves(Func<float, float> baseEvaluation)
@@ -147,6 +195,74 @@ namespace SBaier.Master
 			{
 				if (startFrequency < 0)
 					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		[BurstCompile]
+		public struct FillBaseEvaluationPoints3DJob : IJobParallelFor
+		{
+			[WriteOnly]
+			public NativeArray<Vector3> _points;
+			[ReadOnly]
+			public NativeArray<Vector3> _formerPoints;
+			[ReadOnly]
+			public int _octavesAmount;
+			[ReadOnly]
+			public NativeArray<float> _frequencyFactors;
+
+			public void Execute(int index)
+			{
+				int ovtave = index / _formerPoints.Length;
+				_points[index] = _formerPoints[index % _formerPoints.Length] * _frequencyFactors[ovtave];
+			}
+		}
+
+		[BurstCompile]
+		public struct FillBaseEvaluationPoints2DJob : IJobParallelFor
+		{
+			[WriteOnly]
+			public NativeArray<Vector2> _points;
+			[ReadOnly]
+			public NativeArray<Vector2> _formerPoints;
+			[ReadOnly]
+			public int _octavesAmount;
+			[ReadOnly]
+			public NativeArray<float> _frequencyFactors;
+
+			public void Execute(int index)
+			{
+				int ovtave = index / _formerPoints.Length;
+				_points[index] = _formerPoints[index % _formerPoints.Length] * _frequencyFactors[ovtave];
+			}
+		}
+
+		[BurstCompile]
+		public struct CalculateResultJob : IJobParallelFor
+		{
+			[WriteOnly]
+			public NativeArray<float> _result;
+			[ReadOnly]
+			public NativeArray<float> _baseValues;
+			[ReadOnly]
+			public int _octavesAmount;
+			[ReadOnly]
+			public NativeArray<float> _weights;
+
+			public void Execute(int index)
+			{
+				float value = 0;
+				for (int octave = 0; octave < _octavesAmount; octave++)
+				{
+					float weight = _weights[octave];
+					value += (_baseValues[index + _result.Length * octave] - 0.5f) * weight;
+				}
+
+				_result[index] = Clamp01(value + 0.5f);
+			}
+
+			private float Clamp01(float result)
+			{
+				return (result > 1) ? 1 : (result < 0) ? 0 : result;
 			}
 		}
 	}

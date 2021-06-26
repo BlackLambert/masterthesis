@@ -53,4 +53,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _meshFilter: {fileID: 6115868298182527929}
+  _generatorSettings: {fileID: 11400000, guid: 766120c5fc237dc41a5d6248b73180e5, type: 2}
   _size: 2.6

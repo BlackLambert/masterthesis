@@ -2,6 +2,7 @@ using Zenject;
 using NUnit.Framework;
 using System;
 using UnityEngine;
+using Unity.Collections;
 
 namespace SBaier.Master.Test
 {
@@ -65,7 +66,12 @@ namespace SBaier.Master.Test
 
 		private float[] WhenEvaluateIsCalledWith(Vector3[] points)
 		{
-			return _noise.Evaluate3D(points);
+			NativeArray<Vector3> pointsNative = new NativeArray<Vector3>(points, Allocator.TempJob);
+			NativeArray<float> resultNative = _noise.Evaluate3D(pointsNative);
+			float[] result = resultNative.ToArray();
+			pointsNative.Dispose();
+			resultNative.Dispose();
+			return result;
 		}
 
 		private void ThenAnArgumentOutOfRangeExceptionIsThrown(TestDelegate test)

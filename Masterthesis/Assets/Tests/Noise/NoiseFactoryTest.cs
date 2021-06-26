@@ -389,6 +389,7 @@ namespace SBaier.Master.Test
             NoiseAmplifier noise = (NoiseAmplifier)_noise;
             Assert.AreEqual(settings.BaseNoise.GetNoiseType(), noise.BaseNoise.NoiseType);
             Assert.AreEqual(settings.AmplifierNoise.GetNoiseType(), noise.AmplifierNoise.NoiseType);
+            Assert.AreEqual(settings.Mode, noise.AmplifierMode);
         }
 
         private void CreateNoise(NoiseSettings settings)

@@ -14,7 +14,6 @@ namespace SBaier.Master
 	{
 		private const short _permutationCount = 256;
 		private const short _doublePermutationCount = _permutationCount * 2;
-		private const int _innerloopBatchCount = 64;
 
 		private readonly static Vector3Int[] Grad3 = new Vector3Int[]
 		{
@@ -45,59 +44,37 @@ namespace SBaier.Master
 			InitPermutation(seed);
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
-			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
-			NativeArray<Vector3> p = new NativeArray<Vector3>(points, Allocator.TempJob);
-			NativeArray<Vector3Int> gradients = CreateNativeGradients3D();
-			NativeArray<short> dP = new NativeArray<short>(_dP.ToArray(), Allocator.TempJob);
-			NativeArray<short> dPMod = new NativeArray<short>(_dPMod.ToArray(), Allocator.TempJob);
-
-			SimplexNoise3DEvaluationJob job = new SimplexNoise3DEvaluationJob(evaluatedPoints, p, dP, dPMod, gradients);
-
-			job.Schedule(points.Length, _innerloopBatchCount).Complete();
-			float[] result = evaluatedPoints.ToArray();
-
-			evaluatedPoints.Dispose();
-			p.Dispose();
-			dP.Dispose();
-			dPMod.Dispose();
-			gradients.Dispose();
-
-			return result;
+			NoiseEvaluationJob job = CreateEvaluate3DJob(points);
+			return FinishJob(job);
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
-			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
-			NativeArray<Vector2> p = new NativeArray<Vector2>(points, Allocator.TempJob);
-			NativeArray<short> dP = new NativeArray<short>(_dP.ToArray(), Allocator.TempJob);
-			NativeArray<short> dPMod = new NativeArray<short>(_dPMod.ToArray(), Allocator.TempJob);
-			NativeArray<Vector2Int> gradients = CreateNativeGradients2D();
-
-			SimplexNoise2DEvaluationJob job = new SimplexNoise2DEvaluationJob(evaluatedPoints, p, dP, dPMod, gradients);
-
-			job.Schedule(points.Length, _innerloopBatchCount).Complete();
-			float[] result = evaluatedPoints.ToArray();
-
-			evaluatedPoints.Dispose();
-			p.Dispose();
-			dP.Dispose();
-			dPMod.Dispose();
-			gradients.Dispose();
-
-			return result;
+			NoiseEvaluationJob job = CreateEvaluate2DJob(points);
+			return FinishJob(job);
 		}
 
 		public float Evaluate3D(Vector3 point)
 		{
-			Vector3[] points = new Vector3[] { point };
-			return Evaluate3D(points)[0];
+			NativeArray<Vector3> points = new NativeArray<Vector3>(1, Allocator.TempJob);
+			points[0] = point;
+			NoiseEvaluationJob job = CreateEvaluate3DJob(points);
+			float result = FinishJob(job)[0];
+			points.Dispose();
+			job.Result.Dispose();
+			return result;
 		}
 		public float Evaluate2D(Vector2 point)
 		{
-			Vector2[] points = new Vector2[] { point };
-			return Evaluate2D(points)[0];
+			NativeArray<Vector2> points = new NativeArray<Vector2>(1, Allocator.TempJob);
+			points[0] = point;
+			NoiseEvaluationJob job = CreateEvaluate2DJob(points);
+			float result = FinishJob(job)[0];
+			points.Dispose();
+			job.Result.Dispose();
+			return result;
 		}
 
 		private NativeArray<Vector3Int> CreateNativeGradients3D()
@@ -129,6 +106,36 @@ namespace SBaier.Master
 				_dP[_permutationCount + i] = _dP[i] = permutation[i];
 				_dPMod[_permutationCount + i] = _dPMod[i] = (short)(permutation[i] % Grad3.Length);
 			}
+		}
+
+		public NoiseEvaluationJob CreateEvaluate3DJob(NativeArray<Vector3> points)
+		{
+			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
+			NativeArray<Vector3Int> gradients = CreateNativeGradients3D();
+			NativeArray<short> dP = new NativeArray<short>(_dP.ToArray(), Allocator.TempJob);
+			NativeArray<short> dPMod = new NativeArray<short>(_dPMod.ToArray(), Allocator.TempJob);
+
+			SimplexNoise3DEvaluationJob job = new SimplexNoise3DEvaluationJob(evaluatedPoints, points, dP, dPMod, gradients);
+			return job;
+		}
+
+		public NoiseEvaluationJob CreateEvaluate2DJob(NativeArray<Vector2> points)
+		{
+			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
+			NativeArray<short> dP = new NativeArray<short>(_dP.ToArray(), Allocator.TempJob);
+			NativeArray<short> dPMod = new NativeArray<short>(_dPMod.ToArray(), Allocator.TempJob);
+			NativeArray<Vector2Int> gradients = CreateNativeGradients2D();
+
+			SimplexNoise2DEvaluationJob job = new SimplexNoise2DEvaluationJob(evaluatedPoints, points, dP, dPMod, gradients);
+			return job;
+		}
+
+		private NativeArray<float> FinishJob(NoiseEvaluationJob job)
+		{
+			job.Schedule().Complete();
+			NativeArray<float> result = job.Result;
+			job.Dispose();
+			return result;
 		}
 	}
 }

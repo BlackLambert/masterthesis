@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -20,7 +21,7 @@ namespace SBaier.Master
 			return Value;
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
 			return CreateResult(points.Length);
 		}
@@ -30,15 +31,16 @@ namespace SBaier.Master
 			return Value;
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
 			return CreateResult(points.Length);
 		}
 
-		private float[] CreateResult(int amount)
+		private NativeArray<float> CreateResult(int amount)
 		{
-			float[] result = new float[amount];
-			for (int i = 0; i < result.Length; i++)
+			NativeArray<float> result = new NativeArray<float>(amount, Allocator.TempJob);
+			int resultLength = result.Length;
+			for (int i = 0; i < resultLength; i++)
 				result[i] = Value;
 			return result;
 		}

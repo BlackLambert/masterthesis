@@ -112,7 +112,7 @@ namespace SBaier.Master
 		{
 			Noise3D baseA = Create(settings.BaseNoise, baseSeed, recursionDepth);
 			Noise3D baseB = Create(settings.AmplifierNoise, baseSeed, recursionDepth);
-			return new NoiseAmplifier(baseA, baseB);
+			return new NoiseAmplifier(baseA, baseB, settings.Mode);
 		}
 
 		private Seed CreateSeedBasedOn(Seed seed)

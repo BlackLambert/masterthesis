@@ -1,3 +1,4 @@
+using Unity.Collections;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -18,24 +19,25 @@ namespace SBaier.Master
 			return InvertValue(_baseNoise.Evaluate2D(point));
 		}
 
-		public float[] Evaluate2D(Vector2[] points)
-		{
-			return ApplyNoise(_baseNoise.Evaluate2D(points));
-		}
-
 		public float Evaluate3D(Vector3 point)
 		{
 			return InvertValue(_baseNoise.Evaluate3D(point));
 		}
 
-		public float[] Evaluate3D(Vector3[] points)
+		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
 			return ApplyNoise(_baseNoise.Evaluate3D(points));
 		}
 
-		private float[] ApplyNoise(float[] evaluatedValue)
+		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
-			for (int i = 0; i < evaluatedValue.Length; i++)
+			return ApplyNoise(_baseNoise.Evaluate2D(points));
+		}
+
+		private NativeArray<float> ApplyNoise(NativeArray<float> evaluatedValue)
+		{
+			int evaluatedValueLength = evaluatedValue.Length;
+			for (int i = 0; i < evaluatedValueLength; i++)
 				evaluatedValue[i] = InvertValue(evaluatedValue[i]);
 			return evaluatedValue;
 		}
