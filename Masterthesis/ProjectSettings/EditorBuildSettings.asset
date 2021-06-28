@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ParallelNoiseBenchmark.unity
     guid: 07a9c9dc2ae3f4d449498f7436c1ac55
   - enabled: 0
     path: Assets/Scenes/Noise2DTerrainPlayground.unity
     guid: 29bd22f35d64c7745a362772eaa20885
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Noise3DTerrainPlayground.unity
     guid: 860f5c96496776d438577814e2854e15
   m_configObjects: {}

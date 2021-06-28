@@ -7,10 +7,13 @@ namespace SBaier.Master
     {
         [SerializeField]
         private int _seed = 24234;
+        [SerializeField]
+        private bool _useRandomSeed = false;
 
         public override void InstallBindings()
         {
-            Container.Bind<Seed>().To<Seed>().FromNew().AsTransient().WithArguments(_seed);
+            int seed = _useRandomSeed ? new System.Random().Next(int.MinValue, int.MaxValue) : _seed;
+            Container.Bind<Seed>().To<Seed>().FromNew().AsTransient().WithArguments(seed);
         }
     }
 }
