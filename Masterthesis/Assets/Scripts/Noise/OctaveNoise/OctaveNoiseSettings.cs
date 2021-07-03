@@ -12,12 +12,6 @@ namespace SBaier.Master
 		[SerializeField]
 		private NoiseSettings _baseNoise;
 		public NoiseSettings BaseNoise => _baseNoise;
-		[SerializeField]
-		private float _startFrequency = 1;
-		public float StartFrequency => _startFrequency;
-		[SerializeField]
-		private float _startWeight = 1;
-		public float StartWeight => _startWeight;
 
 		public override NoiseType GetNoiseType()
 		{

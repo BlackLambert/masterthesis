@@ -11,11 +11,8 @@ namespace SBaier.Master.Test
     {
 		private const int _octavesCount = 3;
 		private const float _startFrequency = 4;
-		private readonly Vector2 _startWeightRange = new Vector2(0, 1); 
 		private const float _startWeight = 0.5f;
-		private const float _startFrequencySmallerOne = -1.3f;
 		private const int _testSeed = 1234;
-		private const float _epsilon = 0.001f;
 		private readonly Vector3 _testValue = new Vector3(2.1f, 4.7f, -2.4f);
 
 		private OctaveNoise _noise;
@@ -39,38 +36,11 @@ namespace SBaier.Master.Test
 			ThenBaseNoiseReturns(_baseNoise);
 		}
 
-		[Test(Description = "The StartFrequency property returns value put into the constructor")]
-		public void StartFrequency_ReturnsExpectedValue()
-		{
-			GivenANew3DNoise();
-			ThenStartFrequencyReturns(_startFrequency);
-		}
-
-		[Test(Description = "The StartWeight property returns value put into the constructor")]
-		public void StartWeight_ReturnsExpectedValue()
-		{
-			GivenANew3DNoise();
-			ThenStartWeightReturns(_startWeight);
-		}
-
-		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Weight is out of range.")]
-		public void ThrowsExceptionOnStartWeightOutOfRange()
-		{
-			TestDelegate test = () => CreateTestArgsWithStartWeightSmallerThanRange();
-			ThenThrowsArgumentOutOfRangeException(test);
-		}
-
-		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Frequency is smaller than 1.")]
-		public void ThrowsExceptionOnStartFrequencyOutOfRange()
-		{
-			TestDelegate test = () => CreateTestArgsWithStartFrequencySmallerThanOne();
-			ThenThrowsArgumentOutOfRangeException(test);
-		}
-
 		[Test(Description = "The evaluated values are as expected")]
 		public void Evaluate_ReturnsExpectedValue()
 		{
 			GivenANew3DNoise();
+			WhenBaseValuesAreSetTo(_noise, _startFrequency, _startWeight);
 			ThenTheTestValueEvaluatesToExpectedValue();
 		}
 
@@ -96,21 +66,6 @@ namespace SBaier.Master.Test
 			Assert.AreEqual(baseNoise, _noise.BaseNoise);
 		}
 
-		private void ThenStartFrequencyReturns(double startFrequency)
-		{
-			Assert.AreEqual(startFrequency, _noise.StartFrequency);
-		}
-
-		private void ThenStartWeightReturns(double startWeight)
-		{
-			Assert.AreEqual(startWeight, _noise.StartWeight);
-		}
-
-		private void ThenThrowsArgumentOutOfRangeException(TestDelegate test)
-		{
-			Assert.Throws<ArgumentOutOfRangeException>(test);
-		}
-
 		private void ThenTheTestValueEvaluatesToExpectedValue()
 		{
 			float actual = _noise.Evaluate3D(_testValue);
@@ -126,25 +81,7 @@ namespace SBaier.Master.Test
 		private OctaveNoise.Arguments CreateValidArgs()
 		{
 			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeight);
-		}
-
-		private OctaveNoise.Arguments CreateTestArgsWithStartWeightSmallerThanRange()
-		{
-			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.x - _epsilon);
-		}
-
-		private OctaveNoise.Arguments CreateTestArgsWithStartWeightLargerThanRange()
-		{
-			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequency, _startWeightRange.y + _epsilon);
-		}
-
-		private OctaveNoise.Arguments CreateTestArgsWithStartFrequencySmallerThanOne()
-		{
-			_baseNoise = CreateBaseNoise();
-			return new OctaveNoise.Arguments(_octavesCount, _baseNoise, _startFrequencySmallerOne, 1 - _epsilon);
+			return new OctaveNoise.Arguments(_octavesCount, _baseNoise);
 		}
 
 		private float CreateExpected(Vector3 testValue)
@@ -157,7 +94,7 @@ namespace SBaier.Master.Test
 				float weight = _startWeight / factor;
 				result += (_baseNoise.Evaluate3D(testValue * ff) - 0.5f) * weight;
 			}
-			return Mathf.Clamp01(result + 0.5f);
+			return (float) Clamp01(result + 0.5f);
 		}
 
 		private double Clamp01(double result)

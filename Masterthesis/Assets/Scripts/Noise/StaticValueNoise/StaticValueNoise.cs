@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class StaticValueNoise : Noise3D
+	public class StaticValueNoise : NoiseBase, Noise3D
 	{
 		public float Value { get; }
 
@@ -18,7 +18,7 @@ namespace SBaier.Master
 
 		public float Evaluate3D(Vector3 point)
 		{
-			return Value;
+			return GetValue();
 		}
 
 		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
@@ -28,7 +28,7 @@ namespace SBaier.Master
 
 		public float Evaluate2D(Vector2 point)
 		{
-			return Value;
+			return GetValue();
 		}
 
 		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
@@ -41,8 +41,13 @@ namespace SBaier.Master
 			NativeArray<float> result = new NativeArray<float>(amount, Allocator.TempJob);
 			int resultLength = result.Length;
 			for (int i = 0; i < resultLength; i++)
-				result[i] = Value;
+				result[i] = GetValue();
 			return result;
+		}
+
+		private float GetValue()
+		{
+			return MathUtil.Clamp01(Value * Weight);
 		}
 
 		private void CheckAmount(float value)

@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
   m_Name: CanyonsBiome
   m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 0.5
   _valueLimits: {x: 0, y: 0.5}
   _baseNoise: {fileID: 11400000, guid: f57ef0947f2891f4bbf1243c1c7e43fa, type: 2}

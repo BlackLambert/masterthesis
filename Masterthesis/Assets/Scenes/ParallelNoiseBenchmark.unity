@@ -479,7 +479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f009bb992caa0194295538d677723728, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: 08a35dc074818494eae9159918fff0c8, type: 2}
+  _noiseSettings: {fileID: 11400000, guid: 493be0ad5f421b242855ecaac97eed13, type: 2}
   _parallelText: {fileID: 1771695007}
   _iterationsInput: {fileID: 238661945}
   _performTestButton: {fileID: 1010796769}
@@ -664,6 +664,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _seed: 24234
+  _useRandomSeed: 0
 --- !u!114 &573380469
 MonoBehaviour:
   m_ObjectHideFlags: 0

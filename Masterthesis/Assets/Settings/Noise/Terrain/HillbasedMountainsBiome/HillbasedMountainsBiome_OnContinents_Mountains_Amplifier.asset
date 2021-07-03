@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
+  m_Name: HillbasedMountainsBiome_OnContinents_Mountains_Amplifier
+  m_EditorClassIdentifier: 
+  _weight: 2
+  _frequencyFactor: 0.3
+  _valueLimits: {x: 0.6, y: 1}
+  _baseNoise: {fileID: 11400000, guid: 3d3b4125c4011b64f86320e60b328275, type: 2}

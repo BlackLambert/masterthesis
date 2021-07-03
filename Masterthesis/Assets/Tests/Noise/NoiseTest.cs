@@ -12,6 +12,10 @@ namespace SBaier.Master.Test
 		private const int _testSamplesCount = 10;
 		private const int _randomSeed = 1234;
 		private const double _epsilon = 0.0001;
+		private readonly float[] _frequencyFactors = new float[] {0.1f, 0.0001f, 1.2f, 2.6f, 1.0f, 1.0f, 1.0f};
+		private readonly float[] _invalidFrequencyFactors = new float[] { -0.1f, 0.0f, -1.2f};
+		private readonly float[] _weights = new float[] { 0.7f, 1.0f, 2.5f, 0.2f, 1.0f, 0.0f, 131.0f };
+		private readonly float[] _invalidWeights = new float[] { -0.0001f, -0.5f, -1.8f};
 		private readonly Vector2 _valueRange = new Vector2(0, 1);
 		private readonly Vector3 _testEvaluationPoint = new Vector3(3.2f, 5.8f, -1.7f);
 		private readonly Vector3[] _testEvaluationPoints = new Vector3[]
@@ -41,50 +45,173 @@ namespace SBaier.Master.Test
 		[Test]
 		public void AllEvaluatedValuesAreInExpectedRange()
 		{
-			GivenANew3DNoise();
-			ThenAllEvaluatedValuesAreInExpectedRange();
+			for (int i = 0; i < _frequencyFactors.Length; i++)
+			{ 
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				WhenBaseValuesAreSetTo(_noiseOne, _frequencyFactors[i], _weights[i]);
+				ThenAllEvaluatedValuesAreInExpectedRange();
+				Teardown();
+				Setup();
+			}
 		}
 
 		[Test]
 		public void EvaluatedDataOfTwoNoisesWithSameSeedAreEqual()
 		{
-			GivenANew3DNoise();
-			ThenEvaluatedDataOfTwoNoisesWithSameSeedAreEqual();
+			for (int i = 0; i < _frequencyFactors.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				_noiseTwo = Container.Resolve<Noise3D>();
+				WhenBaseValuesAreSetTo(_noiseOne, _frequencyFactors[i], _weights[i]);
+				WhenBaseValuesAreSetTo(_noiseTwo, _frequencyFactors[i], _weights[i]);
+				ThenEvaluatedDataOfTwoNoisesWithSameSeedAreEqual();
+				Teardown();
+				Setup();
+			}
 		}
 
 		[Test]
 		public void TwoEvaluatedValuesWithTheSameInputAreEqual()
 		{
-			GivenANew3DNoise();
-			ThenTwoEvaluatedValuesWithTheSameInputAreEqual();
+			for (int i = 0; i < _frequencyFactors.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				WhenBaseValuesAreSetTo(_noiseOne, _frequencyFactors[i], _weights[i]);
+				ThenTwoEvaluatedValuesWithTheSameInputAreEqual();
+				Teardown();
+				Setup();
+			}
 		}
 
 		[Test]
 		public void NoiseTypeReturnsExpectedValue()
 		{
 			GivenANew3DNoise();
+			_noiseOne = Container.Resolve<Noise3D>();
 			ThenNoiseTypeReturnsExpectedValue();
 		}
 
 		[Test (Description = "Evaluate called with Vector3 Array returns same values as single vector3 evaluation")]
 		public void Evaluate_WithVector3Array_EvaluatesLikeSingleVector3()
 		{
-			GivenANew3DNoise();
-			ThenEvaluateWithVector3ArrayReturnsSameValuesAsSingleEvaluation();
+			for (int i = 0; i < _frequencyFactors.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				WhenBaseValuesAreSetTo(_noiseOne, _frequencyFactors[i], _weights[i]);
+				ThenEvaluateWithVector3ArrayReturnsSameValuesAsSingleEvaluation();
+				Teardown();
+				Setup();
+			}
 		}
 
 		[Test(Description = "Evaluate called with Vector2 Array returns same values as single vector2 evaluation")]
 		public void Evaluate_WithVector2Array_EvaluatesLikeSingleVector2()
 		{
-			GivenANew3DNoise();
-			ThenEvaluateWithVector2ArrayReturnsSameValuesAsSingleEvaluation();
+			for (int i = 0; i < _frequencyFactors.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				WhenBaseValuesAreSetTo(_noiseOne, _frequencyFactors[i], _weights[i]);
+				ThenEvaluateWithVector2ArrayReturnsSameValuesAsSingleEvaluation();
+				Teardown();
+				Setup();
+			}
+		}
+
+		[Test(Description = "The FrequencyFactor property returns value put into the constructor")]
+		public void FrequencyFactor_ReturnsExpectedValue()
+		{
+			for(int i = 0; i < _frequencyFactors.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				WhenFrequencyFactorIsSetTo(_noiseOne, _frequencyFactors[i]);
+				ThenFrequencyFactorReturns(_frequencyFactors[i]);
+				Teardown();
+				Setup();
+			}
+		}
+
+		[Test(Description = "The StartWeight property returns value put into the constructor")]
+		public void StartWeight_ReturnsExpectedValue()
+		{
+			for (int i = 0; i < _weights.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				WhenWeightIsSetTo(_noiseOne, _weights[i]);
+				ThenWeightReturns(_weights[i]);
+				Teardown();
+				Setup();
+			}
+		}
+
+		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Weight is out of range.")]
+		public void ThrowsExceptionOnStartWeightOutOfRange()
+		{
+			for (int i = 0; i < _invalidWeights.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				TestDelegate test = () => WhenWeightIsSetTo(_noiseOne, _invalidWeights[i]);
+				ThenThrowsArgumentOutOfRangeException(test);
+				Teardown();
+				Setup();
+			}
+		}
+
+		[Test(Description = "The constructor throws an ArgumentOutOfRangeException if the Start Frequency is smaller than 1.")]
+		public void ThrowsExceptionOnStartFrequencyOutOfRange()
+		{
+			for (int i = 0; i < _invalidFrequencyFactors.Length; i++)
+			{
+				GivenANew3DNoise();
+				_noiseOne = Container.Resolve<Noise3D>();
+				TestDelegate test = () => WhenFrequencyFactorIsSetTo(_noiseOne, _invalidFrequencyFactors[i]);
+				ThenThrowsArgumentOutOfRangeException(test);
+				Teardown();
+				Setup();
+			}
 		}
 
 		protected abstract void GivenANew3DNoise();
 
+
+		private float[] WhenNoiseEvaluate2DIsCalledWithTestPoints(Noise2D noise)
+		{
+			NativeArray<Vector2> pointsNative = new NativeArray<Vector2>(_testEvaluationPoints2D, Allocator.TempJob);
+			NativeArray<float> resultNative = noise.Evaluate2D(pointsNative);
+			float[] result = resultNative.ToArray();
+			pointsNative.Dispose();
+			resultNative.Dispose();
+			return result;
+		}
+
+		protected void WhenWeightIsSetTo(Noise3D noise, float value)
+		{
+			NoiseBase noiseBase = (NoiseBase)noise;
+			noiseBase.Weight = value;
+		}
+
+		protected void WhenFrequencyFactorIsSetTo(Noise3D noise, float value)
+		{
+			NoiseBase noiseBase = (NoiseBase)noise;
+			noiseBase.FrequencyFactor = value;
+		}
+
+		protected void WhenBaseValuesAreSetTo(Noise3D noise, float frequencyFactor, float weight)
+		{
+			NoiseBase noiseBase = (NoiseBase)noise;
+			noiseBase.FrequencyFactor = frequencyFactor;
+			noiseBase.Weight = weight;
+		}
+
 		private void ThenAllEvaluatedValuesAreInExpectedRange()
 		{
-			_noiseOne = Container.Resolve<Noise3D>();
 			System.Random random = new System.Random(_randomSeed);
 			
 			for (int i = 0; i < _testSamplesCount; i++)
@@ -93,8 +220,6 @@ namespace SBaier.Master.Test
 
 		private void ThenEvaluatedDataOfTwoNoisesWithSameSeedAreEqual()
 		{
-			_noiseOne = Container.Resolve<Noise3D>();
-			_noiseTwo = Container.Resolve<Noise3D>();
 			Assert.AreNotSame(_noiseOne, _noiseTwo);
 			System.Random randomOne = new System.Random(_randomSeed);
 			System.Random randomTwo = new System.Random(_randomSeed);
@@ -110,7 +235,6 @@ namespace SBaier.Master.Test
 
 		private void ThenTwoEvaluatedValuesWithTheSameInputAreEqual()
 		{
-			_noiseOne = Container.Resolve<Noise3D>();
 			double evaluatedValueOne = _noiseOne.Evaluate3D(
 				_testEvaluationPoint);
 			double evaluatedValueTwo = _noiseOne.Evaluate3D(
@@ -120,7 +244,6 @@ namespace SBaier.Master.Test
 
 		private void ThenNoiseTypeReturnsExpectedValue()
 		{
-			_noiseOne = Container.Resolve<Noise3D>();
 			Assert.AreEqual(ExpectedNoiseType, _noiseOne.NoiseType);
 		}
 
@@ -134,6 +257,18 @@ namespace SBaier.Master.Test
 				float expected = _noiseOne.Evaluate3D(v);
 				Assert.AreEqual(expected, result[i], _epsilon);
 			}
+		}
+
+		private void ThenFrequencyFactorReturns(float expectedFrequencyFactor)
+		{
+			NoiseBase noise = (NoiseBase)_noiseOne;
+			Assert.AreEqual(expectedFrequencyFactor, noise.FrequencyFactor);
+		}
+
+		private void ThenWeightReturns(float weight)
+		{
+			NoiseBase noise = (NoiseBase)_noiseOne;
+			Assert.AreEqual(weight, noise.Weight);
 		}
 
 		private float[] WhenNoiseEvaluate3DIsCalledWithTestPoints(Noise3D noise)
@@ -158,14 +293,9 @@ namespace SBaier.Master.Test
 			}
 		}
 
-		private float[] WhenNoiseEvaluate2DIsCalledWithTestPoints(Noise2D noise)
+		private void ThenThrowsArgumentOutOfRangeException(TestDelegate test)
 		{
-			NativeArray<Vector2> pointsNative = new NativeArray<Vector2>(_testEvaluationPoints2D, Allocator.TempJob);
-			NativeArray<float> resultNative = noise.Evaluate2D(pointsNative);
-			float[] result = resultNative.ToArray();
-			pointsNative.Dispose();
-			resultNative.Dispose();
-			return result;
+			Assert.Throws<ArgumentOutOfRangeException>(test);
 		}
 
 		private void TestRandomSampleWithinRange(Noise3D noise, System.Random random)

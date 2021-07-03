@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: TestEmptyLayeredNoiseSettings
   m_EditorClassIdentifier: 
-  _octaves: []
+  _weight: 0.2
+  _frequencyFactor: 0.4
+  _layers: []
+  _mapping: 0

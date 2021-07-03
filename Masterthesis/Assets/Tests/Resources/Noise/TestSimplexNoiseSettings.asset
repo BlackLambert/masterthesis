@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3c1292e701f40d45bcda8954fa0efb5, type: 3}
   m_Name: TestSimplexNoiseSettings
   m_EditorClassIdentifier: 
+  _weight: 1.6
+  _frequencyFactor: 3.1

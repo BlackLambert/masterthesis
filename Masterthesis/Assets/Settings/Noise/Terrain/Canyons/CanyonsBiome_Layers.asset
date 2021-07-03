@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: CanyonsBiome_Layers
   m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 1
   _layers:
-  - {fileID: 11400000, guid: 0e01354ac65880142a4603468305f170, type: 2}
-  - {fileID: 11400000, guid: 434403bdf8b9d3c4686cfe1570081082, type: 2}
+  - {fileID: 11400000, guid: fb5d3c9345adaf640b9fed7f0cd0177b, type: 2}
+  - {fileID: 11400000, guid: 10c3adcfb0837b149a4f823ecd9562a9, type: 2}
   _mapping: 1

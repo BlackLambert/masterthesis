@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: TestThreeLayeredNoiseSettings
   m_EditorClassIdentifier: 
+  _weight: 0.6
+  _frequencyFactor: 0.7
   _layers:
-  - {fileID: 11400000, guid: 02c6bb77eae1dfd4fb7a24dbe86eb327, type: 2}
-  - {fileID: 11400000, guid: c9ec24f78bf3224498c47083778f22fc, type: 2}
-  - {fileID: 11400000, guid: 87eccb7a8f4a0dc40bfd5b58cc333cbf, type: 2}
+  - {fileID: 11400000, guid: 1c68958656495fb419a2f73f85fe34ea, type: 2}
+  - {fileID: 11400000, guid: 015a3a34833b85b40b786ade3068821b, type: 2}
+  - {fileID: 11400000, guid: bf542f9c1da860543907306d66cbdbd4, type: 2}
   _mapping: 0

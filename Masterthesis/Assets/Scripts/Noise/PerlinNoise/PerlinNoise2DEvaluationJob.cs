@@ -17,6 +17,8 @@ namespace SBaier.Master
 		public NativeArray<short> _dPMod12;
 		[ReadOnly]
 		public NativeArray<Vector2Int> _grad2;
+		[ReadOnly]
+		public float _weight;
 		private const int _innerloopBatchCount = 8;
 
 		public NativeArray<float> Result => _result;
@@ -57,7 +59,7 @@ namespace SBaier.Master
 			double nx1 = Lerp(n01, n11, u);
 
 			double nxy = Lerp(nx0, nx1, v);
-			return (float) (nxy + 1) / 2;
+			return MathUtil.Clamp01((float) ((nxy + 1) / 2)*_weight);
 		}
 
 

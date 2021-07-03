@@ -1,10 +1,6 @@
 using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using Unity.Collections;
-using Unity.Jobs;
-using System;
-using System.Collections.Generic;
 
 namespace SBaier.Master
 {
@@ -13,7 +9,7 @@ namespace SBaier.Master
 	/// Optimized by the implementation of Stefan Gustavson and Peter Eastman 2005/2012.
 	/// Quelle: https://weber.itn.liu.se/~stegu/simplexnoise
 	/// </summary>
-	public class PerlinNoise : Noise3D, Seedbased
+	public class PerlinNoise : NoiseBase, Noise3D, Seedbased
 	{
 		private readonly static Vector3Int[] Grad3 = new Vector3Int[]
 		{
@@ -66,6 +62,7 @@ namespace SBaier.Master
 
 		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
+			ApplyFrequencyFactor(points);
 			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
 			NativeArray<short> dP = new NativeArray<short>(_dP, Allocator.TempJob);
 			NativeArray<short> dPMod12 = new NativeArray<short>(_dPMod12, Allocator.TempJob);
@@ -77,7 +74,8 @@ namespace SBaier.Master
 				_dPMod12 = dPMod12,
 				_result = evaluatedPoints,
 				_points = points,
-				_grad3 = grad3
+				_grad3 = grad3,
+				_weight = Weight
 			};
 
 			job.Schedule().Complete();
@@ -87,6 +85,7 @@ namespace SBaier.Master
 
 		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
+			ApplyFrequencyFactor(points);
 			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
 			NativeArray<short> dP = new NativeArray<short>(_dP, Allocator.TempJob);
 			NativeArray<short> dPMod12 = new NativeArray<short>(_dPMod12, Allocator.TempJob);
@@ -98,7 +97,8 @@ namespace SBaier.Master
 				_dPMod12 = dPMod12,
 				_result = evaluatedPoints,
 				_points = points,
-				_grad2 = grad2
+				_grad2 = grad2,
+				_weight = Weight
 			};
 
 			job.Schedule().Complete();
@@ -108,8 +108,9 @@ namespace SBaier.Master
 
 		public float Evaluate2D(Vector2 point)
 		{
+			
 			NativeArray<Vector2> points = new NativeArray<Vector2> (1, Allocator.TempJob);
-			points[0] = point;
+			points[0] = ApplyFrequencyFactor2D(point);
 			NativeArray<float> values = Evaluate2D(points);
 			float value = values[0];
 			values.Dispose();
@@ -120,7 +121,7 @@ namespace SBaier.Master
 		public float Evaluate3D(Vector3 point)
 		{
 			NativeArray<Vector3> points = new NativeArray<Vector3>(1, Allocator.TempJob);
-			points[0] = point;
+			points[0] = ApplyFrequencyFactor3D(point);
 			NativeArray<float> values = Evaluate3D(points);
 			float value = values[0];
 			values.Dispose();

@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: HillbasedMountainsBiome
   m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 1
   _layers:
-  - {fileID: 11400000, guid: b631599764177db44be3cc26f2be75c9, type: 2}
-  - {fileID: 11400000, guid: c635be94859b6d844bacbbf312090ed6, type: 2}
+  - {fileID: 11400000, guid: 860d83fcfbc728d4cb9677509bb4f5bc, type: 2}
+  - {fileID: 11400000, guid: 57a073126aeaae7478ba6a6c9f6b4b62, type: 2}
   _mapping: 1

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4218c09bf387bbc4b808e81698411d31, type: 3}
+  m_Name: HillsBiome_Hills
+  m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 1
+  _baseNoise: {fileID: 11400000, guid: 0c782d8708e39ca42826c3aaa224341f, type: 2}
+  _amplifierNoise: {fileID: 11400000, guid: 1c1f22ebdffe39d44adc4a601736c46d, type: 2}
+  _mode: 1

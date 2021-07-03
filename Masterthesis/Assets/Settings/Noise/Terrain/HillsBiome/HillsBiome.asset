@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
   m_Name: HillsBiome
   m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 1
   _layers:
-  - {fileID: 11400000, guid: cae27e6df5d77d84593f9068110431cc, type: 2}
-  - {fileID: 11400000, guid: 1114fd6baff024a469c28e3b5e979111, type: 2}
-  - {fileID: 11400000, guid: 2cb4a802876251a4ab8da775625f17c8, type: 2}
-  - {fileID: 11400000, guid: c1546549ceac4dc4f9bb0e0ccd7e25fa, type: 2}
-  - {fileID: 11400000, guid: cddaeaeb0cc79224e88198a25dfe4777, type: 2}
+  - {fileID: 11400000, guid: 0ae7d91bfbf22a446aeb798bb0d51b77, type: 2}
+  - {fileID: 11400000, guid: f815bb825e4e91e449bc07b5c2e5e133, type: 2}
   _mapping: 1

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: TestNoiseLayerOneSettings
   m_EditorClassIdentifier: 
   _noiseSettings: {fileID: 11400000, guid: 1c68958656495fb419a2f73f85fe34ea, type: 2}
-  _amplitude: 1
-  _frequencyFactor: 1
+  _weight: 0.9
+  _frequencyFactor: 1.2

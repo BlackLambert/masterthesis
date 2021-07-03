@@ -18,6 +18,8 @@ namespace SBaier.Master
 		public NativeArray<short> _dPMod;
 		[ReadOnly]
 		public NativeArray<Vector2Int> _grad2;
+		[ReadOnly]
+		public float _weight;
 
 		private static readonly double F2 = 0.5 * (Math.Sqrt(3.0) - 1.0);
 		private static readonly double G2 = (3.0 - Math.Sqrt(3.0)) / 6.0;
@@ -28,13 +30,15 @@ namespace SBaier.Master
 			NativeArray<Vector2> points,
 			NativeArray<short> dP,
 			NativeArray<short> dPMod,
-			NativeArray<Vector2Int> grad2)
+			NativeArray<Vector2Int> grad2,
+			float weight)
 		{
 			_result = result;
 			_points = points;
 			_dP = dP;
 			_dPMod = dPMod;
 			_grad2 = grad2;
+			_weight = weight;
 		}
 
 		public void Dispose()
@@ -136,7 +140,7 @@ namespace SBaier.Master
 
 			// Add contributions from each corner to get the final noise value.
 			// The result is scaled to return values in the interval [0,1].
-			return (float)(70.0 * (n0 + n1 + n2) + 1) / 2;
+			return MathUtil.Clamp01(((float)(70.0 * (n0 + n1 + n2) + 1) / 2)* _weight);
 		}
 
 		private static double Dot(Vector2Int gradient, double x, double y)

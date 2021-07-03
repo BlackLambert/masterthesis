@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: HillbasedMountainsBiome_OnContinentsLayered
+  m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 1
+  _layers:
+  - {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
+  - {fileID: 11400000, guid: 6fdcd95dae7d9374f94dcf8129d2c790, type: 2}
+  _mapping: 0

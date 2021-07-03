@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class RidgedNoise : Noise3D
+	public class RidgedNoise : NoiseBase, Noise3D
 	{
 		private Noise3D _baseNoise;
 
@@ -16,21 +16,23 @@ namespace SBaier.Master
 
 		public float Evaluate2D(Vector2 point)
 		{
-			return InvertValue(_baseNoise.Evaluate2D(point));
+			return InvertValue(_baseNoise.Evaluate2D(ApplyFrequencyFactor2D(point)));
 		}
 
 		public float Evaluate3D(Vector3 point)
 		{
-			return InvertValue(_baseNoise.Evaluate3D(point));
+			return InvertValue(_baseNoise.Evaluate3D(ApplyFrequencyFactor3D(point)));
 		}
 
 		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
+			ApplyFrequencyFactor(points);
 			return ApplyNoise(_baseNoise.Evaluate3D(points));
 		}
 
 		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
+			ApplyFrequencyFactor(points);
 			return ApplyNoise(_baseNoise.Evaluate2D(points));
 		}
 
@@ -38,7 +40,7 @@ namespace SBaier.Master
 		{
 			int evaluatedValueLength = evaluatedValue.Length;
 			for (int i = 0; i < evaluatedValueLength; i++)
-				evaluatedValue[i] = InvertValue(evaluatedValue[i]);
+				evaluatedValue[i] = InvertValue(evaluatedValue[i]) * Weight;
 			return evaluatedValue;
 		}
 

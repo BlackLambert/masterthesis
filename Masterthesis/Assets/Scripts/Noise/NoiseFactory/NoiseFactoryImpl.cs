@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using Zenject;
 
 namespace SBaier.Master
@@ -7,6 +8,7 @@ namespace SBaier.Master
 	public class NoiseFactoryImpl : NoiseFactory
 	{
 		private int _recursionDepthLimit = 20;
+		private Dictionary<NoiseSettings, Noise3D> _createdNoise = new Dictionary<NoiseSettings, Noise3D>();
 
 		public int RecursionDepthLimit
 		{
@@ -29,11 +31,26 @@ namespace SBaier.Master
 			CheckRecursionDepth(recursionDepth);
 			CheckNotNull(settings);
 			CheckNotNull(baseSeed);
+			Noise3D result = GetResult(settings, baseSeed, recursionDepth);
+			return result;
+		}
 
+		private Noise3D GetResult(NoiseSettings settings, Seed baseSeed, int recursionDepth)
+		{
+			if (_createdNoise.ContainsKey(settings))
+				return _createdNoise[settings];
+			Noise3D result = CreateNoise(settings, baseSeed, recursionDepth);
+			_createdNoise.Add(settings, result);
+			SetBaseValues(settings, result);
+			return result;
+		}
+
+		private Noise3D CreateNoise(NoiseSettings settings, Seed baseSeed, int recursionDepth)
+		{
 			switch (settings.GetNoiseType())
 			{
 				case NoiseType.Perlin:
-					return CreatePerlinNoise(baseSeed);
+					return CreatePerlinNoise((PerlinNoiseSettings)settings, baseSeed);
 				case NoiseType.Billow:
 					return CreateBillowNoise((BillowNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Ridged:
@@ -43,7 +60,7 @@ namespace SBaier.Master
 				case NoiseType.Octave:
 					return CreateOctaveNoise((OctaveNoiseSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Simplex:
-					return CreateSimplexNoise(baseSeed);
+					return CreateSimplexNoise((SimplexNoiseSettings)settings, baseSeed);
 				case NoiseType.NoiseValueLimiter:
 					return CreateNoiseValueLimiter((NoiseValueLimiterSettings)settings, baseSeed, recursionDepth + 1);
 				case NoiseType.Static:
@@ -55,9 +72,18 @@ namespace SBaier.Master
 			}
 		}
 
-		private PerlinNoise CreatePerlinNoise(Seed baseSeed)
+		private void SetBaseValues(NoiseSettings settings, Noise3D result)
 		{
-			return new PerlinNoise(CreateSeedBasedOn(baseSeed));
+			NoiseBase noiseBase = result as NoiseBase;
+			noiseBase.FrequencyFactor = settings.FrequencyFactor;
+			noiseBase.Weight = settings.Weight;
+		}
+
+		private PerlinNoise CreatePerlinNoise(PerlinNoiseSettings settings, Seed baseSeed)
+		{
+			Seed seed = CreateSeedBasedOn(baseSeed);
+			Debug.Log($"{settings.name} Seed: {seed.SeedNumber}");
+			return new PerlinNoise(seed);
 		}
 
 		private BillowNoise CreateBillowNoise(BillowNoiseSettings settings, Seed baseSeed, int recursionDepth)
@@ -76,25 +102,24 @@ namespace SBaier.Master
 		{
 			if (settings.Layers.Count == 0)
 				throw new ArgumentException();
-				
-			List<LayeredNoise.NoiseLayer> layers = new List<LayeredNoise.NoiseLayer>();
-			foreach (NoiseLayerSettings layerSetting in settings.Layers)
-			{
-				Noise3D noise = Create(layerSetting.NoiseSettings, baseSeed, recursionDepth + 1);
-				layers.Add(new LayeredNoise.NoiseLayer(noise, layerSetting.Weight, layerSetting.FrequencyFactor));
-			}
+
+			Noise3D[] layers = new Noise3D[settings.Layers.Count];
+			for (int i = 0; i < settings.Layers.Count; i++)
+				layers[i] = Create(settings.Layers[i], baseSeed, recursionDepth + 1);
 			return new LayeredNoise(layers, settings.Mapping);
 		}
 
 		private OctaveNoise CreateOctaveNoise(OctaveNoiseSettings settings, Seed baseSeed, int recursionDepth)
 		{
 			Noise3D baseNoise = Create(settings.BaseNoise, baseSeed, recursionDepth + 1);
-			return new OctaveNoise(new OctaveNoise.Arguments(settings.OctavesCount, baseNoise, settings.StartFrequency, settings.StartWeight));
+			return new OctaveNoise(new OctaveNoise.Arguments(settings.OctavesCount, baseNoise));
 		}
 
-		private SimplexNoise CreateSimplexNoise(Seed baseSeed)
+		private SimplexNoise CreateSimplexNoise(SimplexNoiseSettings settings, Seed baseSeed)
 		{
-			return new SimplexNoise(CreateSeedBasedOn(baseSeed));
+			Seed seed = CreateSeedBasedOn(baseSeed);
+			Debug.Log($"{settings.name} Seed: {seed.SeedNumber}");
+			return new SimplexNoise(seed);
 		}
 
 		private NoiseValueLimiter CreateNoiseValueLimiter(NoiseValueLimiterSettings settings, Seed baseSeed, int recursionDepth)

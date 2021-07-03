@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 499142f86b7376d4e9888dd8e330dcdd, type: 3}
   m_Name: TestLoopedBillowNoiseSettings
   m_EditorClassIdentifier: 
+  _weight: 1.5
+  _frequencyFactor: 0.1
   _baseNoiseSettings: {fileID: 11400000}

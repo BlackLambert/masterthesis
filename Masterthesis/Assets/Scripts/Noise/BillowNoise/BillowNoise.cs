@@ -6,7 +6,7 @@ using Unity.Burst;
 
 namespace SBaier.Master
 {
-	public class BillowNoise : Noise3D
+	public class BillowNoise : NoiseBase, Noise3D
 	{
 		private const int _innerloopBatchCount = 128;
 
@@ -26,22 +26,23 @@ namespace SBaier.Master
 
 		public float Evaluate3D(Vector3 point)
 		{
-			return ApplyNoise(BaseNoise.Evaluate3D(point));
+			return ApplyNoise(BaseNoise.Evaluate3D(ApplyFrequencyFactor3D(point)));
 		}
 
 		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
 		{
+			ApplyFrequencyFactor(points);
 			return ApplyNoise(BaseNoise.Evaluate2D(points));
 		}
 
 		public float Evaluate2D(Vector2 point)
 		{
-			return ApplyNoise(BaseNoise.Evaluate2D(point));
+			return ApplyNoise(BaseNoise.Evaluate2D(ApplyFrequencyFactor2D(point)));
 		}
 
-		private static NativeArray<float> ApplyNoise(NativeArray<float> evaluatedValues)
+		private NativeArray<float> ApplyNoise(NativeArray<float> evaluatedValues)
 		{
-			EvaluateJob job = new EvaluateJob { _result = evaluatedValues };
+			EvaluateJob job = new EvaluateJob { _result = evaluatedValues, _weight = Weight };
 			job.Schedule(evaluatedValues.Length, _innerloopBatchCount).Complete();
 			return evaluatedValues;
 		}
@@ -61,10 +62,12 @@ namespace SBaier.Master
 		public struct EvaluateJob : IJobParallelFor
 		{
 			public NativeArray<float> _result;
+			[ReadOnly]
+			public float _weight;
 
 			public void Execute(int index)
 			{
-				_result[index] = Math.Abs(_result[index] * 2 - 1);
+				_result[index] = MathUtil.Clamp01(Math.Abs(_result[index] * 2 - 1) * _weight);
 			}
 		}
 	}

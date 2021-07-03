@@ -17,6 +17,8 @@ namespace SBaier.Master
 		public NativeArray<short> _dPMod12;
 		[ReadOnly]
 		public NativeArray<Vector3Int> _grad3;
+		[ReadOnly]
+		public float _weight;
 
 		public NativeArray<float> Result => _result;
 
@@ -85,7 +87,7 @@ namespace SBaier.Master
 			// Interpolate the two last results along z
 			double nxyz = Lerp(nxy0, nxy1, w);
 
-			return (float)(nxyz + 1) / 2;
+			return MathUtil.Clamp01((float)((nxyz + 1) / 2) * _weight);
 		}
 		private static double Fade(double t)
 		{

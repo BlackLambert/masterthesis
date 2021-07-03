@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95262087504b9de499f819be9c6cdbba, type: 3}
   m_Name: TestPerlinNoiseSettings
   m_EditorClassIdentifier: 
+  _weight: 0.8
+  _frequencyFactor: 1.5

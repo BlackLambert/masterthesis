@@ -6,14 +6,12 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class OctaveNoise : Noise3D
+	public class OctaveNoise : NoiseBase, Noise3D
 	{
 		private const int _fillBaseEvaluationPointsInnerloopBatchCount = 64;
 
 		public int OctavesCount { get; }
 		public Noise3D BaseNoise { get; }
-		public float StartFrequency { get; }
-		public float StartWeight { get; }
 
 		public NoiseType NoiseType => NoiseType.Octave;
 
@@ -22,8 +20,6 @@ namespace SBaier.Master
 		{
 			OctavesCount = args.OctavesCount;
 			BaseNoise = args.BaseNoise;
-			StartFrequency = args.StartFrequency;
-			StartWeight = args.StartWeight;
 		}
 
 		public NativeArray<float> Evaluate2D(NativeArray<Vector2> points)
@@ -38,15 +34,9 @@ namespace SBaier.Master
 
 		public NativeArray<float> Evaluate3D(NativeArray<Vector3> points)
 		{
-			//float time = Time.realtimeSinceStartup;
 			NativeArray<Vector3> baseEvaluationPoints = FillBaseEvaluationPoints(points);
-			//Debug.Log($"FillBaseEvaluationPoints {Time.realtimeSinceStartup - time}");
-			//time = Time.realtimeSinceStartup;
 			NativeArray<float> baseValues = BaseNoise.Evaluate3D(baseEvaluationPoints);
-			//Debug.Log($"Evaluate3DBaseValues {Time.realtimeSinceStartup - time}");
-			//time = Time.realtimeSinceStartup;
 			NativeArray<float> result = CalculateResult(baseValues);
-			//Debug.Log($"CalculateResult {Time.realtimeSinceStartup - time}");
 			baseEvaluationPoints.Dispose();
 			baseValues.Dispose();
 			return result;
@@ -133,7 +123,7 @@ namespace SBaier.Master
 		{
 			float[] result = new float[OctavesCount];
 			for(int i = 0; i < result.Length; i++)
-				result [i] = StartFrequency * Mathf.Pow(2, i);
+				result [i] = FrequencyFactor * Mathf.Pow(2, i);
 			return result;
 		}
 
@@ -141,7 +131,7 @@ namespace SBaier.Master
 		{
 			float[] result = new float[OctavesCount];
 			for(int i = 0; i < result.Length; i++)
-				result [i] = StartWeight / Mathf.Pow(2, i);
+				result [i] = Weight / Mathf.Pow(2, i);
 			return result;
 		}
 
@@ -150,51 +140,27 @@ namespace SBaier.Master
 			float result = 0;
 			for (int octave = 0; octave < OctavesCount; octave++)
 				result += EvaluateOctave(octave, baseEvaluation);
-			return Clamp01(result + 0.5f);
+			return MathUtil.Clamp01(result);
 		}
 
 		private float EvaluateOctave(int octave, Func<float, float> baseEvaluation)
 		{
 			float factor = Mathf.Pow(2, octave);
-			float ff = StartFrequency * factor;
-			float weight = StartWeight / factor;
-			return (baseEvaluation(ff) - 0.5f) * weight;
-		}
-
-		private float Clamp01(float result)
-		{
-			return (result > 1) ? 1 : (result < 0) ? 0 : result;
+			float ff = FrequencyFactor * factor;
+			float weight = Weight / factor;
+			return (baseEvaluation(ff)) * weight;
 		}
 
 		public class Arguments
 		{
 			public int OctavesCount { get; }
 			public Noise3D BaseNoise { get; }
-			public float StartFrequency { get; }
-			public float StartWeight { get; }
 
 
-			public Arguments(int octavesCount, Noise3D baseNoise, float startFrequency, float startWeight)
+			public Arguments(int octavesCount, Noise3D baseNoise)
 			{
-				CheckStartWeightOutOfRange(startWeight);
-				CheckStartFrequencyOutOfRange(startFrequency);
-
 				OctavesCount = octavesCount;
 				BaseNoise = baseNoise;
-				StartFrequency = startFrequency;
-				StartWeight = startWeight;
-			}
-
-			private void CheckStartWeightOutOfRange(float startWeight)
-			{
-				if (startWeight < 0)
-					throw new ArgumentOutOfRangeException();
-			}
-
-			private void CheckStartFrequencyOutOfRange(float startFrequency)
-			{
-				if (startFrequency < 0)
-					throw new ArgumentOutOfRangeException();
 			}
 		}
 
@@ -254,15 +220,10 @@ namespace SBaier.Master
 				for (int octave = 0; octave < _octavesAmount; octave++)
 				{
 					float weight = _weights[octave];
-					value += (_baseValues[index + _result.Length * octave] - 0.5f) * weight;
+					value += (_baseValues[index + _result.Length * octave]) * weight;
 				}
 
-				_result[index] = Clamp01(value + 0.5f);
-			}
-
-			private float Clamp01(float result)
-			{
-				return (result > 1) ? 1 : (result < 0) ? 0 : result;
+				_result[index] = MathUtil.Clamp01(value);
 			}
 		}
 	}

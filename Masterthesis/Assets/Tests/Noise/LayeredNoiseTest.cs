@@ -25,7 +25,7 @@ namespace SBaier.Master.Test
 		protected override NoiseType ExpectedNoiseType => NoiseType.Layered;
 
 		private LayeredNoise _noise;
-		private List<LayeredNoise.NoiseLayer> _layers;
+		private Noise3D[] _layers;
 
 		[Test (Description ="The LayersCopy property returns a copy of the layers put into the constructor.")]
 		public void LayersReturnProvidedValues()
@@ -68,21 +68,23 @@ namespace SBaier.Master.Test
 
 		protected override void GivenANew3DNoise()
 		{
-			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidLayers).AsTransient();
-			Container.Bind(typeof(Noise3D)).To<LayeredNoise>().AsTransient().WithArguments(_defaultMappingMode);
+			Container.Bind<Noise3D[]>().FromMethod(CreateValidLayers).AsSingle();
+			Noise3D[] layers = Container.Resolve<Noise3D[]>();
+			Container.Bind(typeof(Noise3D)).To<LayeredNoise>().AsTransient().WithArguments(_defaultMappingMode, layers);
 		}
 
 		protected void GivenALayeredNoise(LayeredNoise.MappingMode mappingMode)
 		{
-			Container.Bind<List<LayeredNoise.NoiseLayer>>().FromMethod(CreateValidLayers).AsSingle();
-			Container.Bind(typeof(LayeredNoise)).To<LayeredNoise>().AsTransient().WithArguments(mappingMode);
+			Container.Bind<Noise3D[]>().FromMethod(CreateValidLayers).AsSingle();
+			Noise3D[] layers = Container.Resolve<Noise3D[]>();
+			Container.Bind(typeof(LayeredNoise)).To<LayeredNoise>().AsTransient().WithArguments(mappingMode, layers);
 		}
 
 		private void ThenLayersCopyReturnProvidedValues()
 		{
-			_layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
+			_layers = Container.Resolve<Noise3D[]>();
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			LayeredNoise.NoiseLayer[] noiseLayers = noise.Layers;
+			Noise3D[] noiseLayers = noise.Layers;
 
 			Assert.True(Enumerable.SequenceEqual(_layers, noiseLayers));
 			Assert.AreEqual(_layers, noiseLayers);
@@ -90,9 +92,9 @@ namespace SBaier.Master.Test
 
 		private void ThenEvaluateReturnsLayeredValue(LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
 		{
-			_layers = Container.Resolve<List<LayeredNoise.NoiseLayer>>();
+			_layers = Container.Resolve<Noise3D[]>();
 			LayeredNoise noise = Container.Resolve<LayeredNoise>();
-			LayeredNoise.NoiseLayer[] noiseLayers = noise.Layers;
+			Noise3D[] noiseLayers = noise.Layers;
 
 			float sum = _layers.Sum((layer) => OctaveNoiseSum(layer, mappingMode, testEvaluationPoint));
 			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
@@ -103,13 +105,12 @@ namespace SBaier.Master.Test
 			Assert.AreEqual(expected, actual, _epsilon);
 		}
 
-		private float OctaveNoiseSum(LayeredNoise.NoiseLayer layer, LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
+		private float OctaveNoiseSum(Noise3D layer, LayeredNoise.MappingMode mappingMode, Vector3 testEvaluationPoint)
 		{
-			float ff = layer.FrequencyFactor;
-			float evaluatedValue = layer.Noise.Evaluate3D(testEvaluationPoint * ff);
+			float evaluatedValue = layer.Evaluate3D(testEvaluationPoint);
 			if (mappingMode == LayeredNoise.MappingMode.NegOneToOne)
 				evaluatedValue -= 0.5f;
-			return evaluatedValue * layer.Weight;
+			return evaluatedValue;
 		}
 
 		private void ThenMappingReturnProvidedValue(LayeredNoise.MappingMode expected)
@@ -118,23 +119,25 @@ namespace SBaier.Master.Test
 			Assert.AreEqual(expected, noise.Mapping);
 		}
 
-		private List<LayeredNoise.NoiseLayer> CreateValidLayers()
+		private Noise3D[] CreateValidLayers()
 		{
-			return new List<LayeredNoise.NoiseLayer>()
+			return new Noise3D[]
 			{
-				new LayeredNoise.NoiseLayer(CreateNoise(), 1, 1),
-				new LayeredNoise.NoiseLayer(CreateNoise(), 0.75f, 0.5f),
-				new LayeredNoise.NoiseLayer(CreateNoise(), 0.5f, 0.25f),
-				new LayeredNoise.NoiseLayer(CreateNoise(), 0.25f, 0.1f),
-				new LayeredNoise.NoiseLayer(CreateNoise(), 1.8f, 10f),
-				new LayeredNoise.NoiseLayer(CreateNoise(), 2.1f, 0.75f)
+				CreateNoise(1, 1),
+				CreateNoise(0.75f, 0.5f),
+				CreateNoise(0.5f, 0.25f),
+				CreateNoise(0.25f, 0.1f),
+				CreateNoise(1.8f, 10f),
+				CreateNoise(2.1f, 0.75f)
 			};
 		}
 
-		private Noise3D CreateNoise()
+		private Noise3D CreateNoise(float frequencyFactor, float weight)
 		{
 			Seed seed = new Seed(_randomSeed);
 			PerlinNoise noise = new PerlinNoise(seed);
+			noise.FrequencyFactor = frequencyFactor;
+			noise.Weight = weight;
 			return noise;
 		}
 	}

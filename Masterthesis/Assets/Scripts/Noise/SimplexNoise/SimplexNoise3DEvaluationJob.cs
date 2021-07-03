@@ -19,6 +19,8 @@ namespace SBaier.Master
 		public NativeArray<short> _dPMod;
 		[ReadOnly]
 		public NativeArray<Vector3Int> _grad3;
+		[ReadOnly]
+		public float _weight;
 
 		private static readonly double F3 = 1.0 / 3.0;
 		private static readonly double G3 = 1.0 / 6.0;
@@ -30,13 +32,15 @@ namespace SBaier.Master
 			NativeArray<Vector3> points,
 			NativeArray<short> dP,
 			NativeArray<short> dPMod,
-			NativeArray<Vector3Int> grad3)
+			NativeArray<Vector3Int> grad3,
+			float weight)
 		{
 			_result = result;
 			_points = points;
 			_dP = dP;
 			_dPMod = dPMod;
 			_grad3 = grad3;
+			_weight = weight;
 		}
 
 		public void Execute(int index)
@@ -220,7 +224,7 @@ namespace SBaier.Master
 
 			// Add contributions from each corner to get the final noise value.
 			// The result is scaled to stay just inside [0,1]
-			return (float) (32.0 * (n0 + n1 + n2 + n3) + 1) / 2;
+			return MathUtil.Clamp01(((float) (32.0 * (n0 + n1 + n2 + n3) + 1) / 2)* _weight);
 		}
 
 
