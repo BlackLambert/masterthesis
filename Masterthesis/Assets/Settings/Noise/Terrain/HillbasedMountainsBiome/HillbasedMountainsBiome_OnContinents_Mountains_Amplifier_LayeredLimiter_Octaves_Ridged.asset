@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22bc051a7d716134ea88b0f45514c304, type: 3}
   m_Name: HillbasedMountainsBiome_OnContinents_Mountains_Amplifier_LayeredLimiter_Octaves_Ridged
   m_EditorClassIdentifier: 
-  _weight: 0.5
+  _weight: 0.6
   _frequencyFactor: 1
   _baseNoiseSettings: {fileID: 11400000, guid: a41085c1a400dd54f906be27a985eb94, type: 2}

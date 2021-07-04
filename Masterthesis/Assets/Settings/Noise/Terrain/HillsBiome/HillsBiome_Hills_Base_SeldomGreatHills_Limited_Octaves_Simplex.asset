@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3c1292e701f40d45bcda8954fa0efb5, type: 3}
-  m_Name: HillsBiome_Hills_Base_SeldomMediumBillowHills_Billow_Octave_Simplex
+  m_Name: HillsBiome_Hills_Base_SeldomGreatHills_Limited_Octaves_Simplex
   m_EditorClassIdentifier: 
   _weight: 0.6
   _frequencyFactor: 0.2

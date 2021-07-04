@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _weight: 1
   _frequencyFactor: 0.15
-  _valueLimits: {x: 0.45, y: 0.55}
+  _valueLimits: {x: 0.47, y: 0.51}
   _baseNoise: {fileID: 11400000, guid: db2ab4a560407b64a869ae9b983c1947, type: 2}

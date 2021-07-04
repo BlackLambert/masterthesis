@@ -17,4 +17,4 @@ MonoBehaviour:
   _layers:
   - {fileID: 11400000, guid: 00b147678e920b94e896cf7c8e8bf38c, type: 2}
   - {fileID: 11400000, guid: 9c131b1518bbf0b40a2b6c2d824821d1, type: 2}
-  _mapping: 0
+  _mapping: 1

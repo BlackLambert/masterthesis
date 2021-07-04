@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: HillbasedMountainsBiome_OnContinents_Mountains_Octaves_Ridged_Billow_Simplex
   m_EditorClassIdentifier: 
   _weight: 1
-  _frequencyFactor: 1
+  _frequencyFactor: 0.66

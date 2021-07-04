@@ -15,5 +15,5 @@ MonoBehaviour:
   _weight: 1
   _frequencyFactor: 1
   _baseNoise: {fileID: 11400000, guid: 0c782d8708e39ca42826c3aaa224341f, type: 2}
-  _amplifierNoise: {fileID: 11400000, guid: 1c1f22ebdffe39d44adc4a601736c46d, type: 2}
-  _mode: 1
+  _amplifierNoise: {fileID: 11400000, guid: f927b51a19bcb1d4284f8f8c2994300f, type: 2}
+  _mode: 0

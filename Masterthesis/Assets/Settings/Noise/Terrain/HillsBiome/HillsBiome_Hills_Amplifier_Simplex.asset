@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
-  m_Name: HillsBiome_Hills_Base_SeldomMediumBillowHills
+  m_Script: {fileID: 11500000, guid: e3c1292e701f40d45bcda8954fa0efb5, type: 3}
+  m_Name: HillsBiome_Hills_Amplifier_Simplex
   m_EditorClassIdentifier: 
-  _weight: 1.75
-  _frequencyFactor: 1.5
-  _valueLimits: {x: 0.6, y: 1}
-  _baseNoise: {fileID: 11400000, guid: 92d00839689cdce43bdb817e0b5f97b8, type: 2}
+  _weight: 0.75
+  _frequencyFactor: 0.33

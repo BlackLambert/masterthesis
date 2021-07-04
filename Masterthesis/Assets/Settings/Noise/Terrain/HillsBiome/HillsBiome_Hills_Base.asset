@@ -15,7 +15,6 @@ MonoBehaviour:
   _weight: 1
   _frequencyFactor: 1
   _layers:
-  - {fileID: 11400000, guid: e6ca4bc849885c742aeeff4f8d689c77, type: 2}
-  - {fileID: 11400000, guid: f014a305a4ff2524ea86b9271edfaeac, type: 2}
-  - {fileID: 11400000, guid: a60cfe64f15bb474a901dade1c3365fb, type: 2}
+  - {fileID: 11400000, guid: c2097b5365cca2d40be2cbbf23af84d6, type: 2}
+  - {fileID: 11400000, guid: 15e58d25c0b1aa544ae883e9e110672d, type: 2}
   _mapping: 1

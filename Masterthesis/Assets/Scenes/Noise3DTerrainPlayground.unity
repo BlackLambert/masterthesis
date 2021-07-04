@@ -577,7 +577,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _seed: 2
-  _useRandomSeed: 0
+  _useRandomSeed: 1
 --- !u!114 &2088114920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,12 +660,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3867495550311401225, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: _size
-      value: 6.39
+      value: 6.4
       objectReference: {fileID: 0}
     - target: {fileID: 5120874629129263057, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: _noise
       value: 
-      objectReference: {fileID: 11400000, guid: 08cf6dee79323fc459c3bb9bfd4625b8, type: 2}
+      objectReference: {fileID: 11400000, guid: 0b44136e0ed39924f8634cd7b7eee824, type: 2}
     - target: {fileID: 5120874629129263059, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: m_Name
       value: MultiMesh3DNoiseTestPlanet
@@ -723,6 +723,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 663395461222285743, guid: 18c7be3bdbd0da74cb33561f0cb9f451, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 95.400024
+      objectReference: {fileID: 0}
+    - target: {fileID: 663395461222285743, guid: 18c7be3bdbd0da74cb33561f0cb9f451, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -26.900024
+      objectReference: {fileID: 0}
     - target: {fileID: 4157090859938460238, guid: 18c7be3bdbd0da74cb33561f0cb9f451, type: 3}
       propertyPath: m_Pivot.x
       value: 0

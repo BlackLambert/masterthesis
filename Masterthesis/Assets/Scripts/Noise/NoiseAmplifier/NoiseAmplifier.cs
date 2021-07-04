@@ -71,6 +71,10 @@ namespace SBaier.Master
 					return amplifierValue * amplifierValue;
 				case Mode.HalfQuadric:
 					return Mathf.Pow(amplifierValue, 1.5f);
+				case Mode.PowOfFour:
+					return Mathf.Pow(amplifierValue, 4f);
+				case Mode.Half:
+					return Mathf.Pow(amplifierValue, 0.5f);
 				default:
 					throw new NotImplementedException();
 			}
@@ -80,7 +84,9 @@ namespace SBaier.Master
 		{
 			Linear = 0,
 			Quadric = 1,
-			HalfQuadric = 2
+			HalfQuadric = 2,
+			PowOfFour = 4,
+			Half = 8
 		}
 	}
 }

@@ -9,12 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
-  m_Name: HillbasedMountainsBiome_OnContinentsLayered
+  m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
+  m_Name: HillsBiome_Hills_Base_SeldomGreatHills_Limited_Octaves
   m_EditorClassIdentifier: 
   _weight: 1
   _frequencyFactor: 1
-  _layers:
-  - {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
-  - {fileID: 11400000, guid: 6fdcd95dae7d9374f94dcf8129d2c790, type: 2}
-  _mapping: 0
+  _octavesCount: 3
+  _baseNoise: {fileID: 11400000, guid: 089588ba81851ae4ba8137a241382c66, type: 2}

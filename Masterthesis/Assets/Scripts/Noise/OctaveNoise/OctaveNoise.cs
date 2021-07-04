@@ -75,7 +75,8 @@ namespace SBaier.Master
 				_baseValues = baseValues,
 				_result = nativeResult,
 				_weights = weights,
-				_octavesAmount = OctavesCount
+				_octavesAmount = OctavesCount,
+				_weight = Weight
 			};
 
 			job.Schedule(pointsCount, _fillBaseEvaluationPointsInnerloopBatchCount).Complete();
@@ -131,7 +132,7 @@ namespace SBaier.Master
 		{
 			float[] result = new float[OctavesCount];
 			for(int i = 0; i < result.Length; i++)
-				result [i] = Weight / Mathf.Pow(2, i);
+				result [i] = 1 / Mathf.Pow(2, i);
 			return result;
 		}
 
@@ -213,17 +214,19 @@ namespace SBaier.Master
 			public int _octavesAmount;
 			[ReadOnly]
 			public NativeArray<float> _weights;
+			[ReadOnly]
+			public float _weight;
 
 			public void Execute(int index)
 			{
 				float value = 0;
 				for (int octave = 0; octave < _octavesAmount; octave++)
 				{
-					float weight = _weights[octave];
+					float weight = _weights[octave] ;
 					value += (_baseValues[index + _result.Length * octave]) * weight;
 				}
 
-				_result[index] = MathUtil.Clamp01(value);
+				_result[index] = MathUtil.Clamp01(value * _weight);
 			}
 		}
 	}
