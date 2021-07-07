@@ -118,7 +118,6 @@ namespace SBaier.Master
 		private SimplexNoise CreateSimplexNoise(SimplexNoiseSettings settings, Seed baseSeed)
 		{
 			Seed seed = CreateSeedBasedOn(baseSeed);
-			Debug.Log($"{settings.name} Seed: {seed.SeedNumber}");
 			return new SimplexNoise(seed);
 		}
 

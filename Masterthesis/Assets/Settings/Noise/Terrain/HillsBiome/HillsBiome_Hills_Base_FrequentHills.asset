@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4218c09bf387bbc4b808e81698411d31, type: 3}
   m_Name: HillsBiome_Hills_Base_FrequentHills
   m_EditorClassIdentifier: 
-  _weight: 0.5
+  _weight: 0.3
   _frequencyFactor: 1
   _baseNoise: {fileID: 11400000, guid: f014a305a4ff2524ea86b9271edfaeac, type: 2}
   _amplifierNoise: {fileID: 11400000, guid: f014a305a4ff2524ea86b9271edfaeac, type: 2}
-  _mode: 8
+  _mode: 0

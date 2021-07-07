@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
   m_Name: HillsBiome_Hills_Base_SeldomGreatHills_Limited_Octaves
   m_EditorClassIdentifier: 
-  _weight: 1
+  _weight: 0.82
   _frequencyFactor: 1
   _octavesCount: 3
   _baseNoise: {fileID: 11400000, guid: 089588ba81851ae4ba8137a241382c66, type: 2}

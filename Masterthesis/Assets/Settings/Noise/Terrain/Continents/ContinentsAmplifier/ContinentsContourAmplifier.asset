@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4218c09bf387bbc4b808e81698411d31, type: 3}
-  m_Name: HillbasedMountainsBiome_OnContinents_Mountains_Amplifier_Ampl
+  m_Name: ContinentsContourAmplifier
   m_EditorClassIdentifier: 
-  _weight: 1
+  _weight: 1000
   _frequencyFactor: 1
-  _baseNoise: {fileID: 11400000, guid: 3f1fbb6d9cf37454ebeb8c034b68b82f, type: 2}
-  _amplifierNoise: {fileID: 11400000, guid: 3f1fbb6d9cf37454ebeb8c034b68b82f, type: 2}
-  _mode: 2
+  _baseNoise: {fileID: 11400000, guid: 82873eac1d4e4a44fb205e7b68584bb4, type: 2}
+  _amplifierNoise: {fileID: 11400000, guid: 378bf75f19d611f43bf6f4024dfd37fe, type: 2}
+  _mode: 0

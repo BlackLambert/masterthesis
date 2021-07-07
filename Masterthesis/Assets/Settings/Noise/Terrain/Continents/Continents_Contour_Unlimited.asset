@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4218c09bf387bbc4b808e81698411d31, type: 3}
-  m_Name: HillbasedMountainsBiome_OnContinents_Mountains_Amplifier_Ampl
+  m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
+  m_Name: Continents_Contour_Unlimited
   m_EditorClassIdentifier: 
   _weight: 1
   _frequencyFactor: 1
-  _baseNoise: {fileID: 11400000, guid: 3f1fbb6d9cf37454ebeb8c034b68b82f, type: 2}
-  _amplifierNoise: {fileID: 11400000, guid: 3f1fbb6d9cf37454ebeb8c034b68b82f, type: 2}
-  _mode: 2
+  _octavesCount: 9
+  _baseNoise: {fileID: 11400000, guid: 2cce9c6592d2fd443b5cae14510660d0, type: 2}

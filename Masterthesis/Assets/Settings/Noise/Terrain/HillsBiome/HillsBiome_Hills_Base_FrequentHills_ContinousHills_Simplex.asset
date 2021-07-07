@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3c1292e701f40d45bcda8954fa0efb5, type: 3}
   m_Name: HillsBiome_Hills_Base_FrequentHills_ContinousHills_Simplex
   m_EditorClassIdentifier: 
-  _weight: 0.6
+  _weight: 1
   _frequencyFactor: 0.3

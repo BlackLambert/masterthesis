@@ -9,8 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3c1292e701f40d45bcda8954fa0efb5, type: 3}
-  m_Name: Continents_Ground_Unlimited_Simplex
+  m_Script: {fileID: 11500000, guid: b38fc902c1a91754bb6e91a1655c18cd, type: 3}
+  m_Name: Continents_Base
   m_EditorClassIdentifier: 
-  _weight: 0.5
+  _weight: 1
   _frequencyFactor: 1
+  _layers:
+  - {fileID: 11400000, guid: 926af4306ce80c34ca50f773e076c580, type: 2}
+  - {fileID: 11400000, guid: f2a69aee3e738d2409acd1a9db818de8, type: 2}
+  _mapping: 1

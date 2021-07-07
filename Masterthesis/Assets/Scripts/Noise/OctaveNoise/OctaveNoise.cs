@@ -223,9 +223,11 @@ namespace SBaier.Master
 				for (int octave = 0; octave < _octavesAmount; octave++)
 				{
 					float weight = _weights[octave] ;
-					value += (_baseValues[index + _result.Length * octave]) * weight;
+					float baseValue = (_baseValues[index + _result.Length * octave] * 2 - 1);
+					value += baseValue * weight;
 				}
 
+				value = (value + 1) / 2;
 				_result[index] = MathUtil.Clamp01(value * _weight);
 			}
 		}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
   m_Name: HillsBiome_Hills_Base_FrequentHills_Limited
   m_EditorClassIdentifier: 
-  _weight: 2
-  _frequencyFactor: 1.2
-  _valueLimits: {x: 0.5, y: 1}
+  _weight: 2.2
+  _frequencyFactor: 1
+  _valueLimits: {x: 0.45, y: 1}
   _baseNoise: {fileID: 11400000, guid: 8d3c6138692fc8240a3c36f4d36e257d, type: 2}
