@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class PlainGeneratorTest : ZenjectUnitTestFixture
+    public class PlainGeneratorTest : MeshGeneratorTest
     {
 		private const int _vertexCount = 4;
 		private const int _expectedPlainHeight = 0;
@@ -23,8 +23,9 @@ namespace SBaier.Master.Test
         private MeshGenerator _meshGenerator;
 
         [TearDown]
-        public void Destruuct()
+        public override void Teardown()
 		{
+
             if (_testMesh != null)
                 UnityEngine.Object.Destroy(_testMesh);
 		}
@@ -33,7 +34,7 @@ namespace SBaier.Master.Test
         [Test(Description = "GenerateMeshFor creates a mesh with four vertices")]
         public void GenerateMeshFor_CreatesMeshWithFourVertices()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMesh();
             ThenTestMeshHasFourVertices();
         }
@@ -41,7 +42,7 @@ namespace SBaier.Master.Test
         [Test(Description = "GenerateMeshFor called with size one creates a mesh with four vertices")]
         public void GenerateMeshFor_WithSize_CreatesMeshWithFourVertices()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMeshWithSize(1.0f);
             ThenTestMeshHasFourVertices();
         }
@@ -49,7 +50,7 @@ namespace SBaier.Master.Test
         [Test(Description = "The generated vertices form a plain with side length one")]
         public void GenerateMeshFor_GeneratesPlainWithSideLengthOne()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMesh();
             ThenTestMeshIsAPlainWithSideLength(1.0f);
         }
@@ -57,7 +58,7 @@ namespace SBaier.Master.Test
         [Test(Description = "The generated vertices form a mesh on the x-z-plain")]
         public void GenerateMeshFor_GeneratesHorizontalPlain()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMesh();
             ThenTestMeshIsHorizontal();
         }
@@ -65,7 +66,7 @@ namespace SBaier.Master.Test
         [Test(Description = "The generated mesh has its center at Vector3.zero")]
         public void GenerateMeshFor_CenterOfTheMeshIsAtOrigin()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMesh();
             ThenTestMeshsCenterIsAtOrigin();
         }
@@ -73,7 +74,7 @@ namespace SBaier.Master.Test
         [Test(Description = "The mesh created by GenerateMeshFor with size has a side length of size.")]
         public void GenerateMeshFor_WithSize_CreatedMeshHasExpectedSideLength()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMeshWithSize(_testSize);
             ThenTestMeshIsAPlainWithSideLength(_testSize);
         }
@@ -81,7 +82,7 @@ namespace SBaier.Master.Test
         [Test(Description = "The generated mesh has two trangles.")]
         public void GenerateMeshFor_MeshHasTwoTriangles()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMesh();
             ThenTheGeneratedMeshHasTriangleCount(2);
         }
@@ -89,15 +90,21 @@ namespace SBaier.Master.Test
         [Test(Description = "The triangles of the generated mesh have expected vertex indices.")]
         public void GenerateMeshFor_TrianglesHaveExpectedVertexIndices()
         {
-            GivenANewMeshGenerator();
+            GivenDefaultSetup();
             WhenGenerateMeshForIsCalledOnTestMesh();
             ThenTheTrianglesHaveExpectedVertexIndices();
         }
 
-		private void GivenANewMeshGenerator()
+		private void GivenDefaultSetup()
 		{
             Container.Bind<MeshGenerator>().To<PlainGenerator>().AsTransient();
             Container.Bind<Mesh>().AsTransient();
+        }
+
+        protected override MeshGenerator GivenANewMeshGenerator()
+        {
+            GivenDefaultSetup();
+            return Container.Resolve<MeshGenerator>();
         }
 
         private void WhenGenerateMeshForIsCalledOnTestMesh()
@@ -158,5 +165,5 @@ namespace SBaier.Master.Test
         {
             Assert.AreEqual(_expectedTriangleVertexIndices, _testMesh.triangles);
         }
-    }
+	}
 }

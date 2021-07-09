@@ -5,7 +5,7 @@ using System;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class SeedTest : ZenjectUnitTestFixture
+    public class SeedTest : Zenject.ZenjectUnitTestFixture
     {
 		private const int _testSeed = 143254;
         private System.Random _testRandom;

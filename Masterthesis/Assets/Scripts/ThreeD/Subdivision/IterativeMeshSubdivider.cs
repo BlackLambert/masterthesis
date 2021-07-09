@@ -133,7 +133,7 @@ namespace SBaier.Master
 
 		private void CheckAmountValid(int amount)
 		{
-			if (amount < 1)
+			if (amount < 0)
 				throw new ArgumentOutOfRangeException();
 		}
 

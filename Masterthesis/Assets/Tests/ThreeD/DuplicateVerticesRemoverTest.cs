@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class DuplicateVerticesRemoverTest : ZenjectUnitTestFixture
+    public class DuplicateVerticesRemoverTest : Zenject.ZenjectUnitTestFixture
     {
 		private Vector3[][] _testVertices = new Vector3[][]
 		{

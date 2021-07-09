@@ -8,6 +8,7 @@ namespace SBaier.Master
     {
         Undefined = 0,
         Plain = 1,
-        Icosahedron = 2
+        Icosahedron = 2,
+        Cube = 4
     }
 }

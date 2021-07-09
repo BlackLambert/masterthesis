@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public abstract class SpecificNoiseFactoryTest : ZenjectUnitTestFixture
+    public abstract class SpecificNoiseFactoryTest : Zenject.ZenjectUnitTestFixture
     {
 		private const int _seedValue = 1234;
         protected abstract Type ExpectedNoiseType { get; }

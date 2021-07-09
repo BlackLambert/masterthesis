@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class Noise3DToSpheralMeshApplierTest : ZenjectUnitTestFixture
+    public class Noise3DToSpheralMeshApplierTest : Zenject.ZenjectUnitTestFixture
     {
 		private const int _testSeed = 1234;
 		private const float _epsilon = 0.01f;

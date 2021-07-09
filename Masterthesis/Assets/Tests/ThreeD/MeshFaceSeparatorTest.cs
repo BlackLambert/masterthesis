@@ -7,7 +7,7 @@ using Moq;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class MeshFaceSeparatorTest : ZenjectUnitTestFixture
+    public class MeshFaceSeparatorTest : Zenject.ZenjectUnitTestFixture
     {
         private readonly Vector3[] _testVertices = new Vector3[]
         {

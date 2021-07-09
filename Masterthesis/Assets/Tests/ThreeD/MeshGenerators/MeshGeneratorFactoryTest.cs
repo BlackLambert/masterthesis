@@ -7,10 +7,11 @@ using Moq;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class MeshGeneratorFactoryTest : ZenjectUnitTestFixture
+    public class MeshGeneratorFactoryTest : Zenject.ZenjectUnitTestFixture
     {
 		private const string _icosahedronSettingsPath = "MeshGenerators/TestIcosahedronGeneratorSettings";
 		private const string _plainSettingsPath = "MeshGenerators/TestPlainGeneratorSettings";
+		private const string _cubeSettingsPath = "MeshGenerators/TestCubeGeneratorSettings";
 		private MeshGeneratorFactory _factory;
 		private MeshGenerator _meshGenerator;
 
@@ -32,6 +33,15 @@ namespace SBaier.Master.Test
 			ThenCreatedMeshGeneratorIs(typeof(PlainGenerator));
 		}
 
+        [Test]
+        public void Create_ReturnsCubeGeneratorOnCalledWithSettings()
+        {
+            GivenADefaultSetup();
+			CubeGeneratorSettings settings = Resources.Load<CubeGeneratorSettings>(_cubeSettingsPath);
+			WhenCreateCalledWithSettings(settings);
+			ThenCreatedMeshGeneratorIs(typeof(CubeMeshGenerator));
+		}
+
 		[Test]
 		public void Create_ThrowsNotImplementedExceptionOnUndefinedSettings()
 		{
@@ -51,7 +61,6 @@ namespace SBaier.Master.Test
 
 		private void WhenCreateCalledWithSettings(MeshGeneratorSettings settings)
 		{
-			
 			_meshGenerator = _factory.Create(settings);
 		}
 

@@ -8,7 +8,7 @@ using System.Linq;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public abstract class MeshSubdividerTest : ZenjectUnitTestFixture
+    public abstract class MeshSubdividerTest : Zenject.ZenjectUnitTestFixture
     {
         protected readonly Vector3[] _testVertices = new Vector3[]
         {
@@ -30,7 +30,7 @@ namespace SBaier.Master.Test
 
         private readonly int[] _invalidAmountValues = new int[]
         {
-            -3, -10, 0, -12, -21, -1
+            -3, -10, -12, -21, -1
         };
 
         private readonly int[] _validAmountValues = new int[]

@@ -91,15 +91,12 @@ namespace SBaier.Master.Test
 			{
 				float factor = Mathf.Pow(2, i);
 				float ff = _startFrequency * factor;
-				float weight = _startWeight / factor;
-				result += (_baseNoise.Evaluate3D(testValue * ff) - 0.5f) * weight;
+				float weight = 1 / factor;
+				float baseValue = _baseNoise.Evaluate3D(testValue * ff) * 2 - 1;
+				result += baseValue * weight;
 			}
-			return (float) Clamp01(result + 0.5f);
-		}
-
-		private double Clamp01(double result)
-		{
-			return (result > 1) ? 1 : (result < 0) ? 0 : result;
+			result = (result + 1) / 2;
+			return (float) MathUtil.Clamp01(result * _noise.Weight);
 		}
 	}
 }

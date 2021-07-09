@@ -136,22 +136,6 @@ namespace SBaier.Master
 			return result;
 		}
 
-		public float EvaluateOctaves(Func<float, float> baseEvaluation)
-		{
-			float result = 0;
-			for (int octave = 0; octave < OctavesCount; octave++)
-				result += EvaluateOctave(octave, baseEvaluation);
-			return MathUtil.Clamp01(result);
-		}
-
-		private float EvaluateOctave(int octave, Func<float, float> baseEvaluation)
-		{
-			float factor = Mathf.Pow(2, octave);
-			float ff = FrequencyFactor * factor;
-			float weight = Weight / factor;
-			return (baseEvaluation(ff)) * weight;
-		}
-
 		public class Arguments
 		{
 			public int OctavesCount { get; }

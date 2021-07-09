@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class NoiseFactoryTest : ZenjectUnitTestFixture
+    public class NoiseFactoryTest : Zenject.ZenjectUnitTestFixture
     {
 		private const int _seedValue = 1234;
         private const string _loopedNoiseSettingsPath = "Noise/TestLoopedBillowNoiseSettings";

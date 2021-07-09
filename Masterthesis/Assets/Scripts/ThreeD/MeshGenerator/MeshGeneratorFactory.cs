@@ -8,5 +8,6 @@ namespace SBaier.Master
 	public interface MeshGeneratorFactory
 	{
 		MeshGenerator Create(MeshGeneratorSettings settings);
+
 	}
 }

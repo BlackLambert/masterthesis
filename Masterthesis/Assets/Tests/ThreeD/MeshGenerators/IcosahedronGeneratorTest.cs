@@ -7,11 +7,18 @@ using UnityEngine;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class IcosahedronGeneratorTest : ZenjectUnitTestFixture
-    {
+    public class IcosahedronGeneratorTest : MeshGeneratorTest
+	{
 		private IcosahedronGenerator _generator;
 		private Mesh _mesh;
 		private const float _testSize = 2.36f;
+
+		public override void Teardown()
+		{
+			base.Teardown();
+			if (_mesh != null)
+				GameObject.Destroy(_mesh);
+		}
 
 		[Test]
         public void GeneratedMeshHasExpectedVertexCount()
@@ -65,6 +72,11 @@ namespace SBaier.Master.Test
 		{
 			GivenAGenerator();
 			GivenATestMesh();
+		}
+
+		protected override MeshGenerator GivenANewMeshGenerator()
+		{
+			return new IcosahedronGenerator();
 		}
 
 		private void GivenAGenerator()

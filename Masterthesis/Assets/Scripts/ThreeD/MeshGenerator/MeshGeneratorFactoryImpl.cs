@@ -15,6 +15,8 @@ namespace SBaier.Master
 					return new IcosahedronGenerator();
 				case MeshGeneratorType.Plain:
 					return new PlainGenerator();
+				case MeshGeneratorType.Cube:
+					return new CubeMeshGenerator();
 				default:
 					throw new NotImplementedException();
 			}

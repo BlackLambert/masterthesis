@@ -7,7 +7,7 @@ using Unity.Collections;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public abstract class NoiseTest : ZenjectUnitTestFixture
+    public abstract class NoiseTest : Zenject.ZenjectUnitTestFixture
     {
 		private const int _testSamplesCount = 10;
 		private const int _randomSeed = 1234;

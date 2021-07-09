@@ -5,7 +5,7 @@ using Zenject;
 
 namespace SBaier.Master.Test
 {
-    public class SphereMeshFormerTest : ZenjectUnitTestFixture
+    public class SphereMeshFormerTest : Zenject.ZenjectUnitTestFixture
     {
 		private const double _epsilon = 0.0001;
 		private const float _testSize = 3.63f;
