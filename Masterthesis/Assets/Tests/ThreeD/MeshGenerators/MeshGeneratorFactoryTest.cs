@@ -12,6 +12,7 @@ namespace SBaier.Master.Test
 		private const string _icosahedronSettingsPath = "MeshGenerators/TestIcosahedronGeneratorSettings";
 		private const string _plainSettingsPath = "MeshGenerators/TestPlainGeneratorSettings";
 		private const string _cubeSettingsPath = "MeshGenerators/TestCubeGeneratorSettings";
+		private const string _uVSphereSettingsPath = "MeshGenerators/TestUVSphereGeneratorSettings";
 		private MeshGeneratorFactory _factory;
 		private MeshGenerator _meshGenerator;
 
@@ -40,6 +41,24 @@ namespace SBaier.Master.Test
 			CubeGeneratorSettings settings = Resources.Load<CubeGeneratorSettings>(_cubeSettingsPath);
 			WhenCreateCalledWithSettings(settings);
 			ThenCreatedMeshGeneratorIs(typeof(CubeMeshGenerator));
+		}
+
+        [Test]
+        public void Create_ReturnsUVSphereGeneratorOnCalledWithSettings()
+        {
+            GivenADefaultSetup();
+			UVSphereGeneratorSettings settings = Resources.Load<UVSphereGeneratorSettings>(_uVSphereSettingsPath);
+			WhenCreateCalledWithSettings(settings);
+			ThenCreatedMeshGeneratorIs(typeof(UVSphereMeshGenerator));
+		}
+
+        [Test]
+        public void Create_CreatedUVSphereGeneratorHasValuesBasedOnTheSettings()
+        {
+            GivenADefaultSetup();
+			UVSphereGeneratorSettings settings = Resources.Load<UVSphereGeneratorSettings>(_uVSphereSettingsPath);
+			WhenCreateCalledWithSettings(settings);
+			ThenTheUVSphereGeneratorHasExpectedValues(settings);
 		}
 
 		[Test]
@@ -72,6 +91,13 @@ namespace SBaier.Master.Test
 		private void ThenANotImplementedExceptionIsThrown(TestDelegate test)
 		{
 			Assert.Throws<NotImplementedException>(test);
+		}
+
+		private void ThenTheUVSphereGeneratorHasExpectedValues(UVSphereGeneratorSettings settings)
+		{
+			UVSphereMeshGenerator generator = _meshGenerator as UVSphereMeshGenerator;
+			Assert.AreEqual(settings.RingsAmount, generator.RingsAmount);
+			Assert.AreEqual(settings.SegmentsAmount, generator.SegmentsAmount);
 		}
 	}
 }

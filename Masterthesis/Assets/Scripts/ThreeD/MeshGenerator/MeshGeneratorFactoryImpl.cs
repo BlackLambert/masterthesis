@@ -17,9 +17,16 @@ namespace SBaier.Master
 					return new PlainGenerator();
 				case MeshGeneratorType.Cube:
 					return new CubeMeshGenerator();
+				case MeshGeneratorType.UVSphere:
+					return CreateUVSphereGenerator(settings as UVSphereGeneratorSettings);
 				default:
 					throw new NotImplementedException();
 			}
+		}
+
+		private MeshGenerator CreateUVSphereGenerator(UVSphereGeneratorSettings settings)
+		{
+			return new UVSphereMeshGenerator(settings.RingsAmount, settings.SegmentsAmount);
 		}
 	}
 }

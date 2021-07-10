@@ -9,6 +9,7 @@ namespace SBaier.Master
         Undefined = 0,
         Plain = 1,
         Icosahedron = 2,
-        Cube = 4
+        Cube = 4,
+        UVSphere = 8
     }
 }

@@ -12,6 +12,11 @@ namespace SBaier.Master.Test
         private Mesh _testMesh;
         private Mesh _testMeshTwo;
 
+        private float[] _invalidSizes =
+        {
+            0, -0.23f, -4f, -3.3f, float.MinValue
+        };
+
 		public override void Teardown()
 		{
 			base.Teardown();
@@ -30,6 +35,19 @@ namespace SBaier.Master.Test
             WhenGenerateIsCalledFor(_testMesh);
             WhenGenerateIsCalledFor(_testMeshTwo, 1f);
             ThenMeshesAreEqual(_testMesh, _testMeshTwo);
+        }
+
+        [Test]
+        public void GenerateMesh_WithSize_ThrowsExceptionOnInvalidSize()
+		{
+            for (int i = 0; i < _invalidSizes.Length; i++)
+            {
+                GivenADefaultSetup();
+                TestDelegate test = () => WhenGenerateIsCalledFor(_testMesh, _invalidSizes[i]);
+                ThenThrowsArgumentOutOfRangeExcpetion(test);
+                Teardown();
+                Setup();
+            }
         }
 
 		protected abstract MeshGenerator GivenANewMeshGenerator();
@@ -59,6 +77,11 @@ namespace SBaier.Master.Test
         {
             Assert.AreEqual(meshOne.vertices, meshTwo.vertices);
             Assert.AreEqual(meshOne.triangles, meshTwo.triangles);
+        }
+
+        private void ThenThrowsArgumentOutOfRangeExcpetion(TestDelegate test)
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(test);
         }
     }
 }
