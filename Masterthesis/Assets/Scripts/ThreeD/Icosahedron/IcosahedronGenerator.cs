@@ -22,6 +22,7 @@ namespace SBaier.Master
 
 		private void SetVertices(Mesh mesh, float size)
 		{
+			ValidateSize(size);
 			Vector3[] vertices = Icosahedron.Vertices;
 			for (int i = 0; i < vertices.Length; i++)
 				vertices[i] = vertices[i].normalized * size;
@@ -31,6 +32,12 @@ namespace SBaier.Master
 		private void SetTriangleIndices(Mesh mesh)
 		{
 			mesh.triangles = Icosahedron.Triangles;
+		}
+
+		private void ValidateSize(float size)
+		{
+			if (size <= 0)
+				throw new ArgumentOutOfRangeException();
 		}
 	}
 }

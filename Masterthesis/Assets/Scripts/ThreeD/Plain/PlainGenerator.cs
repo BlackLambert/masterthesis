@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -25,11 +26,18 @@ namespace SBaier.Master
 
 		public void GenerateMeshFor(Mesh mesh, float size)
 		{
+			ValidateSize(size);
 			Vector3[] vertices = _vertices;
 			for (int i = 0; i < vertices.Length; i++)
 				vertices[i] = vertices[i] * size;
 			mesh.vertices = _vertices;
 			mesh.triangles = _triangleVertexIndices;
+		}
+
+		private void ValidateSize(float size)
+		{
+			if (size <= 0)
+				throw new ArgumentOutOfRangeException();
 		}
 	}
 }
