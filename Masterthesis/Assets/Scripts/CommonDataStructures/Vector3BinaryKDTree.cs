@@ -13,9 +13,11 @@ namespace SBaier.Master
 
 		private IList<int> _indexPermutation;
 		private Dictionary<int, int[]> _nodeToChildren;
+		private Vector3Sorter _sorter;
 
-		public Vector3BinaryKDTree(IList<Vector3> nodes)
+		public Vector3BinaryKDTree(IList<Vector3> nodes, Vector3Sorter sorter)
 		{
+			_sorter = sorter;
 			ValidateNodes(nodes);
 			BuildTree(nodes);
 		}
@@ -138,7 +140,7 @@ namespace SBaier.Master
 
 		private void BuildTree(IList<Vector3> nodes)
 		{
-			RecursiveTreeBuilder builder = new RecursiveTreeBuilder(nodes);
+			RecursiveTreeBuilder builder = new RecursiveTreeBuilder(nodes, _sorter);
 			builder.Build();
 			_nodeToChildren = builder.NodeToChildren;
 			Nodes = builder.Nodes;
@@ -153,15 +155,23 @@ namespace SBaier.Master
 			public List<int> IndexPermutation { get; private set; }
 			public int Depth { get; private set; } = 0;
 			private IList<Vector3> _input;
+			private Vector3Sorter _sorter;
 
-			public RecursiveTreeBuilder(IList<Vector3> nodes)
+			private Vector3[] _permutations;
+			private int[] _indexPermutations;
+
+			public RecursiveTreeBuilder(IList<Vector3> nodes, Vector3Sorter sorter)
 			{
 				_input = nodes;
+				_permutations = nodes.ToArray();
+				_indexPermutations = CreateIndexPermutations(nodes.Count);
+				_sorter = sorter;
 			}
 
 			public void Build()
 			{
 				Nodes = new List<Vector3>(_input.Count);
+				_sorter.Sort(_permutations, _indexPermutations, new Vector2Int(0, _permutations.Length-1), 0);
 				NodeToChildren = new Dictionary<int, int[]>(_input.Count);
 				IndexPermutation = new List<int>(_input.Count);
 				BuildTreeRecursive(0, _input);
@@ -252,6 +262,14 @@ namespace SBaier.Master
 				const int vectorDimension = 3;
 				int vectorIndex = depth % vectorDimension;
 				return nodes.OrderBy(v => v[vectorIndex]).ToList();
+			}
+
+			private int[] CreateIndexPermutations(int count)
+			{
+				int[] result = new int[count];
+				for (int i = 0; i < count; i++)
+					result[i] = i;
+				return result;
 			}
 		}
 	}

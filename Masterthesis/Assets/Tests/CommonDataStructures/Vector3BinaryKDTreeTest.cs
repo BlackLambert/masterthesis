@@ -4,8 +4,9 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Moq;
 
-namespace SBaier.Master
+namespace SBaier.Master.Test
 {
     [TestFixture]
     public class Vector3BinaryKDTreeTest : ZenjectUnitTestFixture
@@ -153,11 +154,12 @@ namespace SBaier.Master
 
 		private void GivenAKDTree(Vector3[] vectors)
 		{
-            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors);
+            Container.Bind<Vector3Sorter>().FromMethod(CreateMockedSorter).AsTransient();
+            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<Vector3Sorter>());
             Container.Bind<Vector3BinaryKDTree>().FromInstance(tree).AsTransient();
         }
 
-        private int WhenGetNearestToIsCalledOn(Vector3BinaryKDTree tree, Vector3 sample)
+		private int WhenGetNearestToIsCalledOn(Vector3BinaryKDTree tree, Vector3 sample)
         {
             return tree.GetNearestTo(sample);
         }
@@ -217,6 +219,28 @@ namespace SBaier.Master
 
             actual = actual.OrderBy(i => i).ToArray();
             Assert.AreEqual(expected.ToArray(), actual);
+        }
+
+        private Vector3Sorter CreateMockedSorter()
+        {
+            Mock<Vector3Sorter> sorterMock = new Mock<Vector3Sorter>();
+            sorterMock.Setup(s => s.Sort(It.IsAny<IList<Vector3>>(), It.IsAny<IList<int>>(), It.IsAny<Vector2Int>(), It.IsAny<int>())).
+                Callback<IList<Vector3>, IList<int>, Vector2Int, int>(BasicSort);
+            return sorterMock.Object;
+        }
+
+        private void BasicSort(IList<Vector3> points, IList<int> permutations, Vector2Int range, int compareValueIndex)
+		{
+            List<Vector3> formerPoints = points.ToList();
+            Vector3[] rangePoints = points.Where((p, i) => i >= range.x && i <= range.y).ToArray();
+            Vector3[] orderedRange = rangePoints.OrderBy(p => p[compareValueIndex]).ToArray();
+
+            for(int i = range.x; i <= range.y; i++ )
+			{
+                int innerIndex = i - range.x;
+                permutations[i] = formerPoints.IndexOf(orderedRange[innerIndex]);
+                points[i] = orderedRange[innerIndex];
+            }
         }
     }
 }
