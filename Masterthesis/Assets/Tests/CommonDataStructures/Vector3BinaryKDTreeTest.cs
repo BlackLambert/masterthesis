@@ -40,36 +40,6 @@ namespace SBaier.Master.Test
             }
         };
 
-        private Dictionary<int, int[]>[] _expectedLeaves =
-        {
-            new Dictionary<int, int[]>
-            {
-                {0, new int[] {1,2} },
-                {1, new int[] {3,4} },
-                {2, new int[] {5} },
-                {3, new int[] {} },
-                {4, new int[] {} },
-                {5, new int[] {} },
-            },
-            new Dictionary<int, int[]>
-            {
-                {0, new int[] {1,2} },
-                {1, new int[] {} },
-                {2, new int[] {} },
-            },
-            new Dictionary<int, int[]>
-            {
-                {0, new int[] {1,2} },
-                {1, new int[] {3,4} },
-                {2, new int[] {5,6} },
-                {3, new int[] {7} },
-                {4, new int[] {} },
-                {5, new int[] {} },
-                {6, new int[] {} },
-                {7, new int[] {} },
-            }
-        };
-
         private Vector3[] _samples = 
         { 
             new Vector3(2f, 4.3f, -2.91f), 
@@ -154,7 +124,7 @@ namespace SBaier.Master.Test
 
 		private void GivenAKDTree(Vector3[] vectors)
 		{
-            Container.Bind<Vector3Sorter>().FromMethod(CreateMockedSorter).AsTransient();
+            Container.Bind<Vector3Sorter>().FromMethod(() => CreateMockedSorter(vectors)).AsTransient();
             Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<Vector3Sorter>());
             Container.Bind<Vector3BinaryKDTree>().FromInstance(tree).AsTransient();
         }
@@ -221,24 +191,24 @@ namespace SBaier.Master.Test
             Assert.AreEqual(expected.ToArray(), actual);
         }
 
-        private Vector3Sorter CreateMockedSorter()
+        private Vector3Sorter CreateMockedSorter(Vector3[] points)
         {
+            points = points.ToArray();
             Mock<Vector3Sorter> sorterMock = new Mock<Vector3Sorter>();
             sorterMock.Setup(s => s.Sort(It.IsAny<IList<Vector3>>(), It.IsAny<IList<int>>(), It.IsAny<Vector2Int>(), It.IsAny<int>())).
-                Callback<IList<Vector3>, IList<int>, Vector2Int, int>(BasicSort);
+                Callback<IList<Vector3>, IList<int>, Vector2Int, int>((p, perm, r, c) => BasicSort(p, perm, r, c, points));
             return sorterMock.Object;
         }
 
-        private void BasicSort(IList<Vector3> points, IList<int> permutations, Vector2Int range, int compareValueIndex)
+        private void BasicSort(IList<Vector3> points, IList<int> permutations, Vector2Int range, int compareValueIndex, IList<Vector3> originalPoints)
 		{
-            List<Vector3> formerPoints = points.ToList();
             Vector3[] rangePoints = points.Where((p, i) => i >= range.x && i <= range.y).ToArray();
             Vector3[] orderedRange = rangePoints.OrderBy(p => p[compareValueIndex]).ToArray();
 
             for(int i = range.x; i <= range.y; i++ )
 			{
                 int innerIndex = i - range.x;
-                permutations[i] = formerPoints.IndexOf(orderedRange[innerIndex]);
+                permutations[i] = originalPoints.IndexOf(orderedRange[innerIndex]);
                 points[i] = orderedRange[innerIndex];
             }
         }

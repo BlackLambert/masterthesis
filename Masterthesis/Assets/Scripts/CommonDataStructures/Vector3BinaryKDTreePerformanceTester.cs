@@ -20,7 +20,7 @@ namespace SBaier.Master
 		{
             Vector3[] points = CreateSamples(_pointsCount);
             float timeStamp = Time.realtimeSinceStartup;
-            _tree = new Vector3BinaryKDTree(points, new Vector3SelectionSorter());
+            _tree = new Vector3BinaryKDTree(points, new Vector3QuickSorter());
             Debug.Log($"The creation of the tree took {Time.realtimeSinceStartup - timeStamp} seconds");
             int depth = _tree.Depth;
             Debug.Log($"The created tree has a depth of {depth}");

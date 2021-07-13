@@ -5,23 +5,10 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class Vector3SelectionSorter : Vector3SorterBase, Vector3Sorter
+	public class Vector3SelectionSorter : Vector3SorterBase
 	{
-		public void Sort(IList<Vector3> points, int compareValueIndex = 0)
+		protected override void DoSort(IList<Vector3> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex)
 		{
-			ValidateCompareValueIndex(compareValueIndex);
-			Sort(points, new Vector2Int(0, points.Count - 1), compareValueIndex);
-		}
-
-		public void Sort(IList<Vector3> points, Vector2Int indexRange, int compareValueIndex = 0)
-		{
-			IList<int> permutations = new int[points.Count];
-			Sort(points, permutations, indexRange, compareValueIndex);
-		}
-
-		public void Sort(IList<Vector3> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex = 0)
-		{
-			ValidateIndexRange(points, indexRange);
 			for (int i = indexRange.x; i <= indexRange.y; i++)
 			{
 				int smallest = i;
@@ -39,11 +26,6 @@ namespace SBaier.Master
 				indexPermutations[i] = indexPermutations[smallest];
 				indexPermutations[smallest] = iIndex;
 			}
-		}
-
-		public void Sort(IList<Vector3> points, IList<int> indexPermutations, int compareValueIndex = 0)
-		{
-			Sort(points, indexPermutations, new Vector2Int(0, points.Count - 1), compareValueIndex);
 		}
 	}
 }
