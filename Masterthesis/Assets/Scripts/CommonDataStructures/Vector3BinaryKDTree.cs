@@ -14,13 +14,13 @@ namespace SBaier.Master
 		private IList<Vector3> _nodes;
 		private IList<int> _indexPermutation;
 		private Dictionary<int, int[]> _nodeToChildren;
-		private Vector3Sorter _sorter;
+		private Vector3QuickSelector _quickSelector;
 
-		public Vector3BinaryKDTree(IList<Vector3> nodes, Vector3Sorter sorter)
+		public Vector3BinaryKDTree(IList<Vector3> nodes, Vector3QuickSelector quickSelector)
 		{
 			ValidateNodes(nodes);
 			_nodes = nodes;
-			_sorter = sorter;
+			_quickSelector = quickSelector;
 			BuildTree(nodes);
 		}
 
@@ -31,7 +31,7 @@ namespace SBaier.Master
 			return result;
 		}
 
-		private int GetNearestToRecursive(Vector3 sample, int nodeIndex, int depth = 0)
+		private int GetNearestToRecursive(Vector3 sample, int nodeIndex, int compareValueIndex = 0)
 		{
 			int[] children = _nodeToChildren[nodeIndex];
 
@@ -40,26 +40,32 @@ namespace SBaier.Master
 				return nodeIndex;
 
 			bool nodeHasOneChild = children.Length == 1;
-			int nextChildIndex = GetNextChildIndex(sample, nodeIndex, depth);
+			Vector3 node = _nodes[_indexPermutation[nodeIndex]];
+			float nodeCompareValue = node[compareValueIndex];
+			float sampleCompareValue = sample[compareValueIndex];
+			int nextChildIndex = GetNextChildIndex(sampleCompareValue, nodeCompareValue);
 			int nextNodeIndex = nodeHasOneChild ? children[0] : children[nextChildIndex];
-			int childSmallest = GetNearestToRecursive(sample, nextNodeIndex, depth + 1);
+			int nextCompareValueIndex = (compareValueIndex + 1) % 3;
+			int childSmallest = GetNearestToRecursive(sample, nextNodeIndex, nextCompareValueIndex);
+			Vector3 nodeChild1 = _nodes[_indexPermutation[childSmallest]];
 
-			float nodeDistanceToSampleSqr = (_nodes[_indexPermutation[nodeIndex]] - sample).sqrMagnitude;
-			float childSmallestDistanceToSampleSqr = (_nodes[_indexPermutation[childSmallest]] - sample).sqrMagnitude;
+			float nodeDistanceToSampleSqr = (node - sample).sqrMagnitude;
+			float childSmallestDistanceToSampleSqr = (nodeChild1 - sample).sqrMagnitude;
 			int currentSmallest = nodeDistanceToSampleSqr < childSmallestDistanceToSampleSqr ? nodeIndex : childSmallest;
 			float currentSmallestDistanceToSample = nodeDistanceToSampleSqr < childSmallestDistanceToSampleSqr ?
 				Mathf.Sqrt(nodeDistanceToSampleSqr) :
 				Mathf.Sqrt(childSmallestDistanceToSampleSqr);
 
 			int otherChildIndex = (nextChildIndex + 1) % 2;
-			float compareValueDistance = CalculateCompareValueDistanceOf(sample, _nodes[_indexPermutation[nodeIndex]], depth);
+			float compareValueDistance = CalculateCompareValueDistanceOf(sampleCompareValue, nodeCompareValue);
 
 			bool currentIsSmallestOfThisBranch = currentSmallestDistanceToSample <= compareValueDistance || nodeHasOneChild;
 			if (currentIsSmallestOfThisBranch)
 				return currentSmallest;
 
-			int otherChildSmallest = GetNearestToRecursive(sample, _nodeToChildren[nodeIndex][otherChildIndex], depth + 1);
-			float otherChildSmallestDistanceToSample = (_nodes[_indexPermutation[otherChildSmallest]] - sample).magnitude;
+			int otherChildSmallest = GetNearestToRecursive(sample, children[otherChildIndex], nextCompareValueIndex);
+			Vector3 nodeChild2 = _nodes[_indexPermutation[otherChildSmallest]];
+			float otherChildSmallestDistanceToSample = (nodeChild2 - sample).magnitude;
 
 			if (otherChildSmallestDistanceToSample < currentSmallestDistanceToSample)
 				return otherChildSmallest;
@@ -74,58 +80,48 @@ namespace SBaier.Master
 			return result;
 		}
 
-		private void GetNearestToWithinRecursive(Vector3 sample, float maxDistance, List<int> result, int nodeIndex, int depth = 0)
+		private void GetNearestToWithinRecursive(Vector3 sample, float maxDistance, List<int> result, int nodeIndex, int compareValueIndex = 0)
 		{
-			int[] children = _nodeToChildren[nodeIndex];
-
-			bool nodeIsALeave = children.Length == 0;
-			float nodeDistanceToSample = (_nodes[_indexPermutation[nodeIndex]] - sample).magnitude;
+			int actualNodeIndex = _indexPermutation[nodeIndex];
+			Vector3 node = _nodes[actualNodeIndex];
+			float nodeDistanceToSample = (node - sample).magnitude;
 			bool nodeIsWithinMaxDistance = nodeDistanceToSample <= maxDistance;
-			if(nodeIsWithinMaxDistance)
-				result.Add(_indexPermutation[nodeIndex]);
+
+			if (nodeIsWithinMaxDistance)
+				result.Add(actualNodeIndex);
+
+			int[] children = _nodeToChildren[nodeIndex];
+			bool nodeIsALeave = children.Length == 0;
+
 			if (nodeIsALeave)
 				return;
+
+			float nodeCompareValue = node[compareValueIndex];
+			float sampleCompareValue = sample[compareValueIndex];
+			int nextChildIndex = GetNextChildIndex(sampleCompareValue, nodeCompareValue);
+
 			bool nodeHasOneChild = children.Length == 1;
-			int nextChildIndex = GetNextChildIndex(sample, nodeIndex, depth);
 			int nextNodeIndex = nodeHasOneChild ? children[0] : children[nextChildIndex];
-			GetNearestToWithinRecursive(sample, maxDistance, result, nextNodeIndex, depth + 1);
-			float compareValueDistance = CalculateCompareValueDistanceOf(sample, _nodes[_indexPermutation[nodeIndex]], depth);
+			int nextCompareValueIndex = (compareValueIndex + 1) % 3;
+			GetNearestToWithinRecursive(sample, maxDistance, result, nextNodeIndex, nextCompareValueIndex);
+			float compareValueDistance = CalculateCompareValueDistanceOf(sampleCompareValue, nodeCompareValue);
 			if (compareValueDistance > maxDistance || nodeHasOneChild)
 				return;
 
 			int otherChildIndex = (nextChildIndex + 1) % 2;
-			GetNearestToWithinRecursive(sample, maxDistance, result, children[otherChildIndex], depth + 1);
+			GetNearestToWithinRecursive(sample, maxDistance, result, children[otherChildIndex], nextCompareValueIndex);
 		}
 
-		private float CalculateCompareValueDistanceOf(Vector3 v0, Vector3 v1, int depth)
+		private float CalculateCompareValueDistanceOf(float compareValue1, float compareValue2)
 		{
-			float nodeCompareValue = GetTreeTraverseCompareValue(depth, v1);
-			float sampleCompareValue = GetTreeTraverseCompareValue(depth, v0);
-			float compareValueDistance = Mathf.Abs(nodeCompareValue - sampleCompareValue);
+			float compareValueDistance = Mathf.Abs(compareValue1 - compareValue2);
 			return compareValueDistance;
 		}
 
-		private int GetNextChildIndex(Vector3 sample, int nodeIndex, int depth)
+		private int GetNextChildIndex(float sampleCompareValue, float nodeCompareValue)
 		{
-			float nodeCompareValue = GetTreeTraverseCompareValue(depth, _nodes[_indexPermutation[nodeIndex]]);
-			float sampleCompareValue = GetTreeTraverseCompareValue(depth, sample);
 			int nextChildIndex = sampleCompareValue < nodeCompareValue ? 0 : 1;
 			return nextChildIndex;
-		}
-
-		private float GetTreeTraverseCompareValue(int depth, Vector3 value)
-		{
-			switch(depth % 3)
-			{
-				case 0:
-					return value.x;
-				case 1:
-					return value.y;
-				case 2:
-					return value.z;
-				default:
-					throw new NotImplementedException();
-			}
 		}
 
 		private void ValidateNodes(IList<Vector3> vectors)
@@ -143,7 +139,7 @@ namespace SBaier.Master
 
 		private void BuildTree(IList<Vector3> nodes)
 		{
-			RecursiveTreeBuilder builder = new RecursiveTreeBuilder(nodes, _sorter);
+			RecursiveTreeBuilder builder = new RecursiveTreeBuilder(nodes, _quickSelector);
 			builder.Build();
 			_nodeToChildren = builder.NodeToChildren;
 			_root = builder.Root;
@@ -158,13 +154,13 @@ namespace SBaier.Master
 			public int[] IndexPermutation { get; private set; }
 			public int Depth { get; private set; } = 0;
 			private IList<Vector3> _permutations;
-			private Vector3Sorter _sorter;
+			private Vector3QuickSelector _quickSelector;
 
-			public RecursiveTreeBuilder(IList<Vector3> nodes, Vector3Sorter sorter)
+			public RecursiveTreeBuilder(IList<Vector3> nodes, Vector3QuickSelector quickSelector)
 			{
 				_permutations = nodes.ToList();
 				IndexPermutation = CreateIndexPermutations(nodes.Count);
-				_sorter = sorter;
+				_quickSelector = quickSelector;
 			}
 
 			public void Build()
@@ -253,7 +249,7 @@ namespace SBaier.Master
 			{
 				const int vectorDimension = 3;
 				int vectorIndex = depth % vectorDimension;
-				_sorter.Sort(_permutations, IndexPermutation, indexRange, vectorIndex);
+				_quickSelector.QuickSelect(_permutations, IndexPermutation, indexRange, vectorIndex, GetMedian(indexRange));
 			}
 
 			private int[] CreateIndexPermutations(int count)

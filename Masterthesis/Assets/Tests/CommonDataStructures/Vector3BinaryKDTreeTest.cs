@@ -124,8 +124,8 @@ namespace SBaier.Master.Test
 
 		private void GivenAKDTree(Vector3[] vectors)
 		{
-            Container.Bind<Vector3Sorter>().FromMethod(() => CreateMockedSorter(vectors)).AsTransient();
-            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<Vector3Sorter>());
+            Container.Bind<Vector3QuickSelector>().FromMethod(() => CreateMockedSelector(vectors)).AsTransient();
+            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<Vector3QuickSelector>());
             Container.Bind<Vector3BinaryKDTree>().FromInstance(tree).AsTransient();
         }
 
@@ -191,12 +191,12 @@ namespace SBaier.Master.Test
             Assert.AreEqual(expected.ToArray(), actual);
         }
 
-        private Vector3Sorter CreateMockedSorter(Vector3[] points)
+        private Vector3QuickSelector CreateMockedSelector(Vector3[] points)
         {
             points = points.ToArray();
-            Mock<Vector3Sorter> sorterMock = new Mock<Vector3Sorter>();
-            sorterMock.Setup(s => s.Sort(It.IsAny<IList<Vector3>>(), It.IsAny<IList<int>>(), It.IsAny<Vector2Int>(), It.IsAny<int>())).
-                Callback<IList<Vector3>, IList<int>, Vector2Int, int>((p, perm, r, c) => BasicSort(p, perm, r, c, points));
+            Mock<Vector3QuickSelector> sorterMock = new Mock<Vector3QuickSelector>();
+            sorterMock.Setup(s => s.QuickSelect(It.IsAny<IList<Vector3>>(), It.IsAny<IList<int>>(), It.IsAny<Vector2Int>(), It.IsAny<int>(), It.IsAny<int>())).
+                Callback<IList<Vector3>, IList<int>, Vector2Int, int, int>((p, perm, r, c, sI) => BasicSort(p, perm, r, c, points));
             return sorterMock.Object;
         }
 

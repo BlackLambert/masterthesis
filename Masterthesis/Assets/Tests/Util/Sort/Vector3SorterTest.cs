@@ -10,7 +10,7 @@ namespace SBaier.Master.Test
 {
     public abstract class Vector3SorterTest : ZenjectUnitTestFixture
     {
-        private readonly Vector3[][] _testInput =
+        protected readonly Vector3[][] _testInput =
         {
             new Vector3[]
             {

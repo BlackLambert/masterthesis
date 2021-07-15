@@ -82,7 +82,6 @@ namespace SBaier.Master
 		private PerlinNoise CreatePerlinNoise(PerlinNoiseSettings settings, Seed baseSeed)
 		{
 			Seed seed = CreateSeedBasedOn(baseSeed);
-			Debug.Log($"{settings.name} Seed: {seed.SeedNumber}");
 			return new PerlinNoise(seed);
 		}
 
