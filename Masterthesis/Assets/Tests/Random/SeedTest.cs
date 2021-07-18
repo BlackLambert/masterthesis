@@ -5,10 +5,11 @@ using System;
 namespace SBaier.Master.Test
 {
     [TestFixture]
-    public class SeedTest : Zenject.ZenjectUnitTestFixture
+    public class SeedTest : ZenjectUnitTestFixture
     {
 		private const int _testSeed = 143254;
-        private System.Random _testRandom;
+		private const int _testSamples = 10;
+		private System.Random _testRandom;
 
 		[Test]
         public void RandomSeedOfSeedEqualsTestRandomSeed()
@@ -23,7 +24,17 @@ namespace SBaier.Master.Test
 		{
             GivenANewSeed();
             ThenTheSeedValueEqualsTheConstructorInput();
-		}
+        }
+        [Test]
+        public void Reset_SameNumbersAreGeneratedAfterReset()
+        {
+            GivenANewSeed();
+            Seed seed = Container.Resolve<Seed>();
+            int[] expected = WhenNextIsCalledXTimes(seed, _testSamples);
+            WhenResetIsCalledOn(seed);
+            int[] actual = WhenNextIsCalledXTimes(seed, _testSamples);
+            Assert.AreEqual(expected, actual);
+        }
 
 		private void GivenANewSeed()
 		{
@@ -34,6 +45,19 @@ namespace SBaier.Master.Test
         private void GivenASameSeededRandom()
         {
             _testRandom = new System.Random(_testSeed);
+        }
+
+        private int[] WhenNextIsCalledXTimes(Seed seed, int testSamples)
+        {
+            int[] result = new int[testSamples];
+            for (int i = 0; i < testSamples; i++)
+                result[i] = seed.Random.Next();
+            return result;
+        }
+
+        private void WhenResetIsCalledOn(Seed seed)
+        {
+            seed.Reset();
         }
 
         private void ThenSeedNextIntsEqualsRandomNextInts()

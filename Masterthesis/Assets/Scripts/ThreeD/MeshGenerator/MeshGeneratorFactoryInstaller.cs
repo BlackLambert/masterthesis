@@ -7,6 +7,7 @@ namespace SBaier.Master
     {
         public override void InstallBindings()
         {
+            Container.Bind<Vector3QuickSelector>().To<Vector3QuickSorter>().AsTransient();
             Container.Bind<MeshGeneratorFactory>().To<MeshGeneratorFactoryImpl>().AsTransient();
         }
     }

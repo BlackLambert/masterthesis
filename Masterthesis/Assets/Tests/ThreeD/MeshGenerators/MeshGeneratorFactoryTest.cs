@@ -13,6 +13,8 @@ namespace SBaier.Master.Test
 		private const string _plainSettingsPath = "MeshGenerators/TestPlainGeneratorSettings";
 		private const string _cubeSettingsPath = "MeshGenerators/TestCubeGeneratorSettings";
 		private const string _uVSphereSettingsPath = "MeshGenerators/TestUVSphereGeneratorSettings";
+		private const string _sampleEliminationSphereSettingsPath = "MeshGenerators/TestSampleEliminationSphereGeneratorSettings";
+		private const int _baseSeed = 1234;
 		private MeshGeneratorFactory _factory;
 		private MeshGenerator _meshGenerator;
 
@@ -71,8 +73,28 @@ namespace SBaier.Master.Test
 			ThenANotImplementedExceptionIsThrown(test);
 		}
 
+		[Test]
+		public void Create_CreatesSampleEliminationSphereGeneratorOnCalledWithSettings()
+		{
+			GivenADefaultSetup();
+			SampleEliminationSphereGeneratorSettings settings = Resources.Load<SampleEliminationSphereGeneratorSettings>(_sampleEliminationSphereSettingsPath);
+			WhenCreateCalledWithSettings(settings);
+			ThenCreatedMeshGeneratorIs(typeof(SampleEliminationSphereGenerator));
+		}
+
+		[Test]
+		public void Create_CreatedSampleEliminationSphereGeneratorHasExpectedValues()
+		{
+			GivenADefaultSetup();
+			SampleEliminationSphereGeneratorSettings settings = Resources.Load<SampleEliminationSphereGeneratorSettings>(_sampleEliminationSphereSettingsPath);
+			WhenCreateCalledWithSettings(settings);
+			ThenCreatedSampleEliminationSphereGeneratorHasExpectedValues(settings);
+		}
+
 		private void GivenADefaultSetup()
 		{
+			Container.Bind<Vector3QuickSelector>().To<Vector3QuickSorter>().AsTransient();
+			Container.Bind<Seed>().AsSingle().WithArguments(_baseSeed);
 			Container.Bind<MeshGeneratorFactory>().To<MeshGeneratorFactoryImpl>().AsTransient();
 
 			_factory = Container.Resolve<MeshGeneratorFactory>();
@@ -98,6 +120,15 @@ namespace SBaier.Master.Test
 			UVSphereMeshGenerator generator = _meshGenerator as UVSphereMeshGenerator;
 			Assert.AreEqual(settings.RingsAmount, generator.RingsAmount);
 			Assert.AreEqual(settings.SegmentsAmount, generator.SegmentsAmount);
+		}
+
+		private void ThenCreatedSampleEliminationSphereGeneratorHasExpectedValues(SampleEliminationSphereGeneratorSettings settings)
+		{
+			SampleEliminationSphereGenerator generator = _meshGenerator as SampleEliminationSphereGenerator;
+			Assert.AreEqual(settings.TargetSampleCount, generator.TargetSampleCount);
+			Assert.AreEqual(settings.BaseSamplesFactor, generator.BaseSamplesFactor);
+			Seed baseSeed = Container.Resolve<Seed>();
+			Assert.AreNotEqual(baseSeed.SeedNumber, generator.Seed.SeedNumber);
 		}
 	}
 }

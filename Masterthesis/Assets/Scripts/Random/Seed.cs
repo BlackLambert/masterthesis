@@ -1,4 +1,6 @@
 
+using System;
+
 namespace SBaier.Master
 {
     public class Seed
@@ -9,7 +11,12 @@ namespace SBaier.Master
 			SeedNumber = seed;
 		}
 
-		public System.Random Random { get; }
+		public System.Random Random { get; private set; }
 		public int SeedNumber { get; }
+
+		public void Reset()
+		{
+			Random = new Random(SeedNumber);
+		}
 	}
 }

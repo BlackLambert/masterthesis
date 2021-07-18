@@ -10,6 +10,7 @@ namespace SBaier.Master
         Plain = 1,
         Icosahedron = 2,
         Cube = 4,
-        UVSphere = 8
+        UVSphere = 8,
+        SampleEliminationSphere = 16
     }
 }
