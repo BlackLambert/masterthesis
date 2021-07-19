@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6334eafe2ec2fa40a81791a8ff01bf8, type: 3}
   m_Name: SampleEliminationSphereGeneratorSettings 1
   m_EditorClassIdentifier: 
-  _targetSampleCount: 50000
+  _targetSampleCount: 30000
   _baseSamplesFactor: 1.01

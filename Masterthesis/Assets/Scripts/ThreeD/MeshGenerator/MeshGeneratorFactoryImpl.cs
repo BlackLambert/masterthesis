@@ -8,10 +8,10 @@ namespace SBaier.Master
     public class MeshGeneratorFactoryImpl : MeshGeneratorFactory
     {
 		private Seed _seed;
-		private Vector3QuickSelector _selector;
+		private QuickSelector<Vector3> _selector;
 
 		public MeshGeneratorFactoryImpl(Seed seed,
-			Vector3QuickSelector selector)
+			QuickSelector<Vector3> selector)
 		{
 			_seed = seed;
 			_selector = selector;

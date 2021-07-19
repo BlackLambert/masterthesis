@@ -174,5 +174,15 @@ namespace SBaier.Master
 			if (internalIndex < 0)
 				throw new Heap.ElementRemovedException();
 		}
+
+		public T GetElementAt(int index)
+		{
+			return _elementes[index];
+		}
+
+		public bool HasElementBeenRemoved(int index)
+		{
+			return _originalToInternalIndices[index] < 0;
+		}
 	}
 }

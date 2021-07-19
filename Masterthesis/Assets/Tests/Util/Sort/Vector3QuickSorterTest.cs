@@ -9,7 +9,7 @@ namespace SBaier.Master.Test
 {
 	public class Vector3QuickSorterTest : Vector3SorterTest
 	{
-		private Vector3QuickSelector _selector;
+		private QuickSelector<Vector3> _selector;
 
 		private int[] _selectedIndices = new int[]
 		{
@@ -23,7 +23,9 @@ namespace SBaier.Master.Test
 
 		protected override void BindSorter()
 		{
-			Container.Bind(typeof(Vector3Sorter), typeof(Vector3QuickSelector)).To<Vector3QuickSorter>().AsTransient();
+			Func<Vector3, int, float> compareValueSelect = (p, i) => p[i];
+			Container.Bind(typeof(Sorter<Vector3>), typeof(QuickSelector<Vector3>)).
+				To<QuickSorter<Vector3, float>>().AsTransient().WithArguments(compareValueSelect);
 		}
 
 		[Test]
@@ -59,7 +61,7 @@ namespace SBaier.Master.Test
 		private void GivenANewQuickSelector()
 		{
 			BindSorter();
-			_selector = Container.Resolve<Vector3QuickSelector>();
+			_selector = Container.Resolve<QuickSelector<Vector3>>();
 		}
 
 		private void WhenQuickSelectIsCalledOn(Vector3[] points, int selectedIndex)

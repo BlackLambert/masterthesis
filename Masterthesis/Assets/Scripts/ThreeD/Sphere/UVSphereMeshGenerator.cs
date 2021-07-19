@@ -32,6 +32,7 @@ namespace SBaier.Master
 			ValidateSize(size);
 			mesh.vertices = CreateVertices(size);
 			mesh.triangles = CreateTriangles();
+			mesh.normals = mesh.vertices;
 		}
 
 		private Vector3[] CreateVertices(float size)

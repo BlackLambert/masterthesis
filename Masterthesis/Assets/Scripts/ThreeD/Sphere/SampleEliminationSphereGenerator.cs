@@ -14,7 +14,8 @@ namespace SBaier.Master
 	{
 		private const float _minWeightPow = 1.5f;
 		private const float _minWeightFactor = 0.65f;
-		private Vector3QuickSelector _quickSelector;
+		private const int _alpha = 8;
+		private QuickSelector<Vector3> _quickSelector;
 
 		public int TargetSampleCount { get; }
 		public float BaseSamplesFactor { get; }
@@ -23,7 +24,7 @@ namespace SBaier.Master
 		public SampleEliminationSphereGenerator(int targetSamples, 
 			float baseSamplesFactor,
 			Seed seed,
-			Vector3QuickSelector quickSelector)
+			QuickSelector<Vector3> quickSelector)
 		{
 			ValidateTargetSampes(targetSamples);
 			ValidateBaseSamplesFactor(baseSamplesFactor);
@@ -72,8 +73,7 @@ namespace SBaier.Master
 			for (int i = vertices.Length - 1; i >= 0; i--)
 			{
 				int removedIndex = heap.Pop();
-				Vector3 removedPoint = vertices[removedIndex];
-				ReweightNeighbors(vertices, tree, heap, weights, removedPoint, weightRadius, weightRadiusMin);
+				ReweightNeighbors(vertices, tree, heap, removedIndex, weightRadius, weightRadiusMin);
 				if (verticesLeft <= TargetSampleCount)
 					verticesList.Add(vertices[removedIndex]);
 				verticesLeft--;
@@ -93,29 +93,25 @@ namespace SBaier.Master
 			return Mathf.Sqrt(sphereSurface / (2 * Mathf.Sqrt(3) * TargetSampleCount));
 		}
 
-		private void ReweightNeighbors(Vector3[] vertices, Vector3BinaryKDTree tree, Heap<float> heap, IList<float> weights, Vector3 removedPoint, float weightRadius, float weightRadiusMin)
+		private void ReweightNeighbors(Vector3[] vertices, Vector3BinaryKDTree tree, Heap<float> heap, int removedPointIndex, float weightRadius, float weightRadiusMin)
 		{
-			IList<int> neighbors = tree.GetNearestToWithin(removedPoint, weightRadius);
+			IList<int> neighbors = tree.GetNearestToWithin(removedPointIndex, weightRadius);
 			foreach(int neighborIndex in neighbors)
 			{
 				Vector3 neighbor = vertices[neighborIndex];
-				float weightDelta = CalculateWeight(neighbor, removedPoint, weightRadius, weightRadiusMin);
-				weights[neighborIndex] -= weightDelta;
-				try
-				{
-					heap.ChangeElementAt(neighborIndex, weights[neighborIndex]);
-				}
-				catch (Heap.ElementRemovedException) { }
+				float weightDelta = CalculateWeight(neighbor, vertices[removedPointIndex], weightRadius, weightRadiusMin);
+				if(!heap.HasElementBeenRemoved(neighborIndex))
+					heap.ChangeElementAt(neighborIndex, heap.GetElementAt(neighborIndex) - weightDelta);
 			}
 		}
 
 		private List<float> WeightVertices(Vector3[] vertices, Vector3BinaryKDTree tree, float weightRadius, float weightRadiusMin)
 		{
 			List<float> result = new List<float>();
-			foreach(Vector3 vertex in vertices)
+			for(int i = 0; i < vertices.Length; i++)
 			{
-				IList<int> neighbors = tree.GetNearestToWithin(vertex, weightRadius);
-				float weight = CalculateWeight(vertices, vertex, neighbors, weightRadius, weightRadiusMin);
+				IList<int> neighbors = tree.GetNearestToWithin(i, weightRadius);
+				float weight = CalculateWeight(vertices, vertices[i], neighbors, weightRadius, weightRadiusMin);
 				result.Add(weight);
 			}
 			return result;
@@ -123,7 +119,7 @@ namespace SBaier.Master
 
 		private float CalculateWeight(IList<Vector3> vertices, Vector3 vertex, IList<int> neighbors, float weightRadius, float weightRadiusMin)
 		{
-			float result = -1;
+			float result = 0;
 			foreach(int neighborIndex in neighbors)
 			{
 				Vector3 neighbor = vertices[neighborIndex];
@@ -137,7 +133,7 @@ namespace SBaier.Master
 		{
 			
 			float doubleWeightRadius = 2 * weightRadius;
-			float weight = 1 - Mathf.Min((neighbor - vertex).magnitude, doubleWeightRadius) / doubleWeightRadius;
+			float weight = Mathf.Pow(1 - Mathf.Min((neighbor - vertex).magnitude, doubleWeightRadius) / doubleWeightRadius, _alpha);
 			if (weight > weightRadiusMin * 2)
 				return weight;
 			else

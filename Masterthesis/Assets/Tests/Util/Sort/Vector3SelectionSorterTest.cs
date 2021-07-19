@@ -1,5 +1,7 @@
 using Zenject;
 using NUnit.Framework;
+using UnityEngine;
+using System;
 
 namespace SBaier.Master.Test
 {
@@ -8,7 +10,8 @@ namespace SBaier.Master.Test
 	{
 		protected override void BindSorter()
 		{
-			Container.Bind<Vector3Sorter>().To<Vector3SelectionSorter>().AsTransient();
+			Func<Vector3, int, float> compareValueSelect = (p, i) => p[i];
+			Container.Bind<Sorter<Vector3>>().To<SelectionSorter<Vector3, float>>().AsTransient().WithArguments(compareValueSelect);
 		}
 	}
 }

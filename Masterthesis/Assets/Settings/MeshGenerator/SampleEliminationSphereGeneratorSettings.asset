@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: SampleEliminationSphereGeneratorSettings
   m_EditorClassIdentifier: 
   _targetSampleCount: 10000
-  _baseSamplesFactor: 5
+  _baseSamplesFactor: 3

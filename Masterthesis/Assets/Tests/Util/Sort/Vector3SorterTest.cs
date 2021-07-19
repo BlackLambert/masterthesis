@@ -65,7 +65,7 @@ namespace SBaier.Master.Test
             new Vector2Int(5, 0),
         };
 
-        private Vector3Sorter _sorter;
+        private Sorter<Vector3> _sorter;
 
 
         [Test]
@@ -155,7 +155,7 @@ namespace SBaier.Master.Test
 		private void GivenANewSorter()
         {
             BindSorter();
-            _sorter = Container.Resolve<Vector3Sorter>();
+            _sorter = Container.Resolve<Sorter<Vector3>>();
         }
         protected abstract void BindSorter();
 

@@ -14,9 +14,14 @@ namespace SBaier.Master.Test
         protected abstract IList<T>[] GetTestValues();
         protected abstract T[] GetChangeValues();
 
-        private int[] _invalidChangeIndices = new int[]
+        private int[] _invalidIndices = new int[]
         {
             -1, 200, -3
+        };
+
+        private int[] _testGetIndices = new int[]
+        {
+            0, 32, 45, 2, 6
         };
 
 
@@ -77,6 +82,26 @@ namespace SBaier.Master.Test
         }
 
         [Test]
+        public void HasElementBeenRemoved_ReturnsTrueForPopedElement()
+        {
+            IList<T>[] testValues = GetTestValues();
+            bool[] decendingOption = new bool[] { false, true };
+            for (int i = 0; i < testValues.Length; i++)
+            {
+                for (int j = 0; j < decendingOption.Length; j++)
+                {
+                    IList<T> testValuesCopy = testValues[i].ToList();
+                    GivenANewHeap(testValuesCopy, decendingOption[j]);
+                    int removedIndex = WhenPopIsCalledOnHeap();
+                    bool actual = WhenHasElementBeenRemovedIsCalledOnHeap(removedIndex);
+                    Assert.AreEqual(true, actual);
+                    Teardown();
+                    Setup();
+                }
+            }
+        }
+
+		[Test]
         public void ChangeElementAt_PeekReturnsExpectedValue()
         {
             IList<T>[] testValues = GetTestValues();
@@ -119,13 +144,13 @@ namespace SBaier.Master.Test
             // Iterate test values
             for (int i = 0; i < testValues.Length; i++)
             {
-				for (int j = 0; j < _invalidChangeIndices.Length; j++)
+				for (int j = 0; j < _invalidIndices.Length; j++)
 				{
 					for (int k = 0; k < decendingOption.Length; k++)
 					{
                         IList<T> testValuesCopy = testValues[i].ToList();
                         GivenANewHeap(testValuesCopy, decendingOption[k]);
-                        TestDelegate test = () => WhenChangeElementAtIsCalledOn(_invalidChangeIndices[j], testValuesCopy[0]);
+                        TestDelegate test = () => WhenChangeElementAtIsCalledOn(_invalidIndices[j], testValuesCopy[0]);
                         ThenThrowsArgumentOutOfRangeException(test);
                         Teardown();
                         Setup();
@@ -134,7 +159,57 @@ namespace SBaier.Master.Test
             }
         }
 
-		private void GivenANewHeap(IList<T> values, bool decending = false)
+        [Test]
+        public void GetElementAt_ReturnsExpectedValue()
+        {
+            IList<T>[] testValues = GetTestValues();
+            bool[] decendingOption = new bool[] { false, true };
+
+            // Iterate test values
+            for (int i = 0; i < testValues.Length; i++)
+            {
+                for (int j = 0; j < decendingOption.Length; j++)
+                {
+                    for (int k = 0; k < _testGetIndices.Length; k++)
+                    {
+                        IList<T> testValuesCopy = testValues[i].ToList();
+                        GivenANewHeap(testValuesCopy, decendingOption[j]);
+                        int index = _testGetIndices[k] % testValuesCopy.Count;
+                        T value = WhenGetElementAtIsCalled(index);
+                        Assert.AreEqual(testValuesCopy[index], value);
+                        Teardown();
+                        Setup();
+                    }
+                }
+            }
+        }
+
+
+        [Test]
+        public void GetElementAt_ThrowsExceptionOnInvalidIndex()
+        {
+            IList<T>[] testValues = GetTestValues();
+            bool[] decendingOption = new bool[] { false, true };
+
+            // Iterate test values
+            for (int i = 0; i < testValues.Length; i++)
+            {
+                for (int j = 0; j < _invalidIndices.Length; j++)
+                {
+                    for (int k = 0; k < decendingOption.Length; k++)
+                    {
+                        IList<T> testValuesCopy = testValues[i].ToList();
+                        GivenANewHeap(testValuesCopy, decendingOption[k]);
+                        TestDelegate test = () => WhenGetElementAtIsCalled(_invalidIndices[j]);
+                        ThenThrowsArgumentOutOfRangeException(test);
+                        Teardown();
+                        Setup();
+                    }
+                }
+            }
+        }
+
+        private void GivenANewHeap(IList<T> values, bool decending = false)
 		{
             Container.Bind<Heap<T>>().To<BinaryHeap<T>>().FromMethod(() => CreateBinaryHeap(values, decending)).AsTransient();
             _heap = Container.Resolve<Heap<T>>();
@@ -155,9 +230,19 @@ namespace SBaier.Master.Test
             return _heap.Pop();
         }
 
+        private T WhenGetElementAtIsCalled(int index)
+        {
+            return _heap.GetElementAt(index);
+        }
+
         private void WhenChangeElementAtIsCalledOn(int index, T changeValue)
         {
             _heap.ChangeElementAt(index, changeValue);
+        }
+
+        private bool WhenHasElementBeenRemovedIsCalledOnHeap(int removedIndex)
+        {
+            return _heap.HasElementBeenRemoved(removedIndex);
         }
 
         private void ThenPeekValueIsAsExpected(IList<T> elements, T actual, bool decending, int index = 0)
@@ -170,15 +255,6 @@ namespace SBaier.Master.Test
         {
             IList<T> orderedElements = Order(elements, decending);
             Assert.AreEqual(orderedElements[0], elements[popedIndex]);
-        }
-
-        private void ThenElementsAreReducedByPopedElement(IList<T> elements, IList<T> newElements, int popedIndex)
-        {
-            Assert.AreEqual(elements.Count - 1, newElements.Count);
-            T popedElement = elements[popedIndex];
-            int formerCountOfPopedElement = elements.Where(e => e.CompareTo(popedElement) == 0).Count();
-            int newCountOfPopedElement = newElements.Where(e => e.CompareTo(popedElement) == 0).Count();
-            Assert.AreEqual(formerCountOfPopedElement - 1, newCountOfPopedElement);
         }
 
         private void ThenThrowsArgumentOutOfRangeException(TestDelegate test)

@@ -175,7 +175,8 @@ namespace SBaier.Master.Test
 		private void BindSampleEliminationSphereGenerator(int targetSamples, float baseSamplesFactor)
 		{
 			Seed seed = Container.Resolve<Seed>();
-			Vector3QuickSelector selector = new Vector3QuickSorter();
+			Func<Vector3, int, float> compareValueSelect = (p, i) => p[i];
+			QuickSelector<Vector3> selector = new QuickSorter<Vector3, float>(compareValueSelect);
 			SampleEliminationSphereGenerator generator = new SampleEliminationSphereGenerator(targetSamples, baseSamplesFactor, seed, selector);
 			Container.Bind(typeof(MeshGenerator), typeof(SampleEliminationSphereGenerator)).To<SampleEliminationSphereGenerator>().FromInstance(generator).AsTransient();
 		}

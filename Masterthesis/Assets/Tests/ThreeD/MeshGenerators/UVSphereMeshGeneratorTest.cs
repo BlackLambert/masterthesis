@@ -127,7 +127,6 @@ namespace SBaier.Master.Test
                 GivenATestMesh();
                 Mesh mesh = Container.Resolve<Mesh>();
                 WhenGenerateMeshIsCalledOn(mesh);
-                WhenNormalsAreRecalculatedOf(mesh);
                 ThenNormalsEqualNormalizedVertexPositions(mesh);
                 GameObject.Destroy(mesh);
                 Teardown();
@@ -172,11 +171,6 @@ namespace SBaier.Master.Test
         {
             MeshGenerator generator = Container.Resolve<MeshGenerator>();
             generator.GenerateMeshFor(mesh, size);
-        }
-
-        private void WhenNormalsAreRecalculatedOf(Mesh mesh)
-        {
-            mesh.RecalculateNormals();
         }
 
         private void GivenAGeneratorWith(int ringsAmount, int segmentsAmount)

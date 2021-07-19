@@ -8,14 +8,21 @@ namespace SBaier.Master
 	/// <summary>
 	/// Source: https://www.happycoders.eu/de/algorithmen/quicksort/
 	/// </summary>
-	public class Vector3QuickSorter : Vector3SorterBase, Vector3Sorter, Vector3QuickSelector
+	public class QuickSorter<T, U> : SorterBase<T, U>, QuickSelector<T> where U : IComparable<U>
 	{
-		protected override void DoSort(IList<Vector3> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex)
+		private Func<T, int, U> _compareValueSelect;
+
+		public QuickSorter(Func<T, int, U> compareValueSelect) : base()
+		{
+			_compareValueSelect = compareValueSelect;
+		}
+
+		protected override void DoSort(IList<T> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex)
 		{
 			Quicksort(points, indexPermutations, indexRange.x, indexRange.y, compareValueIndex);
 		}
 
-		private void Quicksort(IList<Vector3> points, IList<int> indexPermutations, int left, int right, int compareValueIndex)
+		private void Quicksort(IList<T> points, IList<int> indexPermutations, int left, int right, int compareValueIndex)
 		{
 			if (left >= right) return;
 
@@ -24,21 +31,21 @@ namespace SBaier.Master
 			Quicksort(points, indexPermutations, pivotPos + 1, right, compareValueIndex);
 		}
 
-		private int Partition(IList<Vector3> points, IList<int> indexPermutations, int left, int right, int compareValueIndex)
+		private int Partition(IList<T> points, IList<int> indexPermutations, int left, int right, int compareValueIndex)
 		{
-			Vector3 pivot = points[right];
-			float pivotCompareValue = pivot[compareValueIndex];
+			T pivot = points[right];
+			U pivotCompareValue = _compareValueSelect(pivot, compareValueIndex);
 
 			int i = left;
 			int j = right - 1;
 			while (i < j)
 			{
 				// Find the first element >= pivot
-				while (points[i][compareValueIndex] < pivotCompareValue)
+				while (_compareValueSelect(points[i], compareValueIndex).CompareTo(pivotCompareValue) < 0)
 					i++;
 
 				// Find the last element < pivot
-				while (j > left && points[j][compareValueIndex] >= pivotCompareValue)
+				while (j > left && _compareValueSelect(points[j], compareValueIndex).CompareTo(pivotCompareValue) >= 0)
 					j--;
 
 				// If the greater element is left of the lesser element, switch them
@@ -52,34 +59,34 @@ namespace SBaier.Master
 			}
 			// i == j means we haven't checked this index yet.
 			// Move i right if necessary so that i marks the start of the right array.
-			if (i == j && points[i][compareValueIndex] < pivotCompareValue)
+			if (i == j && _compareValueSelect(points[i], compareValueIndex).CompareTo(pivotCompareValue) < 0)
 				i++;
 
 			// Move pivot element to its final position
-			if (points[i] != pivot)
+			if (!points[i].Equals(pivot))
 				Swap(i, right, points, indexPermutations);
 			return i;
 		}
 
-		private void Swap(int i, int j, IList<Vector3> points, IList<int> indexPermutations)
+		private void Swap(int i, int j, IList<T> points, IList<int> indexPermutations)
 		{
 			int iIndex = indexPermutations[i];
 			indexPermutations[i] = indexPermutations[j];
 			indexPermutations[j] = iIndex;
 
-			Vector3 iPoint = points[i];
+			T iPoint = points[i];
 			points[i] = points[j];
 			points[j] = iPoint;
 		}
 
-		public void QuickSelect(IList<Vector3> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex, int selectedIndex)
+		public void QuickSelect(IList<T> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex, int selectedIndex)
 		{
 			ValidateSelectedIndex(points, selectedIndex);
 			QuickSelectRecursive(points, indexPermutations, indexRange.x, indexRange.y, compareValueIndex, selectedIndex);
 
 		}
 
-		private void QuickSelectRecursive(IList<Vector3> points, IList<int> indexPermutations, int left, int right, int compareValueIndex, int selectedIndex)
+		private void QuickSelectRecursive(IList<T> points, IList<int> indexPermutations, int left, int right, int compareValueIndex, int selectedIndex)
 		{
 			if (left >= right) 
 				return;
@@ -93,7 +100,7 @@ namespace SBaier.Master
 				QuickSelectRecursive(points, indexPermutations, pivotPos + 1, right, compareValueIndex, selectedIndex);
 		}
 
-		private void ValidateSelectedIndex(IList<Vector3> points, int selectedIndex)
+		private void ValidateSelectedIndex(IList<T> points, int selectedIndex)
 		{
 			if (selectedIndex >= points.Count || selectedIndex < 0)
 				throw new ArgumentOutOfRangeException();

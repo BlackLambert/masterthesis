@@ -33,7 +33,8 @@ namespace SBaier.Master
 		private Vector2 DoKDTreeSearch(Vector3[] points)
 		{
 			float timeStamp = Time.realtimeSinceStartup;
-			_tree = new Vector3BinaryKDTree(points, new Vector3QuickSorter());
+			QuickSorter<Vector3, float> sorter = new QuickSorter<Vector3, float>((p, i) => p[i]);
+			_tree = new Vector3BinaryKDTree(points, sorter);
 			Debug.Log($"The creation of the tree took {Time.realtimeSinceStartup - timeStamp} seconds");
 			int depth = _tree.Depth;
 			Debug.Log($"The created tree has a depth of {depth}");

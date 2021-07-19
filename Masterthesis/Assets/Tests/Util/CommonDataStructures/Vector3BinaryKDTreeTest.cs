@@ -49,6 +49,11 @@ namespace SBaier.Master.Test
             new Vector3(-5.1f, 7.8f, 4.7f)
         };
 
+        private int[] _sampleIndices =
+        {
+            3, 6, 12, 0, 2, 5
+        };
+
         private float[] _testMaxDistances = new float[] { 1.5f, 2.5f, 7f, 0.3f, 0.01f };
         private float[] _invalidMaxDistance = new float[] { 0, -12f, -0.03f, -7.2f };
 
@@ -83,7 +88,7 @@ namespace SBaier.Master.Test
                 {
                     GivenAKDTree(_testPoints[i]);
                     Vector3BinaryKDTree tree = Container.Resolve<Vector3BinaryKDTree>();
-                    int result = WhenGetNearestToIsCalledOn(tree, _samples[j]);
+					int result = WhenGetNearestToIsCalledOn(tree, _samples[j]);
                     ThenResultingNearestIsAsExpected(_testPoints[i], _samples[j], result);
                     Teardown();
                     Setup();
@@ -91,7 +96,7 @@ namespace SBaier.Master.Test
             }
         }
 
-        [Test]
+		[Test]
         public void GetNearestToWithin_ThrowsExceptionOnInvalidRadius()
         {
             for (int i = 0; i < _invalidMaxDistance.Length; i++)
@@ -115,7 +120,68 @@ namespace SBaier.Master.Test
                     GivenAKDTree(_testPoints[i]);
                     Vector3BinaryKDTree tree = Container.Resolve<Vector3BinaryKDTree>();
                     IList<int> result = WhenGetNearestToWithinIsCalled(tree, _samples[j], _testMaxDistances[j]);
-                    ThenResultingNearestIsAsExpected(_testPoints[i], _samples[j], _testMaxDistances[j], result);
+                    ThenResultingNearestIsAsExpected(_testPoints[i], _samples[j], _testMaxDistances[j], result, new int[0]);
+                    Teardown();
+                    Setup();
+                }
+            }
+        }
+
+
+        [Test]
+        public void GetNearestTo_Index_DoesNotReturnItself()
+        {
+            for (int i = 0; i < _testPoints.Length; i++)
+            {
+                for (int j = 0; j < _sampleIndices.Length; j++)
+                {
+                    Vector3[] testPoints = _testPoints[i];
+                    GivenAKDTree(testPoints);
+                    Vector3BinaryKDTree tree = Container.Resolve<Vector3BinaryKDTree>();
+                    int index = _sampleIndices[j] % testPoints.Length;
+                    int result = WhenGetNearestToIsCalledOn(tree, index);
+                    ThenResultingNearestIsNotSample(testPoints, index, result);
+                    Teardown();
+                    Setup();
+                }
+            }
+        }
+
+
+        [Test]
+        public void GetNearestTo_Index_ReturnsExpectedValue()
+        {
+            for (int i = 0; i < _testPoints.Length; i++)
+            {
+                for (int j = 0; j < _sampleIndices.Length; j++)
+                {
+                    Vector3[] testPoints = _testPoints[i];
+                    GivenAKDTree(testPoints);
+                    Vector3BinaryKDTree tree = Container.Resolve<Vector3BinaryKDTree>();
+                    int index = _sampleIndices[j] % testPoints.Length;
+                    int result = WhenGetNearestToIsCalledOn(tree, index);
+                    ThenResultingNearestIsAsExpected(testPoints, testPoints[index], result, 1);
+                    Teardown();
+                    Setup();
+                }
+            }
+        }
+
+
+        [Test]
+        public void GetNearestWithin_Index_ReturnsExpectedValues()
+        {
+            for (int i = 0; i < _testPoints.Length; i++)
+            {
+                for (int j = 0; j < _sampleIndices.Length; j++)
+                {
+                    Vector3[] testPoints = _testPoints[i];
+                    GivenAKDTree(testPoints);
+                    Vector3BinaryKDTree tree = Container.Resolve<Vector3BinaryKDTree>();
+                    int index = _sampleIndices[j] % testPoints.Length;
+                    float maxDistance = _testMaxDistances[j % _testMaxDistances.Length];
+                    IList<int> result = WhenGetNearestToWithinIsCalled(tree, index, maxDistance);
+                    ThenResultingNearestIsAsExpected(testPoints, testPoints[index], maxDistance, result, new int[] { index});
                     Teardown();
                     Setup();
                 }
@@ -124,8 +190,8 @@ namespace SBaier.Master.Test
 
 		private void GivenAKDTree(Vector3[] vectors)
 		{
-            Container.Bind<Vector3QuickSelector>().FromMethod(() => CreateMockedSelector(vectors)).AsTransient();
-            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<Vector3QuickSelector>());
+            Container.Bind<QuickSelector<Vector3>>().FromMethod(() => CreateMockedSelector(vectors)).AsTransient();
+            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<QuickSelector<Vector3>>());
             Container.Bind<Vector3BinaryKDTree>().FromInstance(tree).AsTransient();
         }
 
@@ -137,6 +203,16 @@ namespace SBaier.Master.Test
         private IList<int> WhenGetNearestToWithinIsCalled(Vector3BinaryKDTree tree, Vector3 sample, float radius)
         {
             return tree.GetNearestToWithin(sample, radius);
+        }
+
+        private IList<int> WhenGetNearestToWithinIsCalled(Vector3BinaryKDTree tree, int index, float radius)
+        {
+            return tree.GetNearestToWithin(index, radius);
+        }
+
+        private int WhenGetNearestToIsCalledOn(Vector3BinaryKDTree tree, int sampleIndex)
+        {
+            return tree.GetNearestTo(sampleIndex);
         }
 
         private void ThenThrowsArgumentException(TestDelegate test)
@@ -157,25 +233,13 @@ namespace SBaier.Master.Test
             Assert.AreEqual(expected, actual, $"The depth for a vectors input of length {vectors.Length} should be {expected} and not {actual}");
         }
 
-        private void ThenResultingNearestIsAsExpected(Vector3[] points, Vector3 sample, int actual)
+        private void ThenResultingNearestIsAsExpected(Vector3[] points, Vector3 sample, int actual, int expectedIndex = 0)
         {
-            int nearest = -1;
-            float nearestDistance = float.PositiveInfinity;
-            for(int i = 0; i < points.Length; i++)
-			{
-                Vector3 point = points[i];
-                float distance = (sample - point).magnitude;
-                if(distance < nearestDistance)
-				{
-                    nearest = i;
-                    nearestDistance = distance;
-                }
-			}
-
-            Assert.AreEqual(nearest, actual);
+            Vector3[] orderedPoints = points.OrderBy(p => (sample - p).magnitude).ToArray();
+            Assert.AreEqual(orderedPoints[expectedIndex], points[actual]);
         }
 
-        private void ThenResultingNearestIsAsExpected(Vector3[] points, Vector3 sample, float maxDistance, IList<int> actual)
+        private void ThenResultingNearestIsAsExpected(Vector3[] points, Vector3 sample, float maxDistance, IList<int> actual, int[] indicesToExclude)
         {
             List<int> expected = new List<int>();
 
@@ -183,7 +247,7 @@ namespace SBaier.Master.Test
             {
                 Vector3 point = points[i];
                 float distance = (sample - point).magnitude;
-                if (distance <= maxDistance)
+                if (distance <= maxDistance && !indicesToExclude.Contains(i))
                     expected.Add(i);
             }
 
@@ -191,10 +255,15 @@ namespace SBaier.Master.Test
             Assert.AreEqual(expected.ToArray(), actual);
         }
 
-        private Vector3QuickSelector CreateMockedSelector(Vector3[] points)
+        private void ThenResultingNearestIsNotSample(Vector3[] elements, int sampleIndex, int result)
+        {
+            Assert.AreNotEqual(elements[sampleIndex], result);
+        }
+
+        private QuickSelector<Vector3> CreateMockedSelector(Vector3[] points)
         {
             points = points.ToArray();
-            Mock<Vector3QuickSelector> sorterMock = new Mock<Vector3QuickSelector>();
+            Mock<QuickSelector<Vector3>> sorterMock = new Mock<QuickSelector<Vector3>>();
             sorterMock.Setup(s => s.QuickSelect(It.IsAny<IList<Vector3>>(), It.IsAny<IList<int>>(), It.IsAny<Vector2Int>(), It.IsAny<int>(), It.IsAny<int>())).
                 Callback<IList<Vector3>, IList<int>, Vector2Int, int, int>((p, perm, r, c, sI) => BasicSort(p, perm, r, c, points));
             return sorterMock.Object;
