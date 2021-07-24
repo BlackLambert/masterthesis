@@ -9,13 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3898265348101267855}
-  - component: {fileID: 3898265348101267851}
-  - component: {fileID: 3898265348101267850}
-  - component: {fileID: 3898265348101267853}
-  - component: {fileID: 3898265348101267852}
   - component: {fileID: 9177558559084051725}
   m_Layer: 0
-  m_Name: PlanetFace
+  m_Name: BasicPlanetFace
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,63 +32,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3898265348101267851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3898265348101267854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f4d12c850d91844a6eba87101e38d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _components:
-  - {fileID: 3898265348101267850}
-  - {fileID: 3898265348101267853}
-  - {fileID: 3898265348101267852}
---- !u!114 &3898265348101267850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3898265348101267854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdb42306d42813047a1c0a455887b422, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _amount: 350
-  _meshFilter: {fileID: 3898265349456428884}
---- !u!114 &3898265348101267853
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3898265348101267854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab6f6d42a7bad5e45a3a47b5d09321d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _meshFilter: {fileID: 3898265349456428884}
-  _valueRange: {x: 6, y: 6.8}
---- !u!114 &3898265348101267852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3898265348101267854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca58f2a24ce0bd949bd3bf606fca52ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _meshFilter: {fileID: 3898265349456428884}
 --- !u!114 &9177558559084051725
 MonoBehaviour:
   m_ObjectHideFlags: 0

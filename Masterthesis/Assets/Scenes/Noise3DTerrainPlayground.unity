@@ -665,7 +665,7 @@ PrefabInstance:
     - target: {fileID: 5120874629129263057, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: _noise
       value: 
-      objectReference: {fileID: 11400000, guid: 0b44136e0ed39924f8634cd7b7eee824, type: 2}
+      objectReference: {fileID: 11400000, guid: 8eeb81e7a2e37ae4096e5f9be7a65e78, type: 2}
     - target: {fileID: 5120874629129263059, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: m_Name
       value: MultiMesh3DNoiseTestPlanet
@@ -712,6 +712,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5120874629129263069, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8557832188345391335, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

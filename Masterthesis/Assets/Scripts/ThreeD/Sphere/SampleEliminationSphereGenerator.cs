@@ -56,7 +56,88 @@ namespace SBaier.Master
 		{
 			ValidateSize(size);
 			CreateVericesFor(mesh, size);
+			CreateTrianglesFor(mesh, size);
 			Seed.Reset();
+		}
+
+		private void CreateTrianglesFor(Mesh mesh, float size)
+		{
+			Vector3[] vertices = mesh.vertices;
+			Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vertices, _quickSelector);
+			Vector2 minMaxDistance = GetMinMaxVertexDistance(vertices, tree, size);
+			float radius = minMaxDistance[1] * 5;
+			List<int> triangles = new List<int>();
+
+			for (int i = 0; i < vertices.Length; i++)
+			{
+				IList<int> iNeighbors = tree.GetNearestToWithin(i, radius);
+
+				for (int j = 0; j < iNeighbors.Count; j++)
+				{
+					int i0 = iNeighbors[j];
+					int i1 = -1;
+					float minJK = float.MaxValue;
+					Vector3 vj = vertices[iNeighbors[j]];
+					for (int k = 0; k < iNeighbors.Count; k++)
+					{
+						int ik = iNeighbors[k];
+						if (i0 == ik)
+							continue;
+						Vector3 vk = vertices[iNeighbors[k]];
+						float distanceSqr = (vj - vk).sqrMagnitude;
+						if (distanceSqr < minJK)
+						{
+							minJK = distanceSqr;
+							i1 = iNeighbors[k];
+						}
+					}
+
+					Vector3 vI = vertices[i];
+					Vector3 vI0 = vertices[i0];
+					Vector3 vI1 = vertices[i1];
+
+					Vector3 d0 = vI - vI0;
+					Vector3 d1 = vI - vI1;
+
+					Vector3 normal = Vector3.Cross(d0, d1);
+					float scalar = Vector3.Dot(vI, normal);
+
+					if (scalar > 0)
+					{
+						triangles.Add(i);
+						triangles.Add(i0);
+						triangles.Add(i1);
+					}
+					else
+					{
+						triangles.Add(i);
+						triangles.Add(i1);
+						triangles.Add(i0);
+					}
+				}
+			}
+
+			mesh.triangles = triangles.ToArray();
+		}
+
+		private Vector2 GetMinMaxVertexDistance(Vector3[] vertices, Vector3BinaryKDTree tree, float size)
+		{
+			float min = float.MaxValue;
+			float max = float.MinValue;
+			float weightRadius = 2 * CalculateWeightRadius(size);
+			for (int i = 0; i < vertices.Length; i++)
+			{
+				IList<int> neighborIndices = tree.GetNearestToWithin(i, weightRadius);
+				for (int j = 0; j < neighborIndices.Count; j++)
+				{
+					float distance = (vertices[i] - vertices[neighborIndices[j]]).sqrMagnitude;
+					if (distance < min)
+						min = distance;
+					if (distance > max)
+						max = distance;
+				}
+			}
+			return new Vector2(Mathf.Sqrt(min), Mathf.Sqrt(max));
 		}
 
 		private void CreateVericesFor(Mesh mesh, float size)

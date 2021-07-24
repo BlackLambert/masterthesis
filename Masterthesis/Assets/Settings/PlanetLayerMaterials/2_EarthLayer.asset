@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
-  m_Name: 7OctaveSimplexBasedRidgedNoise
+  m_Script: {fileID: 11500000, guid: 74135eb611258954093532c6e237c9a9, type: 3}
+  m_Name: 2_EarthLayer
   m_EditorClassIdentifier: 
-  _octavesCount: 7
-  _baseNoise: {fileID: 11400000, guid: a3facfa05a034be429e9c3396f3754fa, type: 2}
-  _startFrequency: 1
-  _startWeight: 0.6
+  _density: 0.5
+  _name: Earth
