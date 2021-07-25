@@ -20,9 +20,20 @@ namespace SBaier.Master
         [SerializeField]
         private float _continentalPlateMax = 0.1f;
 
-        [Header("Planet Body")]
+        [Header("Temperature Spectrum")]
         [SerializeField]
-        private Planet _planetPrefab;
+        private float _teperatureMin = -20f;
+        [SerializeField]
+        private float _teperatureMax = 50f;
+
+        [Header("Axis")]
+        [Range(0, 90)]
+        [SerializeField]
+        private float _axisAngle = 20f;
+        [SerializeField]
+        private float _secondsPerRevolution = 60f;
+
+        [Header("Planet Body")]
         [SerializeField]
         private IcosahedronGeneratorSettings _meshGeneratorSettings;
 
@@ -63,18 +74,33 @@ namespace SBaier.Master
 
         protected virtual void Start()
 		{
-            Mesh baseMesh = new Mesh();
+			Mesh baseMesh = new Mesh();
 			GenerateMesh(baseMesh);
-            MeshFaceSeparatorTarget[] targets = SeparateMeshFaces(baseMesh);
-            PlanetFace[] faces = GetFaces(targets);
-            SubdivideFaces(faces);
-            FormSphere(faces);
-            PlanetData data = new PlanetData(_bedrockRadius, _atmosphereRadius, _seed);
-            Init(faces, data);
-            Planet planet = _planetFactory.Create(_planetPrefab);
-            planet.Init(data, faces);
-            InitContinentLayer(planet);
-            planet.UpdateMesh();
+			MeshFaceSeparatorTarget[] targets = SeparateMeshFaces(baseMesh);
+			PlanetFace[] faces = GetFaces(targets);
+			SubdivideFaces(faces);
+			FormSphere(faces);
+			PlanetData data = CreatePlanetData();
+			Init(faces, data);
+			Planet planet = CreatePlanet(data);
+			planet.Init(faces);
+			InitContinentLayer(planet);
+			planet.UpdateMesh();
+		}
+
+		private Planet CreatePlanet(PlanetData data)
+		{
+            Planet result = _planetFactory.Create(data);
+            result.transform.SetParent(null);
+            return result;
+		}
+
+		private PlanetData CreatePlanetData()
+		{
+            PlanetDimensions dimensions = new PlanetDimensions(_bedrockRadius, _atmosphereRadius);
+            TemperatureSpectrum temperature = new TemperatureSpectrum(_teperatureMin, _teperatureMax);
+            PlanetAxisData axis = new PlanetAxisData(_axisAngle, _secondsPerRevolution);
+            return new PlanetData(dimensions, temperature, axis, _seed);
 		}
 
 		private void GenerateMesh(Mesh mesh)

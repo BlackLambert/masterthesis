@@ -6,9 +6,12 @@ namespace SBaier.Master
 {
     public class PlanetFactoryInstaller : MonoInstaller
     {
+        [SerializeField]
+        private Planet _planetPrefab;
+
         public override void InstallBindings()
         {
-            Container.BindFactory<UnityEngine.Object, Planet, Planet.Factory>().FromFactory<PrefabFactory<Planet>>();
+            Container.BindFactory<PlanetData, Planet, Planet.Factory>().FromSubContainerResolve().ByNewContextPrefab<PlanetInstaller>(_planetPrefab);
         }
     }
 }

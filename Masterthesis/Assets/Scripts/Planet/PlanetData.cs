@@ -1,20 +1,24 @@
+using System;
+
 namespace SBaier.Master
 {
     public class PlanetData
     {
-        public float KernalRadius { get; }
-        public float AtmosphereRadius { get; }
-        public Seed Seed { get; }
-        public float HullThickness => AtmosphereRadius - KernalRadius;
+        public PlanetDimensions Dimensions { get; }
+		public TemperatureSpectrum TemperatureSpectrum { get; }
+		public PlanetAxisData PlanetAxis { get; }
+		public Seed Seed { get; }
 
         public PlanetData(
-            float kernalRadius,
-            float atmosphereRadius,
+            PlanetDimensions dimensions,
+            TemperatureSpectrum temperatureSpectrum,
+            PlanetAxisData planetAxis,
             Seed seed)
 		{
-            KernalRadius = kernalRadius;
-            AtmosphereRadius = atmosphereRadius;
-            Seed = seed;
+            Dimensions = dimensions;
+			TemperatureSpectrum = temperatureSpectrum;
+			PlanetAxis = planetAxis;
+			Seed = seed;
         }
-    }
+	}
 }

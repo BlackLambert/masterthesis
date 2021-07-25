@@ -47,7 +47,10 @@ MonoBehaviour:
   _bedrockRadius: 4
   _atmosphereRadius: 8
   _continentalPlateMax: 0.1
-  _planetPrefab: {fileID: 4787082703033401767, guid: 6b56f5f911c4d054e987495e436ed771, type: 3}
+  _teperatureMin: -20
+  _teperatureMax: 50
+  _axisAngle: 20
+  _secondsPerRevolution: 30
   _meshGeneratorSettings: {fileID: 11400000, guid: 86b7aeb38c78f5641a1e443ed573a59a, type: 2}
   _continentalPlatesNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentsNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
@@ -185,3 +188,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 853c5c00048ab9645b4d74574eadd260, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _planetPrefab: {fileID: 4787082703033401767, guid: 6b56f5f911c4d054e987495e436ed771, type: 3}

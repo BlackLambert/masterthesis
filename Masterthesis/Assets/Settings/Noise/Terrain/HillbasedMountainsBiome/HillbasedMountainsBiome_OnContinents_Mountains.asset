@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4218c09bf387bbc4b808e81698411d31, type: 3}
   m_Name: HillbasedMountainsBiome_OnContinents_Mountains
   m_EditorClassIdentifier: 
-  _weight: 1
+  _weight: 0.5
   _frequencyFactor: 1
   _baseNoise: {fileID: 11400000, guid: cbd21afc80803434b86761ab36066b53, type: 2}
   _amplifierNoise: {fileID: 11400000, guid: aa1c894623123e944adbd609fafedc6a, type: 2}

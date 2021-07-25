@@ -14,9 +14,14 @@ namespace SBaier.Master
         public IList<PlanetFace> Faces { get; private set; }
         public PlanetData Data { get; private set; }
 
-		public void Init(PlanetData data, IList<PlanetFace> faces)
+        [Inject]
+        public void Construct(PlanetData data)
 		{
             Data = data;
+        }
+
+		public void Init(IList<PlanetFace> faces)
+		{
             Faces = faces;
 
             AttatchFaces();
@@ -47,6 +52,6 @@ namespace SBaier.Master
                 face.MeshFilter.sharedMesh.RecalculateNormals();
         }
 
-        public class Factory : PlaceholderFactory<UnityEngine.Object, Planet> { }
+        public class Factory : PlaceholderFactory<PlanetData, Planet> { }
     }
 }
