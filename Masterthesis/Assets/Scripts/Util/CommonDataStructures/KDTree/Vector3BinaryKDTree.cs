@@ -13,7 +13,7 @@ namespace SBaier.Master
 		private int _root;
 		private IList<Vector3> _nodes;
 		private IList<int> _indexPermutation;
-		private Dictionary<int, int[]> _nodeToChildren;
+		private int[][] _nodeToChildren;
 		private FindNearestElementComputer _findNearestElementComputer;
 		private FindNearestElementsComputer _findNearestElementsComputer;
 
@@ -101,7 +101,7 @@ namespace SBaier.Master
 				int root,
 				IList<Vector3> nodes,
 				IList<int> indexPermutation,
-				Dictionary<int, int[]> nodeToChildren) : 
+				int[][] nodeToChildren) : 
 				base(nodes, indexPermutation, nodeToChildren)
 			{
 				_root = root;
@@ -123,7 +123,7 @@ namespace SBaier.Master
 			private int GetNearestToRecursive(int nodeIndex, int compareValueIndex = 0)
 			{
 				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeIsALeave = children.Length == 0;
+				bool nodeIsALeave = HasNoChild(children);
 				if (nodeIsALeave)
 					return GetNearestOfLeave(nodeIndex);
 				else
@@ -139,7 +139,7 @@ namespace SBaier.Master
 			private int GetNearestOfBranch(int nodeIndex, int compareValueIndex = 0)
 			{
 				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeHasOneChild = children.Length == 1;
+				bool nodeHasOneChild = HasOneChild(children);
 				if (nodeHasOneChild)
 					return GetNearestOfOneChild(nodeIndex, compareValueIndex);
 				else
@@ -250,7 +250,7 @@ namespace SBaier.Master
 				int root,
 				IList<Vector3> nodes,
 				IList<int> indexPermutation,
-				Dictionary<int, int[]> nodeToChildren) :
+				int[][] nodeToChildren) :
 				base(nodes, indexPermutation, nodeToChildren)
 			{
 				_root = root;
@@ -298,9 +298,9 @@ namespace SBaier.Master
 			}
 
 			private void GetNearestInBranch(List<int> result, int compareValueIndex, int nodeIndex)
-			{ 
+			{
 				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeHasOneChild = children.Length == 1;
+				bool nodeHasOneChild = HasOneChild(children);
 
 				if (nodeHasOneChild)
 					GetNearestInChild(result, compareValueIndex, nodeIndex);
@@ -339,13 +339,13 @@ namespace SBaier.Master
 			private IList<int> _indexPermutation;
 			private Vector3 _sample;
 			private int _indexToExclude;
-			private Dictionary<int, int[]> _nodeToChildren;
+			private int[][] _nodeToChildren;
 
 			private bool _hasIndexToExclude = false;
 
 			public Computer(IList<Vector3> nodes,
 				IList<int> indexPermutation,
-				Dictionary<int, int[]> nodeToChildren)
+				int[][] nodeToChildren)
 			{
 				_nodes = nodes; 
 				_indexPermutation = indexPermutation;
@@ -410,7 +410,7 @@ namespace SBaier.Master
 			protected bool IsNodeALeave(int nodeIndex)
 			{
 				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeIsALeave = children.Length == 0;
+				bool nodeIsALeave = HasNoChild(children);
 				return nodeIsALeave;
 			}
 
@@ -431,12 +431,22 @@ namespace SBaier.Master
 			{
 				return (nextChildIndex + 1) % 2;
 			}
+
+			protected bool HasOneChild(int[] children)
+			{
+				return children.Length == 1;
+			}
+
+			protected bool HasNoChild(int[] children)
+			{
+				return children.Length == 0;
+			}
 		}
 
 		private class RecursiveTreeBuilder
 		{
 			public int Root { get; private set; }
-			public Dictionary<int, int[]> NodeToChildren { get; private set; }
+			public int[][] NodeToChildren { get; private set; }
 			public int[] IndexPermutation { get; private set; }
 			public int Depth { get; private set; } = 0;
 			private IList<Vector3> _permutations;
@@ -451,7 +461,7 @@ namespace SBaier.Master
 
 			public void Build()
 			{
-				NodeToChildren = new Dictionary<int, int[]>(_permutations.Count);
+				NodeToChildren = new int[_permutations.Count][];
 				BuildTreeRecursive(0, new Vector2Int(0, _permutations.Count - 1));
 			}
 
@@ -478,13 +488,13 @@ namespace SBaier.Master
 
 			private void BuildLeave(int depth, int nodeIndex)
 			{
+				NodeToChildren[nodeIndex] = new int[0];
 				UpdateDepth(depth);
-				NodeToChildren.Add(nodeIndex, new int[0] { });
 			}
 
 			private void BuildOneChildNode(int depth, Vector2Int indexRange, int nodeIndex)
 			{
-				NodeToChildren.Add(nodeIndex, new int[1] { -1 });
+				NodeToChildren[nodeIndex] = new int[] { -1 };
 				Vector2Int newRange;
 				if(indexRange.x == nodeIndex)
 					newRange = SkipNodesBeforeMedian(indexRange, nodeIndex);
@@ -495,7 +505,7 @@ namespace SBaier.Master
 
 			private void BuildTwoChildNodes(int depth, Vector2Int indexRange, int nodeIndex)
 			{
-				NodeToChildren.Add(nodeIndex, new int[2] { -1, -1 });
+				NodeToChildren[nodeIndex] = new int[] { -1, -1 };
 				Vector2Int firstNewIndexRange = TakeNodesBeforeMedian(indexRange, nodeIndex);
 				Vector2Int secondNewIndexRange = SkipNodesBeforeMedian(indexRange, nodeIndex);
 				BuildTreeRecursive(depth + 1, firstNewIndexRange, nodeIndex, 0);

@@ -7,33 +7,55 @@ namespace SBaier.Master
         [SerializeField]
         private MeshFilter _meshFilter;
 		public MeshFilter MeshFilter => _meshFilter;
-        public Mesh SharedMesh => _meshFilter.sharedMesh;
+        private Mesh SharedMesh => _meshFilter.sharedMesh;
+		public int VertexCount => _meshFilter.sharedMesh.vertexCount;
+		public Vector3[] Vertices => _meshFilter.sharedMesh.vertices;
+
 
         public Transform Base => transform;
 
         public PlanetFaceData Data { get; private set; }
         private PlanetData _planetData;
+		private Vector3[] _vertexNormalized;
 
         public void Init(PlanetFaceData data, PlanetData planetData)
 		{
             Data = data;
             _planetData = planetData;
-        }
+			UpdateNormalizedVertices();
+
+		}
+
+		public void UpdateMesh(Vector3[] vertices, int[] faces)
+		{
+			SharedMesh.vertices = vertices;
+			SharedMesh.triangles = faces;
+			UpdateNormalizedVertices();
+		}
+
+		private void UpdateNormalizedVertices()
+		{
+			Vector3[] vertices = SharedMesh.vertices;
+			_vertexNormalized = new Vector3[vertices.Length];
+			for (int i = 0; i < vertices.Length; i++)
+				_vertexNormalized[i] = vertices[i].normalized;
+		}
 
         public void UpdateVertexPositions()
         {
             Vector3[] vertices = SharedMesh.vertices;
-            for (int j = 0; j < vertices.Length; j++)
-				UpdatePosition(vertices, j);
+            for (int i = 0; i < vertices.Length; i++)
+				UpdatePosition(vertices, i);
 			SharedMesh.vertices = vertices;
         }
 
 		private void UpdatePosition(Vector3[] vertices, int vertexIndex)
 		{
-			Vector3 evaluationPoint = vertices[vertexIndex].normalized * _planetData.Dimensions.AtmosphereThickness;
+			Vector3 evaluationPoint = _vertexNormalized[vertexIndex].FastMultiply(_planetData.Dimensions.AtmosphereThickness);
 			vertices[vertexIndex] = evaluationPoint;
 			EvaluationPointData data = Data.EvaluationPoints[vertexIndex];
-			for (int i = 0; i < data.Layers.Count; i++)
+			int layersCount = data.Layers.Count;
+			for (int i = 0; i < layersCount; i++)
 				AddLayerHeight(vertices, vertexIndex, data.Layers[i]);
 		}
 
@@ -43,7 +65,7 @@ namespace SBaier.Master
 			if (layerIsAir)
 				return;
 			float layerHeight = layer.Height * _planetData.Dimensions.VariableAreaThickness;
-			vertices[vertexIndex] += vertices[vertexIndex].normalized * layerHeight;
+			vertices[vertexIndex] = vertices[vertexIndex].FastAdd(_vertexNormalized[vertexIndex].FastMultiply(layerHeight));
 		}
 	}
 }

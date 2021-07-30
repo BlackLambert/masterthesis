@@ -97,6 +97,8 @@ namespace SBaier.Master.Test
 			Container.Bind<QuickSelector<Vector3>>().To<QuickSorter<Vector3, float>>().AsTransient().WithArguments(compareValueSelector);
 			Container.Bind<Seed>().AsSingle().WithArguments(_baseSeed);
 			Container.Bind<MeshGeneratorFactory>().To<MeshGeneratorFactoryImpl>().AsTransient();
+			Container.Bind<SampleElimination3D>().AsTransient();
+			Container.Bind<RandomPointsOnSphereGenerator>().AsTransient();
 
 			_factory = Container.Resolve<MeshGeneratorFactory>();
 		}
@@ -129,7 +131,6 @@ namespace SBaier.Master.Test
 			Assert.AreEqual(settings.TargetSampleCount, generator.TargetSampleCount);
 			Assert.AreEqual(settings.BaseSamplesFactor, generator.BaseSamplesFactor);
 			Seed baseSeed = Container.Resolve<Seed>();
-			Assert.AreNotEqual(baseSeed.SeedNumber, generator.Seed.SeedNumber);
 		}
 	}
 }

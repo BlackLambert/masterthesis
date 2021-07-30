@@ -8,13 +8,19 @@ namespace SBaier.Master
     public class MeshGeneratorFactoryImpl : MeshGeneratorFactory
     {
 		private Seed _seed;
-		private QuickSelector<Vector3> _selector;
+		private RandomPointsOnSphereGenerator _randomPointsGenerator;
+		private SampleElimination3D _sampleElimination;
+		private QuickSelector<Vector3> _quickSelector;
 
-		public MeshGeneratorFactoryImpl(Seed seed,
-			QuickSelector<Vector3> selector)
+		public MeshGeneratorFactoryImpl(Seed seed, 
+			SampleElimination3D sampleElimination,
+			RandomPointsOnSphereGenerator randomPointsGenerator,
+			QuickSelector<Vector3> quickSelector)
 		{
 			_seed = seed;
-			_selector = selector;
+			_sampleElimination = sampleElimination;
+			_randomPointsGenerator = randomPointsGenerator;
+			_quickSelector = quickSelector;
 		}
 
 		public MeshGenerator Create(MeshGeneratorSettings settings)
@@ -43,7 +49,7 @@ namespace SBaier.Master
 
 		private MeshGenerator CreateSampleEliminationSphereGenerator(SampleEliminationSphereGeneratorSettings settings)
 		{
-			return new SampleEliminationSphereGenerator(settings.TargetSampleCount, settings.BaseSamplesFactor, new Seed(_seed.Random.Next()), _selector);
+			return new SampleEliminationSphereGenerator(settings.TargetSampleCount, settings.BaseSamplesFactor, _sampleElimination, _randomPointsGenerator, _quickSelector);
 		}
 	}
 }
