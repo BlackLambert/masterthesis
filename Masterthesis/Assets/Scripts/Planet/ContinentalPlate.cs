@@ -9,15 +9,21 @@ namespace SBaier.Master
     {
         public ContinentalPlateSegment[] Segments { get; }
         public float MovementAngle { get; }
+		public float MovementStrength { get; }
+		public Vector2Int[] Borders { get; }
 
         public ContinentalPlate(ContinentalPlateSegment[] segments,
-            float movementAngle)
+            float movementAngle,
+            float movementStrength,
+            Vector2Int[] borders)
 		{
             ValidateSegments(segments);
             ValidateMovementAngle(movementAngle);
 
             Segments = segments;
             MovementAngle = movementAngle;
+			MovementStrength = movementStrength;
+			Borders = borders;
         }
 
 		private void ValidateSegments(ContinentalPlateSegment[] segments)

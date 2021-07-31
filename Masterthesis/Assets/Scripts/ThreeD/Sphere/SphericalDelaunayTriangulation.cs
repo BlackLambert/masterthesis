@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -11,26 +12,31 @@ namespace SBaier.Master
 	/// </summary>
 	public class SphericalDelaunayTriangulation
     {
-        public DelaunayTriangle[] Create(IList<Vector3> vertices)
+		public List<Triangle> Result { get; private set; }
+		private IList<Vector3> _vertices;
+
+		public SphericalDelaunayTriangulation(IList<Vector3> vertices)
 		{
-            ValidateVertices(vertices);
+			ValidateVertices(vertices);
+			_vertices = vertices;
+		}
 
-
-			List<DelaunayTriangle> result = CreateInitialTetrahedron(vertices);
-			HashSet<int> addedIndices = GetUniqueIndices(result);
-			for (int i = 0; i < vertices.Count; i++)
+        public void Create()
+		{
+			Result = CreateInitialTetrahedron();
+			HashSet<int> addedIndices = GetUniqueIndices();
+			for (int i = 0; i < _vertices.Count; i++)
 			{
 				if (addedIndices.Contains(i))
 					continue;
-				AddPoint(i, vertices, result);
+				AddPoint(i);
 			}
-			return result.ToArray();
 		}
 
-		private HashSet<int> GetUniqueIndices(List<DelaunayTriangle> tirangles)
+		private HashSet<int> GetUniqueIndices()
 		{
 			HashSet<int> result = new HashSet<int>();
-			foreach (DelaunayTriangle triangle in tirangles)
+			foreach (Triangle triangle in Result)
 			{
 				result.Add(triangle.VertexIndices[0]);
 				result.Add(triangle.VertexIndices[1]);
@@ -39,92 +45,79 @@ namespace SBaier.Master
 			return result;
 		}
 
-		private void AddPoint(int index, IList<Vector3> vertices, List<DelaunayTriangle> triangles)
+		private void AddPoint(int index)
 		{
-			Vector3 point = vertices[index];
-			List<DelaunayTriangle> trianglesToDelete = new List<DelaunayTriangle>();
-			foreach (DelaunayTriangle triangle in triangles)
+			Vector3 point = _vertices[index];
+			List<Polygon> trianglesInView = new List<Polygon>();
+			List<int> trianglesToRemove = new List<int>();
+			for (int i = 0; i < Result.Count; i++)
 			{
-				Vector3 pointToTriangleCorner = vertices[triangle.VertexIndices[0]] - point;
-				float dotProduct = Vector3.Dot(triangle.Normal, pointToTriangleCorner);
-				if (dotProduct < 0)
-					trianglesToDelete.Add(triangle);
-			}
-
-			foreach (DelaunayTriangle triangle in trianglesToDelete)
-			{
-				triangles.Remove(triangle);
-			}
-
-			Vector2Int[] unsharedEdges = GetUnsharedEdges(trianglesToDelete);
-
-			foreach (Vector2Int edge in unsharedEdges)
-				ReconnectPoints(index, vertices, triangles, edge);
-		}
-
-		private Vector2Int[] GetUnsharedEdges(List<DelaunayTriangle> trianglesToDelete)
-		{
-			List<Vector2Int> result = new List<Vector2Int>();
-			for (int i = 0; i < trianglesToDelete.Count; i++)
-			{
-				DelaunayTriangle triangle = trianglesToDelete[i];
-				for (int j = 0; j < 3; j++)
+				Triangle triangle = Result[i];
+				if (IsInView(point, triangle))
 				{
-					Vector2Int edge = new Vector2Int(triangle.VertexIndices[j], triangle.VertexIndices[(j+1)%3]);
-					bool isShared = false;
-					for (int k = 0; k < trianglesToDelete.Count; k++)
-					{
-						if (k == i)
-							continue;
-						DelaunayTriangle triangleToCompare = trianglesToDelete[k];
-						isShared = isShared || triangleToCompare.ContainsEdge(edge);
-					}
-					if (!isShared)
-						result.Add(edge);
+					trianglesInView.Add(triangle);
+					trianglesToRemove.Add(i);
 				}
 			}
-			return result.ToArray();
+
+			trianglesToRemove = trianglesToRemove.OrderByDescending(i => i).ToList();
+			for (int i = 0; i < trianglesToRemove.Count; i++)
+				Result.RemoveAt(trianglesToRemove[i]);
+
+			UnsharedEdgesFinder unsharedEdgesFinder = new UnsharedEdgesFinder(trianglesInView);
+			unsharedEdgesFinder.Calculate();
+			Vector2Int[] unsharedEdges = unsharedEdgesFinder.Result.ToArray();
+
+			foreach (Vector2Int edge in unsharedEdges)
+				ReconnectPoints(index, edge);
 		}
 
-		private void ReconnectPoints(int pointIndex, IList<Vector3> vertices, List<DelaunayTriangle> result, Vector2Int edge)
+		private bool IsInView(Vector3 point, Triangle triangle)
+		{
+			Vector3 pointToTriangleCorner = _vertices[triangle.VertexIndices[0]] - point;
+			float dotProduct = Vector3.Dot(triangle.Normal, pointToTriangleCorner);
+			return dotProduct < 0;
+		}
+
+		private void ReconnectPoints(int pointIndex, Vector2Int edge)
 		{
 			Vector3Int indices = new Vector3Int(edge[0], edge[1], pointIndex);
-			result.Add(CreateTriangle(indices, vertices));
+			Result.Add(CreateTriangle(indices));
 		}
 
-		private List<DelaunayTriangle> CreateInitialTetrahedron(IList<Vector3> vertices)
+		private List<Triangle> CreateInitialTetrahedron()
 		{
-			Vector3 v0 = vertices[0];
-			int i1 = FindFarthestAwayFrom(new Vector3[]{ v0}, vertices);
-			Vector3 v1 = vertices[i1];
-			int i2 = FindFarthestAwayFrom(new Vector3[] { v0, v1}, vertices);
-			Vector3 v2 = vertices[i2];
-			int i3 = FindFarthestAwayFrom(new Vector3[] { v0, v1, v2}, vertices);
-			Vector3 v3 = vertices[i3];
+			Vector3 v0 = _vertices[0];
+			int i1 = FindFarthestAwayFrom(new Vector3[]{ v0});
+			Vector3 v1 = _vertices[i1];
+			int i2 = FindFarthestAwayFrom(new Vector3[] { v0, v1});
+			Vector3 v2 = _vertices[i2];
+			int i3 = FindFarthestAwayFrom(new Vector3[] { v0, v1, v2});
+			Vector3 v3 = _vertices[i3];
 			Vector3 tetrahedronCenter = (v0 + v1 + v2 + v3) / 4;
-			DelaunayTriangle t0 = CreateTriangle(new Vector3Int(0, i1, i2), vertices, tetrahedronCenter);
-			DelaunayTriangle t1 = CreateTriangle(new Vector3Int(0, i1, i3), vertices, tetrahedronCenter);
-			DelaunayTriangle t2 = CreateTriangle(new Vector3Int(i1, i2, i3), vertices, tetrahedronCenter);
-			DelaunayTriangle t3 = CreateTriangle(new Vector3Int(i2, 0, i3), vertices, tetrahedronCenter);
-			return new List<DelaunayTriangle> { t0, t1, t2, t3 };
+			Triangle t0 = CreateTriangle(new Vector3Int(0, i1, i2), tetrahedronCenter);
+			Triangle t1 = CreateTriangle(new Vector3Int(0, i1, i3), tetrahedronCenter);
+			Triangle t2 = CreateTriangle(new Vector3Int(i1, i2, i3), tetrahedronCenter);
+			Triangle t3 = CreateTriangle(new Vector3Int(i2, 0, i3), tetrahedronCenter);
+			return new List<Triangle> { t0, t1, t2, t3 };
 		}
 
-		private int FindFarthestAwayFrom(Vector3[] targetPoints, IList<Vector3> points)
+		private int FindFarthestAwayFrom(Vector3[] targetPoints)
 		{
 			float combinedDistance = 0;
 			int result = -1;
 
-			for (int i = 0; i < points.Count; i++)
+			for (int i = 0; i < _vertices.Count; i++)
 			{
 				for (int j = 0; j < targetPoints.Length; j++)
 				{
-					if (targetPoints[j] == points[i])
+					if (targetPoints[j] == _vertices[i])
 						continue;
 				}
 
 				float currentCombinedDistance = 0;
 				for (int j = 0; j < targetPoints.Length; j++)
-					currentCombinedDistance += (targetPoints[j] - points[i]).magnitude;
+					currentCombinedDistance += (targetPoints[j] - _vertices[i]).magnitude;
 				if(currentCombinedDistance > combinedDistance)
 				{
 					combinedDistance = currentCombinedDistance;
@@ -136,23 +129,48 @@ namespace SBaier.Master
 			return result;
 		}
 
-		private DelaunayTriangle CreateTriangle(Vector3Int vertexIndices, IList<Vector3> vertices)
+		private Triangle CreateTriangle(Vector3Int vertexIndices)
 		{
-			Vector3 xy = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
-			Vector3 xz = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
-			Vector3 normal = Vector3.Cross(xy, xz).normalized;
-			return new DelaunayTriangle(vertexIndices, normal);
+			Vector3 normal = CalculateNormal(vertexIndices);
+			Vector3 circumcenter = CalculateCircumcenter(vertexIndices);
+			return new Triangle(new int[] {vertexIndices.x, vertexIndices.y, vertexIndices.z }, normal, circumcenter);
 		}
 
-		private DelaunayTriangle CreateTriangle(Vector3Int vertexIndices, IList<Vector3> vertices, Vector3 center)
+		private Triangle CreateTriangle(Vector3Int vertexIndices, Vector3 center)
 		{
-			Vector3 xy = vertices[vertexIndices[1]] - vertices[vertexIndices[0]];
-			Vector3 xz = vertices[vertexIndices[2]] - vertices[vertexIndices[0]];
-			Vector3 normal = Vector3.Cross(xy, xz).normalized;
-			Vector3 centerToPoint = vertices[vertexIndices[0]] - center;
+			Vector3 normal = CalculateNormal(vertexIndices);
+			Vector3 centerToPoint = _vertices[vertexIndices[0]] - center;
 			if (Vector3.Dot(centerToPoint, normal) < 0)
-				return CreateTriangle(new Vector3Int(vertexIndices[0], vertexIndices[2], vertexIndices[1]), vertices, center);
-			return new DelaunayTriangle(vertexIndices, normal);
+				return CreateTriangle(new Vector3Int(vertexIndices[0], vertexIndices[2], vertexIndices[1]), center);
+			return CreateTriangle(vertexIndices);
+		}
+
+		private Vector3 CalculateNormal(Vector3Int vertexIndices)
+		{
+			Vector3 xy = _vertices[vertexIndices[1]] - _vertices[vertexIndices[0]];
+			Vector3 xz = _vertices[vertexIndices[2]] - _vertices[vertexIndices[0]];
+			Vector3 normal = Vector3.Cross(xy, xz).normalized;
+			return normal;
+		}
+
+		/// <summary>
+		/// Source: https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
+		/// </summary>
+		/// <param name="vertexIndices"></param>
+		/// <param name="vertices"></param>
+		/// <returns></returns>
+		private Vector3 CalculateCircumcenter(Vector3Int vertexIndices)
+		{
+			Vector3 v0 = _vertices[vertexIndices[0]];
+			Vector3 v1 = _vertices[vertexIndices[1]];
+			Vector3 v2 = _vertices[vertexIndices[2]];
+
+			Vector3 v02 = v2 - v0;
+			Vector3 v01 = v1 - v0;
+			Vector3 v01Xv02 = Vector3.Cross(v01, v02);
+
+			Vector3 toCircumsphereCenter = (Vector3.Cross(v01Xv02, v01) * v02.sqrMagnitude + Vector3.Cross(v02, v01Xv02) * v01.sqrMagnitude) / (2.0f * v01Xv02.sqrMagnitude);
+			return v0 + toCircumsphereCenter;
 		}
 
 		private void ValidateVertices(IList<Vector3> vertices)

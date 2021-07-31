@@ -56,6 +56,8 @@ namespace SBaier.Master
 
         [SerializeField]
         private MeshFilter _delaunay;
+        [SerializeField]
+        private MeshFilter _voronoi;
 
 
         private MeshGenerator _icosahedronGenerator;
@@ -189,8 +191,7 @@ namespace SBaier.Master
 
         private EvaluationPointData CreateEvaluationPointData()
 		{
-			List<PlanetLayerData> layerData = new List<PlanetLayerData>();
-			layerData.Add(new PlanetLayerData(0, 1));
+            List<PlanetLayerData> layerData = new List<PlanetLayerData>(1) { new PlanetLayerData(0, 1) };
 			return new EvaluationPointData(layerData, new float[1]);
 		}
 
@@ -199,15 +200,16 @@ namespace SBaier.Master
 			Vector3[] points = _randomPointsGenerator.Generate(_plateSegments * 3, _atmosphereRadius);
 			float sphereSurface = GetSphereSurface();
 			Vector3[] plateSegmentSites = _sampleElimination.Eliminate(points, _plateSegments, sphereSurface).ToArray();
-            DelaunayTriangle[] triangles = new SphericalDelaunayTriangulation().Create(plateSegmentSites);
-            _delaunay.sharedMesh = new Mesh();
-            _delaunay.sharedMesh.vertices = plateSegmentSites;
-            _delaunay.sharedMesh.triangles = CreateTriangles(triangles);
-            _delaunay.sharedMesh.RecalculateNormals();
-            ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites);
+
+			Triangle[] triangles = CreatePlateSegmentTriangles(plateSegmentSites);
+            VoronoiDiagram voronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, triangles);
+
+			ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites, voronoi);
 			KDTree<Vector3> sitesKDTree = new Vector3BinaryKDTree(plateSegmentSites, _quickSelector);
 
-			for (int i = 0; i < planet.Faces.Count; i++)
+            ContinentalPlate[] result = CreatePlates(segments);
+
+            for (int i = 0; i < planet.Faces.Count; i++)
 			{
 				PlanetFace face = planet.Faces[i];
 				Vector3[] vertices = face.Vertices;
@@ -224,18 +226,51 @@ namespace SBaier.Master
 				}
 			}
 
-			ContinentalPlate[] result = CreatePlates(segments);
 			return result;
 		}
 
-		private int[] CreateTriangles(DelaunayTriangle[] triangles)
+		private VoronoiDiagram CreatePlateSegmentVoronoiDiagram(Vector3[] plateSegmentSites, Triangle[] triangles)
+		{
+			VoronoiDiagram diagram = new SphericalVoronoiCalculator(triangles, plateSegmentSites).CalculateVoronoiDiagram();
+            _voronoi.sharedMesh = new Mesh();
+            _voronoi.sharedMesh.vertices = diagram.Vertices;
+			Draw(diagram);
+            return diagram;
+		}
+
+		private Triangle[] CreatePlateSegmentTriangles(Vector3[] plateSegmentSites)
+		{
+			SphericalDelaunayTriangulation triangulation = new SphericalDelaunayTriangulation(plateSegmentSites);
+			triangulation.Create();
+			Triangle[] triangles = triangulation.Result.ToArray();
+			_delaunay.sharedMesh = new Mesh();
+			_delaunay.sharedMesh.vertices = plateSegmentSites;
+			_delaunay.sharedMesh.triangles = CreateTriangles(triangles);
+			_delaunay.sharedMesh.RecalculateNormals();
+			return triangles;
+		}
+
+		private void Draw(VoronoiDiagram diagram)
+		{
+			foreach(VoronoiRegion region in diagram.Regions)
+			{
+				for (int i = 0; i < region.VertexIndices.Count; i++)
+				{
+                    Vector3 c0 = diagram.Vertices[region.VertexIndices[i]];
+                    Vector3 c1 = diagram.Vertices[region.VertexIndices[(i + 1) % region.VertexIndices.Count]];
+                    Debug.DrawLine(c0, c1, Color.green, 60);
+				}
+			}
+		}
+
+		private int[] CreateTriangles(Triangle[] triangles)
 		{
             int[] result = new int[triangles.Length * 3];
 			for (int i = 0; i < triangles.Length; i++)
 			{
-                result[i * 3] = triangles[i].VertexIndices.x;
-                result[i * 3 + 1] = triangles[i].VertexIndices.y;
-                result[i * 3 + 2] = triangles[i].VertexIndices.z;
+                result[i * 3] = triangles[i].VertexIndices[0];
+                result[i * 3 + 1] = triangles[i].VertexIndices[1];
+                result[i * 3 + 2] = triangles[i].VertexIndices[2];
             }
 
             return result;
@@ -264,8 +299,16 @@ namespace SBaier.Master
 
 			ContinentalPlate[] result = new ContinentalPlate[_plates];
 			Seed seed = new Seed(_seed.Random.Next());
-			for (int i = 0; i < plateToSegments.Length; i++)
-				result[i] = new ContinentalPlate(plateToSegments[i].ToArray(), (float)seed.Random.NextDouble() * 360);
+            for (int i = 0; i < plateToSegments.Length; i++)
+            {
+                float movementAngle = (float)seed.Random.NextDouble() * 360;
+                float movementStrength = (float)seed.Random.NextDouble();
+                List<Polygon> polygons = new List<Polygon>(plateToSegments[i]);
+                UnsharedEdgesFinder finder = new UnsharedEdgesFinder(polygons);
+                finder.Calculate();
+                Vector2Int[] borders = finder.Result.ToArray();
+                result[i] = new ContinentalPlate(plateToSegments[i].ToArray(), movementAngle, movementStrength, borders);
+            }
 
 			return result;
 		}
@@ -293,14 +336,14 @@ namespace SBaier.Master
             return vertex + deltaVector;
         }
 
-        private ContinentalPlateSegment[] CreateContinentalPlateSegments(Vector3[] plateSites)
+        private ContinentalPlateSegment[] CreateContinentalPlateSegments(Vector3[] plateSites, VoronoiDiagram voronoi)
 		{
             ContinentalPlateSegment[] result = new ContinentalPlateSegment[plateSites.Length];
 
 			for (int i = 0; i < plateSites.Length; i++)
 			{
                 bool oceanic = UnityEngine.Random.Range(0, 2) == 0;
-                result[i] = new ContinentalPlateSegment(plateSites[i], oceanic);
+                result[i] = new ContinentalPlateSegment(voronoi.Regions[i], oceanic);
             }
 
             return result;

@@ -4,17 +4,20 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public struct ContinentalPlateSegment 
+    public class ContinentalPlateSegment : Polygon
     {
         public ContinentalPlateSegment(
-            Vector3 site,
+			VoronoiRegion voronoiRegion,
             bool oceanic)
 		{
-			Site = site;
+			Region = voronoiRegion;
 			Oceanic = oceanic;
 		}
 
-		public Vector3 Site { get; }
+		public Vector3 Site => Region.Site;
+		public VoronoiRegion Region { get; }
 		public bool Oceanic { get; }
+
+		public override IList<int> VertexIndices => Region.VertexIndices;
 	}
 }
