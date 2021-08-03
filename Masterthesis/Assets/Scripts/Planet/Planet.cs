@@ -13,6 +13,7 @@ namespace SBaier.Master
 
         public IList<PlanetFace> Faces { get; private set; }
         public PlanetData Data { get; private set; }
+        public float AtmosphereRadius => Data.Dimensions.AtmosphereThickness;
 
         [Inject]
         public void Construct(PlanetData data)

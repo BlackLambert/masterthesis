@@ -50,7 +50,7 @@ namespace SBaier.Master
 			Vector3 point = _vertices[index];
 			List<Polygon> trianglesInView = new List<Polygon>();
 			List<int> trianglesToRemove = new List<int>();
-			for (int i = 0; i < Result.Count; i++)
+			for (int i = Result.Count - 1; i >= 0; i--)
 			{
 				Triangle triangle = Result[i];
 				if (IsInView(point, triangle))
@@ -60,13 +60,12 @@ namespace SBaier.Master
 				}
 			}
 
-			trianglesToRemove = trianglesToRemove.OrderByDescending(i => i).ToList();
 			for (int i = 0; i < trianglesToRemove.Count; i++)
 				Result.RemoveAt(trianglesToRemove[i]);
 
-			UnsharedEdgesFinder unsharedEdgesFinder = new UnsharedEdgesFinder(trianglesInView);
-			unsharedEdgesFinder.Calculate();
-			Vector2Int[] unsharedEdges = unsharedEdgesFinder.Result.ToArray();
+			EdgesFinder unsharedEdgesFinder = new UnsharedEdgesFinder(trianglesInView);
+			unsharedEdgesFinder.Find();
+			Vector2Int[] unsharedEdges = unsharedEdgesFinder.Edges.ToArray();
 
 			foreach (Vector2Int edge in unsharedEdges)
 				ReconnectPoints(index, edge);

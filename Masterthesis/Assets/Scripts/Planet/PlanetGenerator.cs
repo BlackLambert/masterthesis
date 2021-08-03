@@ -43,8 +43,19 @@ namespace SBaier.Master
         private int _plateSegments = 150;
         [SerializeField]
         private float _warpFactor = 0.05f;
+        [Range(1f, 5f)]
+        [SerializeField]
+        private float _sampleEliminationFactor = 1;
+        [SerializeField]
+        private int _oceans = 10;
+        [SerializeField]
+        private int _continents = 10;
         [SerializeField]
         private int _plates = 10;
+
+        [Header("Biome")]
+        [SerializeField]
+        private BiomeSettings[] _biomes;
 
         [Header("Noise")]
         [SerializeField]
@@ -66,11 +77,11 @@ namespace SBaier.Master
         private Seed _seed;
         private MeshSubdivider _subdivider;
         private Planet.Factory _planetFactory;
-		private RandomPointsOnSphereGenerator _randomPointsGenerator;
-		private SampleElimination3D _sampleElimination;
         private QuickSelector<Vector3> _quickSelector;
+        private ContinentalPlatesFactory _continentalPlatesFactory;
 
-		private Noise3D _continentsNoise;
+
+        private Noise3D _continentsNoise;
         private Noise3D _continentalPlatesWarpingNoise;
 
         [Inject]
@@ -81,18 +92,16 @@ namespace SBaier.Master
             Seed seed,
             MeshSubdivider subdivider,
             Planet.Factory planetFactory,
-            RandomPointsOnSphereGenerator randomPointsGenerator,
-            SampleElimination3D sampleElimination,
-            QuickSelector<Vector3> quickSelector)
+            QuickSelector<Vector3> quickSelector,
+            ContinentalPlatesFactory continentalPlatesFactory)
 		{
             _faceSeparator = faceSeparator;
             _meshFormer = meshFormer;
             _seed = seed;
             _subdivider = subdivider;
             _planetFactory = planetFactory;
-            _randomPointsGenerator = randomPointsGenerator;
-            _sampleElimination = sampleElimination;
             _quickSelector = quickSelector;
+            _continentalPlatesFactory = continentalPlatesFactory;
 
             _continentsNoise = noiseFactory.Create(_continentsNoiseSettings, _seed);
             _continentalPlatesWarpingNoise = noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, _seed);
@@ -111,12 +120,81 @@ namespace SBaier.Master
 			Init(faces, data);
 			Planet planet = CreatePlanet(data);
 			planet.Init(faces);
-            ContinentalPlate[] plates = InitContinentalPlates(planet);
-            //InitContinentLayer(planet);
+			ContinentalPlatesFactory.Parameters parameter = CreatePlatesFactoryParameters(planet);
+			ContinentalPlates plates = _continentalPlatesFactory.Create(parameter);
+			InitSegmentsDelaunayMesh(plates);
+			InitSegmentsVoronoiView(plates);
+			Biome[] biomes = CreateBiomes();
+			AddRockLayer(planet, plates, biomes);
+			//InitContinentLayer(planet);
 			planet.UpdateMesh();
 		}
 
-		private Planet CreatePlanet(PlanetData data)
+		private ContinentalPlatesFactory.Parameters CreatePlatesFactoryParameters(Planet planet)
+		{
+			return new ContinentalPlatesFactory.Parameters(
+				planet,
+				_seed,
+				_plateSegments,
+				_plates,
+				_biomes,
+				_sampleEliminationFactor,
+				_continents,
+				_oceans);
+		}
+
+		private Biome[] CreateBiomes()
+		{
+            Biome[] result = new Biome[_biomes.Length];
+			for (int i = 0; i < _biomes.Length; i++)
+			{
+                result[i] = new Biome(_biomes[i].BaseColor);
+			}
+            return result;
+		}
+
+		private void InitSegmentsVoronoiView(ContinentalPlates plates)
+		{
+            _voronoi.sharedMesh = new Mesh();
+            _voronoi.sharedMesh.vertices = plates.SegmentsVoronoi.Vertices;
+            Draw(plates.SegmentsVoronoi);
+        }
+
+        private void Draw(VoronoiDiagram diagram)
+        {
+            foreach (VoronoiRegion region in diagram.Regions)
+            {
+                for (int i = 0; i < region.VertexIndices.Count; i++)
+                {
+                    Vector3 c0 = diagram.Vertices[region.VertexIndices[i]];
+                    Vector3 c1 = diagram.Vertices[region.VertexIndices[(i + 1) % region.VertexIndices.Count]];
+                    Debug.DrawLine(c0, c1, Color.green, 60);
+                }
+            }
+        }
+
+        private void InitSegmentsDelaunayMesh(ContinentalPlates plates)
+        {
+            _delaunay.sharedMesh = new Mesh();
+            _delaunay.sharedMesh.vertices = plates.SegmentSites;
+            _delaunay.sharedMesh.triangles = CreateTriangles(plates.SegmentsDelaunayTriangles);
+            _delaunay.sharedMesh.RecalculateNormals();
+        }
+
+        private int[] CreateTriangles(Triangle[] triangles)
+        {
+            int[] result = new int[triangles.Length * 3];
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                result[i * 3] = triangles[i].VertexIndices[0];
+                result[i * 3 + 1] = triangles[i].VertexIndices[1];
+                result[i * 3 + 2] = triangles[i].VertexIndices[2];
+            }
+
+            return result;
+        }
+
+        private Planet CreatePlanet(PlanetData data)
 		{
             Planet result = _planetFactory.Create(data);
             result.transform.SetParent(null);
@@ -174,7 +252,66 @@ namespace SBaier.Master
 			face.Init(data, planetData);
 		}
 
-		private EvaluationPointData[] CreateEvaluationPointsData(PlanetFace face)
+        private void AddRockLayer(Planet planet, ContinentalPlates plates, Biome[] biomes)
+		{
+            KDTree<Vector3> sitesKDTree = new Vector3BinaryKDTree(plates.SegmentSites, _quickSelector);
+            for (int i = 0; i < planet.Faces.Count; i++)
+            {
+                PlanetFace face = planet.Faces[i];
+                Vector3[] vertices = face.Vertices;
+                float[] warpValues = WarpContientenalPlateEvaluationPoint(vertices);
+                Color[] vertexColors = new Color[face.MeshFilter.sharedMesh.vertexCount];
+
+                for (int j = 0; j < vertices.Length; j++)
+                {
+                    Vector3 vertex = vertices[j].normalized * _atmosphereRadius;
+                    vertex = WarpSpherePoint(vertex, warpValues[j]);
+                    vertex = vertex.normalized * _atmosphereRadius;
+                    int index = sitesKDTree.GetNearestTo(vertex);
+                    ContinentalPlateSegment segment = plates.Segments[index];
+                    float delta = segment.Oceanic ? 0.1f : 0.4f;
+                    Color vertexColor = segment.Oceanic ? Color.blue : biomes[segment.BiomeID].BaseColor;
+                    InitContinentPlate(face.Data.EvaluationPoints[j], delta);
+                    vertexColors[j] = vertexColor;
+                }
+
+                face.MeshFilter.sharedMesh.colors = vertexColors;
+            }
+        }
+
+        private void InitContinentPlate(PlanetFace face)
+        {
+            NativeArray<float> result = Evaluate(_continentsNoise, face.Vertices);
+            for (int i = 0; i < result.Length; i++)
+                InitContinentPlate(face.Data.EvaluationPoints[i], result[i]);
+            result.Dispose();
+        }
+
+        private void InitContinentPlate(EvaluationPointData data, float value)
+        {
+            float continentalPlateHeight = value * _continentalPlateMax;
+            data.Layers[0].Height = data.Layers[0].Height - continentalPlateHeight;
+            data.Layers.Insert(0, new PlanetLayerData(1, continentalPlateHeight));
+        }
+
+        private Vector3 WarpContientenalPlateEvaluationPoint(Vector3 vertex)
+        {
+            return new Vector3(_continentalPlatesWarpingNoise.Evaluate3D(vertex + Vector3.left),
+                _continentalPlatesWarpingNoise.Evaluate3D(vertex + Vector3.up),
+                _continentalPlatesWarpingNoise.Evaluate3D(vertex + Vector3.down));
+        }
+
+        private NativeArray<float> Evaluate(Noise3D noise, Vector3[] points)
+        {
+            for (int i = 0; i < points.Length; i++)
+                points[i] = points[i].normalized * _atmosphereRadius;
+            NativeArray<Vector3> verticesNative = new NativeArray<Vector3>(points, Allocator.TempJob);
+            NativeArray<float> result = noise.Evaluate3D(verticesNative);
+            verticesNative.Dispose();
+            return result;
+        }
+
+        private EvaluationPointData[] CreateEvaluationPointsData(PlanetFace face)
 		{
             int evaluationPointCount = face.VertexCount;
             return CreateEvaluationPointsData(evaluationPointCount);
@@ -195,123 +332,7 @@ namespace SBaier.Master
 			return new EvaluationPointData(layerData, new float[1]);
 		}
 
-        private ContinentalPlate[] InitContinentalPlates(Planet planet)
-		{
-			Vector3[] points = _randomPointsGenerator.Generate(_plateSegments * 3, _atmosphereRadius);
-			float sphereSurface = GetSphereSurface();
-			Vector3[] plateSegmentSites = _sampleElimination.Eliminate(points, _plateSegments, sphereSurface).ToArray();
-
-			Triangle[] triangles = CreatePlateSegmentTriangles(plateSegmentSites);
-            VoronoiDiagram voronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, triangles);
-
-			ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites, voronoi);
-			KDTree<Vector3> sitesKDTree = new Vector3BinaryKDTree(plateSegmentSites, _quickSelector);
-
-            ContinentalPlate[] result = CreatePlates(segments);
-
-            for (int i = 0; i < planet.Faces.Count; i++)
-			{
-				PlanetFace face = planet.Faces[i];
-				Vector3[] vertices = face.Vertices;
-				float[] warpValues = WarpContientenalPlateEvaluationPoint(vertices);
-
-				for (int j = 0; j < vertices.Length; j++)
-				{
-					Vector3 vertex = vertices[j].normalized * _atmosphereRadius;
-					vertex = WarpSpherePoint(vertex, warpValues[j]);
-					vertex = vertex.normalized * _atmosphereRadius;
-					int index = sitesKDTree.GetNearestTo(vertex);
-					float delta = segments[index].Oceanic ? 0.1f : 0.4f;
-					InitContinentPlate(face.Data.EvaluationPoints[j], delta);
-				}
-			}
-
-			return result;
-		}
-
-		private VoronoiDiagram CreatePlateSegmentVoronoiDiagram(Vector3[] plateSegmentSites, Triangle[] triangles)
-		{
-			VoronoiDiagram diagram = new SphericalVoronoiCalculator(triangles, plateSegmentSites).CalculateVoronoiDiagram();
-            _voronoi.sharedMesh = new Mesh();
-            _voronoi.sharedMesh.vertices = diagram.Vertices;
-			Draw(diagram);
-            return diagram;
-		}
-
-		private Triangle[] CreatePlateSegmentTriangles(Vector3[] plateSegmentSites)
-		{
-			SphericalDelaunayTriangulation triangulation = new SphericalDelaunayTriangulation(plateSegmentSites);
-			triangulation.Create();
-			Triangle[] triangles = triangulation.Result.ToArray();
-			_delaunay.sharedMesh = new Mesh();
-			_delaunay.sharedMesh.vertices = plateSegmentSites;
-			_delaunay.sharedMesh.triangles = CreateTriangles(triangles);
-			_delaunay.sharedMesh.RecalculateNormals();
-			return triangles;
-		}
-
-		private void Draw(VoronoiDiagram diagram)
-		{
-			foreach(VoronoiRegion region in diagram.Regions)
-			{
-				for (int i = 0; i < region.VertexIndices.Count; i++)
-				{
-                    Vector3 c0 = diagram.Vertices[region.VertexIndices[i]];
-                    Vector3 c1 = diagram.Vertices[region.VertexIndices[(i + 1) % region.VertexIndices.Count]];
-                    Debug.DrawLine(c0, c1, Color.green, 60);
-				}
-			}
-		}
-
-		private int[] CreateTriangles(Triangle[] triangles)
-		{
-            int[] result = new int[triangles.Length * 3];
-			for (int i = 0; i < triangles.Length; i++)
-			{
-                result[i * 3] = triangles[i].VertexIndices[0];
-                result[i * 3 + 1] = triangles[i].VertexIndices[1];
-                result[i * 3 + 2] = triangles[i].VertexIndices[2];
-            }
-
-            return result;
-		}
-
-		private float GetSphereSurface()
-		{
-			return 4 * Mathf.PI * _atmosphereRadius;
-		}
-
-		private ContinentalPlate[] CreatePlates(ContinentalPlateSegment[] segments)
-		{
-            float sphereSurface = GetSphereSurface();
-            Vector3[] continentalPoints = _randomPointsGenerator.Generate(_plates * 3, _atmosphereRadius);
-			Vector3[] plateSites = _sampleElimination.Eliminate(continentalPoints, _plates, sphereSurface).ToArray();
-			KDTree<Vector3> platesKDTree = new Vector3BinaryKDTree(plateSites, _quickSelector);
-			List<ContinentalPlateSegment>[] plateToSegments = new List<ContinentalPlateSegment>[_plates];
-			for (int i = 0; i < plateToSegments.Length; i++)
-				plateToSegments[i] = new List<ContinentalPlateSegment>();
-
-			for (int i = 0; i < segments.Length; i++)
-			{
-				int index = platesKDTree.GetNearestTo(segments[i].Site);
-				plateToSegments[index].Add(segments[i]);
-			}
-
-			ContinentalPlate[] result = new ContinentalPlate[_plates];
-			Seed seed = new Seed(_seed.Random.Next());
-            for (int i = 0; i < plateToSegments.Length; i++)
-            {
-                float movementAngle = (float)seed.Random.NextDouble() * 360;
-                float movementStrength = (float)seed.Random.NextDouble();
-                List<Polygon> polygons = new List<Polygon>(plateToSegments[i]);
-                UnsharedEdgesFinder finder = new UnsharedEdgesFinder(polygons);
-                finder.Calculate();
-                Vector2Int[] borders = finder.Result.ToArray();
-                result[i] = new ContinentalPlate(plateToSegments[i].ToArray(), movementAngle, movementStrength, borders);
-            }
-
-			return result;
-		}
+		
 
 		private float[] WarpContientenalPlateEvaluationPoint(Vector3[] vertices)
 		{
@@ -336,55 +357,6 @@ namespace SBaier.Master
             return vertex + deltaVector;
         }
 
-        private ContinentalPlateSegment[] CreateContinentalPlateSegments(Vector3[] plateSites, VoronoiDiagram voronoi)
-		{
-            ContinentalPlateSegment[] result = new ContinentalPlateSegment[plateSites.Length];
-
-			for (int i = 0; i < plateSites.Length; i++)
-			{
-                bool oceanic = UnityEngine.Random.Range(0, 2) == 0;
-                result[i] = new ContinentalPlateSegment(voronoi.Regions[i], oceanic);
-            }
-
-            return result;
-		}
-
-		private void InitContinentLayer(Planet planet)
-        {
-            for(int i = 0; i < planet.Faces.Count; i++)
-				InitContinentPlate(planet.Faces[i]);
-		}
-
-		private void InitContinentPlate(PlanetFace face)
-		{
-			NativeArray<float> result = Evaluate(_continentsNoise, face.Vertices);
-			for (int i = 0; i < result.Length; i++)
-				InitContinentPlate(face.Data.EvaluationPoints[i], result[i]);
-			result.Dispose();
-		}
-
-		private void InitContinentPlate(EvaluationPointData data, float value)
-		{
-			float continentalPlateHeight = value * _continentalPlateMax;
-			data.Layers[0].Height = data.Layers[0].Height - continentalPlateHeight;
-			data.Layers.Insert(0, new PlanetLayerData(1, continentalPlateHeight));
-        }
-
-        private Vector3 WarpContientenalPlateEvaluationPoint(Vector3 vertex)
-        {
-            return new Vector3(_continentalPlatesWarpingNoise.Evaluate3D(vertex + Vector3.left),
-                _continentalPlatesWarpingNoise.Evaluate3D(vertex + Vector3.up),
-                _continentalPlatesWarpingNoise.Evaluate3D(vertex + Vector3.down));
-        }
-
-        private NativeArray<float> Evaluate(Noise3D noise, Vector3[] points)
-		{
-            for (int i = 0; i < points.Length; i++)
-                points[i] = points[i].normalized * _atmosphereRadius;
-            NativeArray<Vector3> verticesNative = new NativeArray<Vector3>(points, Allocator.TempJob);
-            NativeArray<float> result = noise.Evaluate3D(verticesNative);
-            verticesNative.Dispose();
-            return result;
-        }
+        
     }
 }

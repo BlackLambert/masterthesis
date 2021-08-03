@@ -627,8 +627,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _oceans
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _plates
-      value: 8
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _voronoi
@@ -639,16 +643,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1521348552}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _continents
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _warpFactor
-      value: 0.1
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _subdivisions
-      value: 50
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _plateSegments
-      value: 50
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 1206705532341609958, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: m_RootOrder

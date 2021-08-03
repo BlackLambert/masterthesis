@@ -54,9 +54,17 @@ MonoBehaviour:
   _meshGeneratorSettings: {fileID: 11400000, guid: 86b7aeb38c78f5641a1e443ed573a59a, type: 2}
   _plateSegments: 150
   _warpFactor: 0.1
+  _plates: 10
+  _biomes:
+  - {fileID: 11400000, guid: 5a92aef459040f742802206b355709e0, type: 2}
+  - {fileID: 11400000, guid: 54974c226362e334b865a4b621435898, type: 2}
+  - {fileID: 11400000, guid: 15f60519eb41d6144beab25f62400a8d, type: 2}
+  - {fileID: 11400000, guid: 1bf6d7eed219f314dab088ba8e64f547, type: 2}
   _continentalPlatesNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentsNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: e370c55e666352e4899e0ac79b109266, type: 2}
+  _delaunay: {fileID: 0}
+  _voronoi: {fileID: 0}
 --- !u!1 &1206705532341609962
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,6 +81,7 @@ GameObject:
   - component: {fileID: 1206705532341609952}
   - component: {fileID: 1206705532341609955}
   - component: {fileID: 7776973656784308505}
+  - component: {fileID: 5388233829852190994}
   m_Layer: 0
   m_Name: PlanetGeneratorContext
   m_TagString: Untagged
@@ -115,6 +124,7 @@ MonoBehaviour:
   - {fileID: 1206705532341609952}
   - {fileID: 1206705532341609955}
   - {fileID: 7776973656784308505}
+  - {fileID: 5388233829852190994}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -192,3 +202,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _planetPrefab: {fileID: 4787082703033401767, guid: 6b56f5f911c4d054e987495e436ed771, type: 3}
+--- !u!114 &5388233829852190994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206705532341609962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e39147a1b629df4fab2b818fdb8cbc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

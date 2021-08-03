@@ -1,18 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class UnsharedEdgesFinder 
+    public abstract class EdgesFinder 
     {
-		private IList<Polygon> _polygons;
-        public List<Vector2Int> Result { get; }
+		protected IList<Polygon> _polygons;
+        public List<Vector2Int> Edges { get; }
 
-        public UnsharedEdgesFinder(IList<Polygon> polygons)
+        public EdgesFinder(IList<Polygon> polygons)
 		{
 			Init(polygons);
-            Result = new List<Vector2Int>();
+            Edges = new List<Vector2Int>();
         }
 
 		public void Init(IList<Polygon> polygons)
@@ -20,35 +21,41 @@ namespace SBaier.Master
 			_polygons = polygons;
 		}
 
-		public void Calculate()
+		public void Find()
 		{
-			Result.Clear();
-			for (int i = 0; i < _polygons.Count; i++)
-				AddUnsharedEdges(i);
+			FindEdges();
 		}
 
-		private void AddUnsharedEdges(int polygonIndex)
+		private void FindEdges()
+		{
+			Edges.Clear();
+			for (int i = 0; i < _polygons.Count; i++)
+				AddEdges(i);
+		}
+
+		private void AddEdges(int polygonIndex)
 		{
 			Polygon polygon = _polygons[polygonIndex];
 			for (int i = 0; i < polygon.VertexIndices.Count; i++)
-				AddUnsharedEdges(polygonIndex, i);
+				AddEdges(polygonIndex, i);
 		}
 
-		private void AddUnsharedEdges(int polygonIndex, int edgeIndex)
+		private void AddEdges(int polygonIndex, int edgeIndex)
 		{
 			Polygon polygon = _polygons[polygonIndex];
 			int corner0 = polygon.VertexIndices[edgeIndex];
 			int corner1 = polygon.VertexIndices[(edgeIndex + 1) % polygon.VertexIndices.Count];
 			Vector2Int edge = new Vector2Int(corner0, corner1);
-			bool isShared = false;
-			for (int k = 0; k < _polygons.Count; k++)
-				isShared = isShared || HasSharedEdge(polygonIndex, k, edge);
-			if (!isShared)
-				Result.Add(edge);
+			if (CompareFunction(polygonIndex, edge))
+				Edges.Add(edge);
 		}
+		protected abstract bool CompareFunction(int polygonIndex, Vector2Int edge);
 
-		private bool HasSharedEdge(int polygonIndex, int comparePolygonIndex, Vector2Int edge)
+
+		protected bool HasSharedEdge(int polygonIndex, int comparePolygonIndex, Vector2Int edge)
 		{
+			if (_polygons.Count <= 1)
+				return false;
 			if (polygonIndex == comparePolygonIndex)
 				return false;
 			Polygon polygonToCompare = _polygons[comparePolygonIndex];
