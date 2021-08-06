@@ -6,6 +6,7 @@ namespace SBaier.Master
 {
     public interface KDTree<T>
     {
+        public int Count { get; }
         int GetNearestTo(T sample);
         int GetNearestTo(int sampleIndex);
         IList<int> GetNearestToWithin(T sample, float maxDistance);

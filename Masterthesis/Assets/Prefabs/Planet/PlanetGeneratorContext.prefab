@@ -54,6 +54,9 @@ MonoBehaviour:
   _meshGeneratorSettings: {fileID: 11400000, guid: 86b7aeb38c78f5641a1e443ed573a59a, type: 2}
   _plateSegments: 150
   _warpFactor: 0.1
+  _sampleEliminationFactor: 1
+  _oceans: 10
+  _continents: 10
   _plates: 10
   _biomes:
   - {fileID: 11400000, guid: 5a92aef459040f742802206b355709e0, type: 2}
@@ -63,6 +66,7 @@ MonoBehaviour:
   _continentalPlatesNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentsNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: e370c55e666352e4899e0ac79b109266, type: 2}
+  _mountainsNoiseSettings: {fileID: 11400000, guid: cbd21afc80803434b86761ab36066b53, type: 2}
   _delaunay: {fileID: 0}
   _voronoi: {fileID: 0}
 --- !u!1 &1206705532341609962

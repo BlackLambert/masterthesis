@@ -64,6 +64,8 @@ namespace SBaier.Master
         private NoiseSettings _continentsNoiseSettings;
         [SerializeField]
         private NoiseSettings _continentalPlatesWarpingNoiseSettings;
+        [SerializeField]
+        private NoiseSettings _mountainsNoiseSettings;
 
         [SerializeField]
         private MeshFilter _delaunay;
@@ -83,6 +85,7 @@ namespace SBaier.Master
 
         private Noise3D _continentsNoise;
         private Noise3D _continentalPlatesWarpingNoise;
+        private Noise3D _mountainsNoise;
 
         [Inject]
         public void Construct(MeshGeneratorFactory meshGeneratorFactory,
@@ -105,6 +108,7 @@ namespace SBaier.Master
 
             _continentsNoise = noiseFactory.Create(_continentsNoiseSettings, _seed);
             _continentalPlatesWarpingNoise = noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, _seed);
+            _mountainsNoise = noiseFactory.Create(_mountainsNoiseSettings, _seed);
             _icosahedronGenerator = meshGeneratorFactory.Create(_meshGeneratorSettings);
         }
 
@@ -122,13 +126,29 @@ namespace SBaier.Master
 			planet.Init(faces);
 			ContinentalPlatesFactory.Parameters parameter = CreatePlatesFactoryParameters(planet);
 			ContinentalPlates plates = _continentalPlatesFactory.Create(parameter);
+            ShapingLayer[] shapingLayers = CreateShapingLayers(plates);
+            
 			InitSegmentsDelaunayMesh(plates);
 			InitSegmentsVoronoiView(plates);
 			Biome[] biomes = CreateBiomes();
-			AddRockLayer(planet, plates, biomes);
+			AddRockLayer(planet, plates, biomes, shapingLayers);
 			//InitContinentLayer(planet);
 			planet.UpdateMesh();
 		}
+
+		private ShapingLayer[] CreateShapingLayers(ContinentalPlates plates)
+		{
+            ShapingPrimitive[] mountainPrimitives = CreateMountainShaping(plates);
+            ShapingLayer mountainsLayer = CreateShapingLayer(mountainPrimitives);
+            return new ShapingLayer[] { mountainsLayer };
+        }
+
+		private ShapingLayer CreateShapingLayer(ShapingPrimitive[] primitives)
+		{
+            Vector3[] nodes = primitives.Select(p => p.Position).ToArray();
+            KDTree<Vector3> tree = new Vector3BinaryKDTree(nodes, _quickSelector);
+            return new ShapingLayer(primitives, tree, _mountainsNoise);
+        }
 
 		private ContinentalPlatesFactory.Parameters CreatePlatesFactoryParameters(Planet planet)
 		{
@@ -250,27 +270,66 @@ namespace SBaier.Master
 			EvaluationPointData[] evaluationPointsData = CreateEvaluationPointsData(face);
 			PlanetFaceData data = new PlanetFaceData(evaluationPointsData);
 			face.Init(data, planetData);
-		}
+        }
 
-        private void AddRockLayer(Planet planet, ContinentalPlates plates, Biome[] biomes)
+        private ShapingPrimitive[] CreateMountainShaping(ContinentalPlates plates)
+        {
+            List<ShapingPrimitive> primitives = new List<ShapingPrimitive>();
+            HashSet<Vector2Int> handledBorders = new HashSet<Vector2Int>();
+            float mountainThickness = _atmosphereRadius / 18;
+            float mountainLengthAddition = _atmosphereRadius / 25;
+            float bledDistance = _atmosphereRadius / 10;
+            for (int i = 0; i < plates.PlateNeighbors.Length; i++)
+			{
+                Vector2Int neighbors = plates.PlateNeighbors[i];
+                Vector2Int[] borders = plates.PlateBorders[neighbors];
+				for (int j = 0; j < borders.Length; j++)
+				{
+                    Vector2Int border = borders[j];
+                    if (handledBorders.Contains(border))
+                        continue;
+                    Vector3 corner0 = plates.SegmentCorners[border[0]];
+                    Vector3 corner1 = plates.SegmentCorners[border[1]];
+                    Vector3 distanceVector = corner1 - corner0;
+                    float distance = distanceVector.magnitude;
+                    if (distance == 0)
+                        continue;
+                    Vector3 pos = (corner0 + distanceVector / 2).normalized * corner0.magnitude;
+                    float mountainLength = distance + mountainLengthAddition;
+                    float max = Mathf.Max(mountainLength, mountainThickness);
+                    float min = Mathf.Min(mountainLength, mountainThickness);
+                    //float bledDistance = 0;
+                    primitives.Add(new ElipsoidShapePrimitive(pos, distanceVector, min, max, bledDistance));
+                    handledBorders.Add(border);
+                }
+            }
+            return primitives.ToArray();
+        }
+
+        private void AddRockLayer(Planet planet, ContinentalPlates plates, Biome[] biomes, ShapingLayer[] shapingLayers)
 		{
-            KDTree<Vector3> sitesKDTree = new Vector3BinaryKDTree(plates.SegmentSites, _quickSelector);
+            KDTree<Vector3> segmentsKDTree = new Vector3BinaryKDTree(plates.SegmentSites, _quickSelector);
+            KDTree<Vector3> regionsKDTree = new Vector3BinaryKDTree(plates.RegionSites, _quickSelector);
             for (int i = 0; i < planet.Faces.Count; i++)
             {
                 PlanetFace face = planet.Faces[i];
                 Vector3[] vertices = face.Vertices;
                 float[] warpValues = WarpContientenalPlateEvaluationPoint(vertices);
+                vertices = WarpSpherePoints(vertices, warpValues);
+                float[] shapeValues = ShapeSurface(shapingLayers, face.Vertices);
                 Color[] vertexColors = new Color[face.MeshFilter.sharedMesh.vertexCount];
 
                 for (int j = 0; j < vertices.Length; j++)
                 {
-                    Vector3 vertex = vertices[j].normalized * _atmosphereRadius;
-                    vertex = WarpSpherePoint(vertex, warpValues[j]);
-                    vertex = vertex.normalized * _atmosphereRadius;
-                    int index = sitesKDTree.GetNearestTo(vertex);
-                    ContinentalPlateSegment segment = plates.Segments[index];
-                    float delta = segment.Oceanic ? 0.1f : 0.4f;
-                    Color vertexColor = segment.Oceanic ? Color.blue : biomes[segment.BiomeID].BaseColor;
+                    Vector3 vertex = vertices[j];
+                    int segmentIndex = segmentsKDTree.GetNearestTo(vertex);
+                    int regionIndex = regionsKDTree.GetNearestTo(vertex);
+                    ContinentalPlateSegment segment = plates.Segments[segmentIndex];
+                    ContinentalRegion region = plates.Regions[regionIndex];
+                    bool isOceanic = region.RegionType == ContinentalRegion.Type.Oceanic;
+                    float delta = isOceanic ? 0f : 0.1f;
+                    delta = (delta + 0.9f * shapeValues[j]) * planet.Data.Dimensions.VariableAreaThickness;
+                    Color vertexColor = isOceanic ? Color.blue : biomes[segment.BiomeID].BaseColor;
                     InitContinentPlate(face.Data.EvaluationPoints[j], delta);
                     vertexColors[j] = vertexColor;
                 }
@@ -279,7 +338,45 @@ namespace SBaier.Master
             }
         }
 
-        private void InitContinentPlate(PlanetFace face)
+		private float[] ShapeSurface(ShapingLayer[] layers, Vector3[] vertices)
+		{
+            float[] result = new float[vertices.Length];
+            int[] blendValues = new int[vertices.Length];
+            for (int i = 0; i < layers.Length; i++)
+			{
+                ShapingLayer layer = layers[i];
+                float [] evalValues = layer.Evaluate(vertices);
+				for (int j = 0; j < evalValues.Length; j++)
+				{
+                    if (evalValues[j] == 0)
+                        continue;
+                    result[j] += evalValues[j];
+                    blendValues[j]++;
+                }
+            }
+
+			for (int i = 0; i < result.Length; i++)
+			{
+                if (blendValues[i] == 0)
+                    continue;
+                result[i] /= blendValues[i];
+            }
+
+            return result;
+        }
+
+		private Vector3[] WarpSpherePoints(Vector3[] vertices, float[] warpValues)
+		{
+			for (int i = 0; i < vertices.Length; i++)
+			{
+                Vector3 vertex = vertices[i].normalized * _atmosphereRadius;
+                vertex = WarpSpherePoint(vertex, warpValues[i]);
+                vertices[i] = vertex.normalized * _atmosphereRadius;
+            }
+            return vertices;
+		}
+
+		private void InitContinentPlate(PlanetFace face)
         {
             NativeArray<float> result = Evaluate(_continentsNoise, face.Vertices);
             for (int i = 0; i < result.Length; i++)

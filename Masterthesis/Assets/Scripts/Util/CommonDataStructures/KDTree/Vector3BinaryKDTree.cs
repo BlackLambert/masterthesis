@@ -10,9 +10,11 @@ namespace SBaier.Master
 	{
 		public int Depth { get; private set; }
 
+		public int Count => _nodes.Length;
+
 		private int _root;
-		private IList<Vector3> _nodes;
-		private IList<int> _indexPermutation;
+		private Vector3[] _nodes;
+		private int[] _indexPermutation;
 		private int[][] _nodeToChildren;
 		private FindNearestElementComputer _findNearestElementComputer;
 		private FindNearestElementsComputer _findNearestElementsComputer;
@@ -20,7 +22,7 @@ namespace SBaier.Master
 		public Vector3BinaryKDTree(IList<Vector3> nodes, QuickSelector<Vector3> quickSelector)
 		{
 			ValidateNodes(nodes);
-			_nodes = nodes;
+			_nodes = nodes.ToArray();
 			BuildTree(nodes, quickSelector);
 			CreateComputers();
 		}
@@ -99,8 +101,8 @@ namespace SBaier.Master
 
 			public FindNearestElementComputer(
 				int root,
-				IList<Vector3> nodes,
-				IList<int> indexPermutation,
+				Vector3[] nodes,
+				int[] indexPermutation,
 				int[][] nodeToChildren) : 
 				base(nodes, indexPermutation, nodeToChildren)
 			{
@@ -211,12 +213,12 @@ namespace SBaier.Master
 				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
 				int child0Smallest = GetNearestToRecursive(nextNodeIndex, nextCompareValueIndex);
 				int currentSmallest = nodeIndex;
-				float nodeDistanceToSampleSqr = (node - _sample).sqrMagnitude;
+				float nodeDistanceToSampleSqr = node.FastSubstract(_sample).sqrMagnitude;
 				float currentSmallestDistanceToSample = Mathf.Sqrt(nodeDistanceToSampleSqr);
 				if (child0Smallest >= 0)
 				{
 					Vector3 nodeChild0 = GetNode(child0Smallest);
-					float childSmallestDistanceToSampleSqr = (nodeChild0 - _sample).sqrMagnitude;
+					float childSmallestDistanceToSampleSqr = nodeChild0.FastSubstract(_sample).sqrMagnitude;
 					bool nodeDistanceSmaller = nodeDistanceToSampleSqr < childSmallestDistanceToSampleSqr;
 					currentSmallest = nodeDistanceSmaller ? nodeIndex : child0Smallest;
 					currentSmallestDistanceToSample = nodeDistanceSmaller ?
@@ -233,7 +235,7 @@ namespace SBaier.Master
 				if (child1Smallest < 0)
 					return currentSmallest;
 				Vector3 nodeChild1 = GetNode(child1Smallest);
-				float child1SmallestDistanceToSample = (nodeChild1 - _sample).magnitude;
+				float child1SmallestDistanceToSample = nodeChild1.FastSubstract(_sample).magnitude;
 				currentSmallest = child1SmallestDistanceToSample < currentSmallestDistanceToSample ? child1Smallest : currentSmallest;
 				return currentSmallest;
 			}
@@ -248,8 +250,8 @@ namespace SBaier.Master
 
 			public FindNearestElementsComputer(
 				int root,
-				IList<Vector3> nodes,
-				IList<int> indexPermutation,
+				Vector3[] nodes,
+				int[] indexPermutation,
 				int[][] nodeToChildren) :
 				base(nodes, indexPermutation, nodeToChildren)
 			{
@@ -285,7 +287,7 @@ namespace SBaier.Master
 			private bool ShallAddNode(int nodeIndex)
 			{
 				Vector3 node = GetNode(nodeIndex);
-				float nodeDistanceToSample = (node - _sample).magnitude;
+				float nodeDistanceToSample = node.FastSubstract(_sample).magnitude;
 				bool nodeIsWithinMaxDistance = nodeDistanceToSample <= _maxDistance;
 				bool isNodeExcluded = IsNodeToExclude(nodeIndex);
 				return nodeIsWithinMaxDistance && !isNodeExcluded;
@@ -333,18 +335,18 @@ namespace SBaier.Master
 			}
 		}
 
-			private abstract class Computer
+		private abstract class Computer
 		{
-			private IList<Vector3> _nodes;
-			private IList<int> _indexPermutation;
+			private Vector3[] _nodes;
+			private int[] _indexPermutation;
 			private Vector3 _sample;
 			private int _indexToExclude;
 			private int[][] _nodeToChildren;
 
 			private bool _hasIndexToExclude = false;
 
-			public Computer(IList<Vector3> nodes,
-				IList<int> indexPermutation,
+			public Computer(Vector3[] nodes,
+				int[] indexPermutation,
 				int[][] nodeToChildren)
 			{
 				_nodes = nodes; 
@@ -371,8 +373,7 @@ namespace SBaier.Master
 			{
 				float sampleCompareValue = _sample[compareValueIndex];
 				float nodeCompareValue = node[compareValueIndex];
-				int nextChildIndex = sampleCompareValue < nodeCompareValue ? 0 : 1;
-				return nextChildIndex;
+				return GetNextChildIndex(sampleCompareValue, nodeCompareValue);
 			}
 
 			protected Vector3 GetNode(int internalIndex)
@@ -392,8 +393,8 @@ namespace SBaier.Master
 
 			protected int GetSmaller(int index0, int index1)
 			{
-				float node0DistanceSqr = (_nodes[_indexPermutation[index0]] - _sample).sqrMagnitude;
-				float node1DistanceSqr = (_nodes[_indexPermutation[index1]] - _sample).sqrMagnitude;
+				float node0DistanceSqr = _nodes[_indexPermutation[index0]].FastSubstract(_sample).sqrMagnitude;
+				float node1DistanceSqr = _nodes[_indexPermutation[index1]].FastSubstract(_sample).sqrMagnitude;
 				return node0DistanceSqr < node1DistanceSqr ? index0 : index1;
 			}
 

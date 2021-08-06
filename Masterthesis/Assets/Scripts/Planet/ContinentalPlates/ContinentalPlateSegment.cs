@@ -8,19 +8,16 @@ namespace SBaier.Master
     {
         public ContinentalPlateSegment(
 			VoronoiRegion voronoiRegion,
-            bool oceanic,
 			int biomeID)
 		{
-			Region = voronoiRegion;
-			Oceanic = oceanic;
+			VoronoiRegion = voronoiRegion;
 			BiomeID = biomeID;
 		}
 
-		public Vector3 Site => Region.Site;
-		public VoronoiRegion Region { get; }
-		public bool Oceanic { get; }
+		public Vector3 Site => VoronoiRegion.Site;
+		public VoronoiRegion VoronoiRegion { get; }
 		public int BiomeID { get; }
 
-		public override IList<int> VertexIndices => Region.VertexIndices;
+		public override IList<int> VertexIndices => VoronoiRegion.VertexIndices;
 	}
 }

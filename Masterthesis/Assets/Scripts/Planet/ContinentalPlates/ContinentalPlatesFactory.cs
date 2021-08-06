@@ -24,81 +24,81 @@ namespace SBaier.Master
 
 		public ContinentalPlates Create(Parameters parameters)
 		{
-			float atmosphereRadius = parameters.Planet.AtmosphereRadius;
 			int segmentsAmount = parameters.PlateSegments;
-			int segmentSamples = (int)(segmentsAmount * parameters.SampleEliminationFactor);
-			Vector3[] points = _randomPointsGenerator.Generate(segmentSamples, atmosphereRadius);
-			float sphereSurface = GetSphereSurface(parameters);
-			Vector3[] plateSegmentSites = _sampleElimination.Eliminate(points, segmentsAmount, sphereSurface).ToArray();
-			Triangle[] triangles = CreatePlateSegmentTriangles(plateSegmentSites);
-			VoronoiDiagram voronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, triangles);
-			int[] biomePerSegment = CreateBiomePerSegment(parameters.Biomes, parameters);
-			bool[] oceanicPerSegment = CreateOceanicPerSegment(parameters, plateSegmentSites);
-			ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites, voronoi, biomePerSegment, oceanicPerSegment);
-			ContinentalPlate[] plates = CreatePlates(parameters, segments);
-			Dictionary<Vector2Int, Vector2Int[]> plateBorders = FindPlateBorders(plates);
-			ContinentalPlates result = new ContinentalPlates(segments, plates, plateSegmentSites, plateBorders, voronoi, triangles);
+			Vector3[] plateSegmentSites = CreateSites(parameters, segmentsAmount);
+			Triangle[] segmentsTriangles = CreatePlateSegmentTriangles(plateSegmentSites);
+			VoronoiDiagram segmentsVoronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, segmentsTriangles);
+			int[] biomePerSegment = CreateBiomePerSegment(parameters);
+			ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites, segmentsVoronoi, biomePerSegment);
+			ContinentalRegion[] regions = CreateRegions(parameters, plateSegmentSites, segments);
+			ContinentalPlate[] plates = CreatePlates(parameters, regions);
+			Dictionary<Vector2Int, Vector2Int[]> plateBorders = FindConnectingBorders(plates);
+			Vector2Int[] neighbors = FindNeighbors(plateBorders);
+			ContinentalPlates result = new ContinentalPlates(segments, regions, plates, plateBorders, segmentsVoronoi, segmentsTriangles, neighbors);
 			return result;
 		}
 
-		private bool[] CreateOceanicPerSegment(Parameters parameters, Vector3[] plateSegmentSites)
+		private Vector2Int[] FindNeighbors(Dictionary<Vector2Int, Vector2Int[]> plateBorders)
 		{
-			int sitesAmount = parameters.Oceans + parameters.Continents;
-			bool[] result = new bool[plateSegmentSites.Length];
-			float atmosphereRadius = parameters.Planet.AtmosphereRadius;
-			int siteSamples = (int)(sitesAmount * parameters.SampleEliminationFactor);
-			Vector3[] points = _randomPointsGenerator.Generate(siteSamples, atmosphereRadius);
-			float sphereSurface = GetSphereSurface(parameters);
-			Vector3[] sites = _sampleElimination.Eliminate(points, sitesAmount, sphereSurface).ToArray();
-			KDTree<Vector3> kdTree = new Vector3BinaryKDTree(sites, _quickSelector);
-			for (int i = 0; i < result.Length; i++)
+			List<Vector2Int> result = new List<Vector2Int>();
+			foreach (KeyValuePair<Vector2Int, Vector2Int[]> pair in plateBorders)
 			{
-				int siteIndex = kdTree.GetNearestTo(plateSegmentSites[i]);
-				result[i] = siteIndex <= parameters.Oceans;
+				if (pair.Value.Length == 0)
+					continue;
+				result.Add(pair.Key);
 			}
+			return result.ToArray();
+		}
+
+		private ContinentalRegion[] CreateRegions(Parameters parameters, Vector3[] plateSegmentSites, ContinentalPlateSegment[] segments)
+		{
+			int regionSitesAmount = parameters.Oceans + parameters.Continents;
+			ContinentalRegion[] result = new ContinentalRegion[regionSitesAmount];
+			Vector3[] regionSites = CreateSites(parameters, regionSitesAmount);
+			KDTree<Vector3> regionSitesTree = new Vector3BinaryKDTree(regionSites, _quickSelector);
+			List<int>[] regionToSegments = FindNearest(plateSegmentSites, regionSitesTree);
+			for (int i = 0; i < result.Length; i++)
+				result[i] = CreateRegion(parameters, regionToSegments, segments, regionSites, i);
 			return result;
 		}
 
-		private int[] CreateBiomePerSegment(BiomeSettings[] biomes, Parameters parameters)
+		private ContinentalRegion CreateRegion(Parameters parameters, List<int>[] regionToSegments,
+			ContinentalPlateSegment[] segments, Vector3[] regionSites, int index)
 		{
-			int frequencySum = biomes.Sum(b => b.Frequency) + 1;
+			List<Polygon> polygons = ExtractPolygons(regionToSegments[index], segments);
+			Vector2Int[] borders = GetBorders(polygons);
+			ContinentalRegion.Type type = index <= parameters.Oceans ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
+			return new ContinentalRegion(type, regionToSegments[index], regionSites[index], borders);
+		}
+
+		private int[] CreateBiomePerSegment(Parameters parameters)
+		{
+			int frequencySum = parameters.Biomes.Sum(b => b.Frequency) + 1;
 			int[] result = new int[parameters.PlateSegments];
 			for (int i = 0; i < result.Length; i++)
-			{
-				int randomNum = parameters.Seed.Random.Next(0, frequencySum);
-				int frequencyArea = 0;
-				for (int j = 0; j < biomes.Length; j++)
-				{
-					BiomeSettings biome = biomes[j];
-					frequencyArea += biome.Frequency;
-					if (frequencyArea > randomNum)
-					{
-						result[i] = j;
-						break;
-					}
-				}
-			}
+				result[i] = SelectBiome(parameters, frequencySum);
 			return result;
 		}
 
-		private Dictionary<Vector2Int, Vector2Int[]> FindPlateBorders(ContinentalPlate[] plates)
+		private int SelectBiome(Parameters parameters, int frequencySum)
 		{
-			Dictionary<Vector2Int, Vector2Int[]> result = new Dictionary<Vector2Int, Vector2Int[]>();
-			for (int i = 0; i < plates.Length; i++)
+			int randomNum = parameters.Seed.Random.Next(0, frequencySum);
+			int frequencyArea = 0;
+			int count = parameters.Biomes.Length;
+			for (int j = 0; j < count; j++)
 			{
-				for (int j = i + 1; j < plates.Length; j++)
-				{
-					Vector2Int plateBorderIJ = new Vector2Int(i, j);
-					Vector2Int plateBorderJI = new Vector2Int(j, i);
-					Polygon[] polygones = new Polygon[] { plates[i], plates[j] };
-					EdgesFinder edgesFinder = new SharedEdgesFinder(polygones);
-					edgesFinder.Find();
-					Vector2Int[] edges = edgesFinder.Edges.ToArray();
-					result.Add(plateBorderJI, edges);
-					result.Add(plateBorderIJ, edges);
-				}
+				BiomeSettings biome = parameters.Biomes[j];
+				frequencyArea += biome.Frequency;
+				if (frequencyArea >= randomNum)
+					return j;
 			}
-			return result;
+			throw new InvalidOperationException();
+		}
+
+		private Dictionary<Vector2Int, Vector2Int[]> FindConnectingBorders(ContinentalPlate[] plates)
+		{
+			List<Polygon> polygons = new List<Polygon>(plates);
+			return new ConnectingBordersFinder(polygons).Find();
 		}
 
 		private VoronoiDiagram CreatePlateSegmentVoronoiDiagram(Vector3[] plateSegmentSites, Triangle[] triangles)
@@ -115,35 +115,42 @@ namespace SBaier.Master
 			return triangles;
 		}
 
-		private ContinentalPlate[] CreatePlates(Parameters parameters, ContinentalPlateSegment[] segments)
+		private ContinentalPlate[] CreatePlates(Parameters parameters, ContinentalRegion[] regions)
 		{
-			float sphereSurface = GetSphereSurface(parameters);
-			int plateSamples = (int)(parameters.Plates * parameters.SampleEliminationFactor);
-			Vector3[] continentalPoints = _randomPointsGenerator.Generate(plateSamples, parameters.Planet.Data.Dimensions.AtmosphereThickness);
-			Vector3[] plateSites = _sampleElimination.Eliminate(continentalPoints, parameters.Plates, sphereSurface).ToArray();
+			Vector3[] regionSites = regions.Select(r => r.Site).ToArray();
+			Vector3[] plateSites = CreateSites(parameters, parameters.Plates);
 			KDTree<Vector3> platesKDTree = new Vector3BinaryKDTree(plateSites, _quickSelector);
-			List<ContinentalPlateSegment>[] plateToSegments = new List<ContinentalPlateSegment>[parameters.Plates];
-			for (int i = 0; i < plateToSegments.Length; i++)
-				plateToSegments[i] = new List<ContinentalPlateSegment>();
-
-			for (int i = 0; i < segments.Length; i++)
-			{
-				int index = platesKDTree.GetNearestTo(segments[i].Site);
-				plateToSegments[index].Add(segments[i]);
-			}
-
+			List<int>[] plateToRegion = FindNearest(regionSites, platesKDTree);
 			ContinentalPlate[] result = new ContinentalPlate[parameters.Plates];
 			Seed seed = new Seed(parameters.Seed.Random.Next());
-			for (int i = 0; i < plateToSegments.Length; i++)
-			{
-				float movementAngle = (float)seed.Random.NextDouble() * 360;
-				float movementStrength = (float)seed.Random.NextDouble();
-				List<Polygon> polygons = new List<Polygon>(plateToSegments[i]);
-				EdgesFinder finder = new UnsharedEdgesFinder(polygons);
-				finder.Find();
-				Vector2Int[] borders = finder.Edges.ToArray();
-				result[i] = new ContinentalPlate(plateSites[i], plateToSegments[i].ToArray(), movementAngle, movementStrength, borders);
-			}
+			for (int i = 0; i < plateToRegion.Length; i++)
+				result[i] = CreatePlate(regions, plateSites, plateToRegion, seed, i);
+			return result;
+		}
+
+		private ContinentalPlate CreatePlate(ContinentalRegion[] regions, Vector3[] plateSites, List<int>[] plateToRegion, Seed seed, int index)
+		{
+			float movementAngle = (float)seed.Random.NextDouble() * 360;
+			float movementStrength = (float)seed.Random.NextDouble();
+
+			List<Polygon> polygons = ExtractPolygons(plateToRegion[index], regions);
+			Vector2Int[] borders = GetBorders(polygons);
+			return new ContinentalPlate(plateSites[index], plateToRegion[index].ToArray(), movementAngle, movementStrength, borders);
+		}
+
+		private static Vector2Int[] GetBorders(IList<Polygon> polygons)
+		{
+			EdgesFinder finder = new UnsharedEdgesFinder(polygons);
+			finder.Find();
+			Vector2Int[] borders = finder.Edges.ToArray();
+			return borders;
+		}
+
+		private List<Polygon> ExtractPolygons<T>(List<int> polygonIndices, IList<T> polygons) where T : Polygon
+		{
+			List<Polygon> result = new List<Polygon>();
+			for (int i = 0; i < polygonIndices.Count; i++)
+				result.Add(polygons[polygonIndices[i]]);
 			return result;
 		}
 
@@ -155,16 +162,40 @@ namespace SBaier.Master
 		private ContinentalPlateSegment[] CreateContinentalPlateSegments(
 			Vector3[] plateSegmentSites, 
 			VoronoiDiagram voronoi, 
-			int[] biomePerSegment,
-			bool[] oceanic)
+			int[] biomePerSegment)
 		{
 			ContinentalPlateSegment[] result = new ContinentalPlateSegment[plateSegmentSites.Length];
 			for (int i = 0; i < plateSegmentSites.Length; i++)
-				result[i] = new ContinentalPlateSegment(voronoi.Regions[i], oceanic[i], biomePerSegment[i]);
+				result[i] = new ContinentalPlateSegment(voronoi.Regions[i], biomePerSegment[i]);
 			return result;
 		}
 
-		
+		private Vector3[] CreateSites(Parameters parameters, int sitesAmount)
+		{
+			float atmosphereRadius = parameters.Planet.AtmosphereRadius;
+			int siteSamples = (int)(sitesAmount * parameters.SampleEliminationFactor);
+			Vector3[] points = _randomPointsGenerator.Generate(siteSamples, atmosphereRadius);
+			float sphereSurface = GetSphereSurface(parameters);
+			return _sampleElimination.Eliminate(points, sitesAmount, sphereSurface).ToArray();
+		}
+
+
+		private static List<int>[] FindNearest(Vector3[] samples, KDTree<Vector3> regionSitesTree)
+		{
+			List<int>[] result = new List<int>[regionSitesTree.Count];
+			for (int i = 0; i < result.Length; i++)
+				result[i] = new List<int>();
+			for (int i = 0; i < samples.Length; i++)
+				AddNearstTo(result, samples, regionSitesTree, i);
+			return result;
+		}
+
+		private static void AddNearstTo(List<int>[] result, Vector3[] samples, KDTree<Vector3> regionSitesTree, int index)
+		{
+			int siteIndex = regionSitesTree.GetNearestTo(samples[index]);
+			result[siteIndex].Add(index);
+		}
+
 
 		public class Parameters
 		{

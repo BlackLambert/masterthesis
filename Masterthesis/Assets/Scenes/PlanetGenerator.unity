@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -628,11 +628,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _oceans
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _plates
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _voronoi
@@ -644,7 +644,7 @@ PrefabInstance:
       objectReference: {fileID: 1521348552}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _continents
-      value: 20
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _warpFactor
@@ -652,11 +652,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _subdivisions
-      value: 150
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _bedrockRadius
+      value: 5.5
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _plateSegments
-      value: 200
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _mountainsNoiseSettings
+      value: 
+      objectReference: {fileID: 11400000, guid: 13a395c7d8f81bf4a97a2d0831e0aa0c, type: 2}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _sampleEliminationFactor
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1206705532341609958, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: m_RootOrder

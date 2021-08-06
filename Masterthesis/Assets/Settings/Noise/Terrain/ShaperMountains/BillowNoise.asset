@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 499142f86b7376d4e9888dd8e330dcdd, type: 3}
+  m_Name: BillowNoise
+  m_EditorClassIdentifier: 
+  _weight: 1
+  _frequencyFactor: 1
+  _baseNoiseSettings: {fileID: 11400000, guid: b379f14ca7bcc6148a35e83320df8936, type: 2}
