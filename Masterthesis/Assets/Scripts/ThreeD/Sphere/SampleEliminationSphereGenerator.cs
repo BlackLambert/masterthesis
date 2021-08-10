@@ -60,7 +60,7 @@ namespace SBaier.Master
 		{
 			Vector3[] vertices = CreateBaseSamples(size);
 			float sphereSurface = 4 * Mathf.PI * size;
-			mesh.vertices = _sampleElimination.Eliminate(vertices, TargetSampleCount, sphereSurface).ToArray();
+			mesh.vertices = _sampleElimination.Eliminate(vertices, TargetSampleCount, sphereSurface);
 		}
 
 		private Vector3[] CreateBaseSamples(float size)

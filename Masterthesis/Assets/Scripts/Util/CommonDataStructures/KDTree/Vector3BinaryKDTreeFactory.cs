@@ -13,7 +13,7 @@ namespace SBaier.Master
             _quickSelector = quickSelector;
         }
 
-        public KDTree<Vector3> Create(IList<Vector3> nodes)
+        public KDTree<Vector3> Create(Vector3[] nodes)
 		{
             return new Vector3BinaryKDTree(nodes, _quickSelector);
 		}

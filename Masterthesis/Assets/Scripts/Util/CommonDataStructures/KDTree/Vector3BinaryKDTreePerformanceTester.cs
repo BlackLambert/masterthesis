@@ -15,6 +15,8 @@ namespace SBaier.Master
         private Vector3 _sample = Vector3.zero;
         [SerializeField]
         private bool _doNaiveSearch = true;
+		[SerializeField]
+		private int _times = 1000;
 
         private Vector3BinaryKDTree _tree;
 
@@ -33,20 +35,46 @@ namespace SBaier.Master
 		private Vector2 DoKDTreeSearch(Vector3[] points)
 		{
 			float timeStamp = Time.realtimeSinceStartup;
-			QuickSorter<Vector3, float> sorter = new QuickSorter<Vector3, float>((p, i) => p[i]);
+			QuickSorter<Vector3, float> sorter = new QuickSorter<Vector3, float>(CompareValueSelect);
 			_tree = new Vector3BinaryKDTree(points, sorter);
 			Debug.Log($"The creation of the tree took {Time.realtimeSinceStartup - timeStamp} seconds");
 			int depth = _tree.Depth;
 			Debug.Log($"The created tree has a depth of {depth}");
-			timeStamp = Time.realtimeSinceStartup;
-			int nearest = _tree.GetNearestTo(_sample);
-			float singleTime = Time.realtimeSinceStartup - timeStamp;
-			Debug.Log($"KDSEARCH: The nearest Point to {_sample} is at index {nearest} ({points[nearest]}). The search took {singleTime} seconds.");
-			timeStamp = Time.realtimeSinceStartup;
-			IList<int> nearestList = _tree.GetNearestToWithin(_sample, _findNearestRadius);
-			float multiTime = Time.realtimeSinceStartup - timeStamp;
-			Debug.Log($"KDSEARCH: {nearestList.Count} nearest points to {_sample} found within radius {_findNearestRadius}. The search took {multiTime} seconds.");
+
+			float singleTime = 0;
+			for (int i = 0; i < _times; i++)
+			{
+				timeStamp = Time.realtimeSinceStartup;
+				int nearest = _tree.GetNearestTo(_sample);
+				singleTime += Time.realtimeSinceStartup - timeStamp;
+			}
+			singleTime /= _times;
+			Debug.Log($"KDSEARCH: The single nearest point search took {singleTime} seconds.");
+
+			float multiTime = 0;
+			for (int i = 0; i < _times; i++)
+			{
+				timeStamp = Time.realtimeSinceStartup;
+				int[] nearestList = _tree.GetNearestToWithin(_sample, _findNearestRadius);
+				multiTime += Time.realtimeSinceStartup - timeStamp;
+			}
+			multiTime /= _times;
+			Debug.Log($"KDSEARCH: The nearest within radius search took {multiTime} seconds.");
 			return new Vector2(singleTime, multiTime);
+		}
+
+		private float CompareValueSelect(Vector3 v, int i)
+		{
+			switch (i)
+			{
+				case 0:
+					return v.x;
+				case 1:
+					return v.y;
+				case 2:
+					return v.z;
+			}
+			return v[i];
 		}
 
 		private Vector2 DoNaiveSearch(Vector3[] points)

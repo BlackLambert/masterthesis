@@ -95,6 +95,7 @@ namespace SBaier.Master.Test
 		{
 			Func<Vector3, int, float> compareValueSelector = (p, i) => p[i];
 			Container.Bind<QuickSelector<Vector3>>().To<QuickSorter<Vector3, float>>().AsTransient().WithArguments(compareValueSelector);
+			Container.Bind<Vector3BinaryKDTreeFactory>().AsTransient();
 			Container.Bind<Seed>().AsSingle().WithArguments(_baseSeed);
 			Container.Bind<MeshGeneratorFactory>().To<MeshGeneratorFactoryImpl>().AsTransient();
 			Container.Bind<SampleElimination3D>().AsTransient();

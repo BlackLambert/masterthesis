@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &219658196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 444017015}
   - component: {fileID: 444017018}
   - component: {fileID: 444017017}
+  - component: {fileID: 444017019}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -233,6 +234,7 @@ MonoBehaviour:
   - {fileID: 444017015}
   - {fileID: 444017018}
   - {fileID: 444017017}
+  - {fileID: 444017019}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -312,6 +314,62 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 430632df4112028498f23e6d8886f2f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &444017019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 444017011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72bb7b314570aae4c941c73d9e048490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1478715482
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1478715484}
+  - component: {fileID: 1478715483}
+  m_Layer: 0
+  m_Name: GameCloser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1478715483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478715482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a41412d08ed5a4788ef934bc41dc33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_liCloseGameKeys: 1b000000
+--- !u!4 &1478715484
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478715482}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -8.9472, y: 5.0964537, z: 5.8885593}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1521348550
 GameObject:
   m_ObjectHideFlags: 0
@@ -330,7 +388,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1521348551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -652,7 +710,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _subdivisions
-      value: 50
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _bedrockRadius
@@ -660,7 +718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _plateSegments
-      value: 50
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _segmentsBlendFactor

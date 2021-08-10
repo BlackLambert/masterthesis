@@ -19,6 +19,12 @@ namespace SBaier.Master
 			_compareValueSelect = compareValueSelect;
 		}
 
+		public void QuickSelect(T[] points, int[] indexPermutations, Vector2Int indexRange, int compareValueIndex, int selectedIndex)
+		{
+			ValidateSelectedIndex(points, selectedIndex);
+			QuickSelectRecursive(points, indexPermutations, indexRange.x, indexRange.y, compareValueIndex, selectedIndex);
+		}
+
 		protected override void DoSort(T[] points, int[] indexPermutations, Vector2Int indexRange, int compareValueIndex)
 		{
 			Quicksort(points, indexPermutations, indexRange.x, indexRange.y, compareValueIndex);
@@ -79,12 +85,6 @@ namespace SBaier.Master
 			T iPoint = points[i];
 			points[i] = points[j];
 			points[j] = iPoint;
-		}
-
-		public void QuickSelect(T[] points, int[] indexPermutations, Vector2Int indexRange, int compareValueIndex, int selectedIndex)
-		{
-			ValidateSelectedIndex(points, selectedIndex);
-			QuickSelectRecursive(points, indexPermutations, indexRange.x, indexRange.y, compareValueIndex, selectedIndex);
 		}
 
 		private void QuickSelectRecursive(T[] points, int[] indexPermutations, int left, int right, int compareValueIndex, int selectedIndex)

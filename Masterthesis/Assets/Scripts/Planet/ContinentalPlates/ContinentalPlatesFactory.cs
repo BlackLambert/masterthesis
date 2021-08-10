@@ -192,7 +192,7 @@ namespace SBaier.Master
 			int siteSamples = (int)(sitesAmount * parameters.SampleEliminationFactor);
 			Vector3[] points = _randomPointsGenerator.Generate(siteSamples, atmosphereRadius);
 			float sphereSurface = GetSphereSurface(parameters);
-			return _sampleElimination.Eliminate(points, sitesAmount, sphereSurface).ToArray();
+			return _sampleElimination.Eliminate(points, sitesAmount, sphereSurface);
 		}
 
 

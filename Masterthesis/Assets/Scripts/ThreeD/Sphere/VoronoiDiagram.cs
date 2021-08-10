@@ -28,7 +28,9 @@ namespace SBaier.Master
 
 		public float GetDistanceTo(Vector3 point, int regionIndex)
 		{
-			return (point - GetNearestBorderPointOf(point, regionIndex)).magnitude;
+			Vector3 pointOnBorder = GetNearestBorderPointOf(point, regionIndex);
+			Vector3 distance = point.FastSubstract(pointOnBorder);
+			return distance.magnitude;
 		}
 
 		public Vector3 GetNearestBorderPointOf(Vector3 point, int regionIndex)
@@ -39,12 +41,13 @@ namespace SBaier.Master
 			int cornersAmount = region.Corners.Length;
 			for (int i = 0; i < cornersAmount; i++)
 			{
-				Vector3 p = GetNearestBorderPointOf(point, region, i);
-				float distance = (point - p).magnitude;
+				Vector3 current = GetNearestBorderPointOf(point, region, i);
+				Vector3 distanceVector = point.FastSubstract(current);
+				float distance = distanceVector.magnitude;
 				if (distance < minDistance)
 				{
 					minDistance = distance;
-					pointOnBorder = p;
+					pointOnBorder = current;
 				}
 			}
 			return pointOnBorder;
@@ -54,15 +57,15 @@ namespace SBaier.Master
 			int cornersAmount = region.Corners.Length;
 			Vector3 corner0 = Vertices[region.Corners[i]];
 			Vector3 corner1 = Vertices[region.Corners[(i + 1) % cornersAmount]];
-			Vector3 border = corner1 - corner0;
-			Vector3 pointToCorner0 = point - corner0;
+			Vector3 border = corner1.FastSubstract(corner0);
+			Vector3 pointToCorner0 = point.FastSubstract(corner0);
 			float t0 = Vector3.Dot(border, pointToCorner0) / Vector3.Dot(border, border);
 			if (t0 <= 0)
 				return corner0;
 			else if (t0 >= 1)
 				return corner1;
 			else
-				return corner0 + t0 * border;
+				return corner0.FastAdd(border.FastMultiply(t0));
 		}
 	}
 }

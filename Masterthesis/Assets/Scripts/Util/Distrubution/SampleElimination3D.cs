@@ -20,18 +20,18 @@ namespace SBaier.Master
 			_kDTreeFactory = kDTreeFactory;
 		}
 
-		public IList<Vector3> Eliminate(IList<Vector3> points, int targetAmount, float sampleArea)
+		public Vector3[] Eliminate(Vector3[] points, int targetAmount, float sampleArea)
 		{
 			KDTree<Vector3> tree = _kDTreeFactory.Create(points);
 			List<Vector3> verticesList = new List<Vector3>();
-			float baseSamplesFactor = (float)targetAmount / (float)points.Count;
+			float baseSamplesFactor = (float)targetAmount / (float)points.Length;
 			float weightRadius = CalculateWeightRadius(targetAmount, sampleArea);
 			float weightRadiusMin = CalculateWeightRadiusMin(weightRadius, baseSamplesFactor);
 			List<float> weights = WeightVertices(points, tree, weightRadius, weightRadiusMin);
 			Heap<float> heap = new BinaryHeap<float>(weights, true);
 
-			int verticesLeft = points.Count;
-			for (int i = points.Count - 1; i >= 0; i--)
+			int verticesLeft = points.Length;
+			for (int i = points.Length - 1; i >= 0; i--)
 			{
 				int removedIndex = heap.Pop();
 				ReweightNeighbors(points, tree, heap, removedIndex, weightRadius, weightRadiusMin);
@@ -39,7 +39,7 @@ namespace SBaier.Master
 					verticesList.Add(points[removedIndex]);
 				verticesLeft--;
 			}
-			return verticesList;
+			return verticesList.ToArray();
 		}
 
 		private float CalculateWeightRadius(int targetAmount, float sampleArea)

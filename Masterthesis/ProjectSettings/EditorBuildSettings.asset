@@ -14,7 +14,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Noise3DTerrainPlayground.unity
     guid: 860f5c96496776d438577814e2854e15
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/KDTreePerformanceTest.unity
     guid: ed0481a0a8292d045a8a7d5364ed7e5f
+  - enabled: 1
+    path: Assets/Scenes/PlanetGenerator.unity
+    guid: 474dd28ce3b75124da96872782f62955
   m_configObjects: {}

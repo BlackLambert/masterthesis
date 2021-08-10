@@ -43,8 +43,10 @@ namespace SBaier.Master
         [Header("Continental Plates")]
         [SerializeField]
         private int _plateSegments = 150;
+        [Range(0f, 1f)]
         [SerializeField]
         private float _warpFactor = 0.05f;
+        [Range(0f, 1f)]
         [SerializeField]
         private float _segmentsBlendFactor = 0.05f;
         [Range(1f, 5f)]
@@ -85,7 +87,7 @@ namespace SBaier.Master
         private Seed _seed;
         private MeshSubdivider _subdivider;
         private Planet.Factory _planetFactory;
-        private QuickSelector<Vector3> _quickSelector;
+        private Vector3BinaryKDTreeFactory _treeFactory;
         private ContinentalPlatesFactory _continentalPlatesFactory;
         private ShapingFactory _shapingFactory;
 
@@ -104,7 +106,8 @@ namespace SBaier.Master
             MeshSubdivider subdivider,
             Planet.Factory planetFactory,
             ContinentalPlatesFactory continentalPlatesFactory,
-            ShapingFactory shapingFactory)
+            ShapingFactory shapingFactory,
+            Vector3BinaryKDTreeFactory treeFactory)
 		{
             _faceSeparator = faceSeparator;
             _meshFormer = meshFormer;
@@ -113,6 +116,7 @@ namespace SBaier.Master
             _planetFactory = planetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
             _shapingFactory = shapingFactory;
+            _treeFactory = treeFactory;
 
             _continentsNoise = noiseFactory.Create(_continentsNoiseSettings, _seed);
             _continentalPlatesWarpingNoise = noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, _seed);
@@ -272,8 +276,8 @@ namespace SBaier.Master
 
 		private void AddRockLayer(Planet planet, ContinentalPlates plates, Biome[] biomes, ShapingLayer[] shapingLayers)
 		{
-            KDTree<Vector3> segmentsKDTree = new Vector3BinaryKDTree(plates.SegmentSites, _quickSelector);
-            KDTree<Vector3> regionsKDTree = new Vector3BinaryKDTree(plates.RegionSites, _quickSelector);
+            KDTree<Vector3> segmentsKDTree = _treeFactory.Create(plates.SegmentSites);
+            KDTree<Vector3> regionsKDTree = _treeFactory.Create(plates.RegionSites);
             for (int i = 0; i < planet.Faces.Count; i++)
             {
                 PlanetFace face = planet.Faces[i];
@@ -288,12 +292,10 @@ namespace SBaier.Master
 				{
 					Vector3 vertex = vertices[j];
 					int segmentIndex = segmentsKDTree.GetNearestTo(vertex);
-					int regionIndex = regionsKDTree.GetNearestTo(vertex);
-					ContinentalPlateSegment segment = plates.Segments[segmentIndex];
-					ContinentalRegion region = plates.Regions[regionIndex];
-					bool isOceanic = region.RegionType == ContinentalRegion.Type.Oceanic;
-					float delta = CalculateDelta(planet, shapeValues[j], isOceanic);
-					Color vertexColor = GetVertexColor(planet, vertex, plates, biomes, segment);
+                    ContinentalPlateSegment segment = plates.Segments[segmentIndex];
+                    Biome biome = biomes[segment.BiomeID];
+					float delta = CalculateDelta(planet, shapeValues[j], biome);
+					Color vertexColor = GetVertexColor(planet, vertex, plates, biomes, segmentIndex);
 					InitContinentPlate(face.Data.EvaluationPoints[j], delta);
 					vertexColors[j] = vertexColor;
 				}
@@ -302,11 +304,16 @@ namespace SBaier.Master
             }
         }
 
-		private Color GetVertexColor(Planet planet, Vector3 vertex, ContinentalPlates plates, Biome[] biomes, ContinentalPlateSegment segment)
+		private Color GetVertexColor(Planet planet, Vector3 vertex, ContinentalPlates plates, Biome[] biomes, int segmentIndex)
         {
+            ContinentalPlateSegment segment = plates.Segments[segmentIndex];
             Biome biome = biomes[segment.BiomeID];
             Color color = biome.BaseColor;
             float blendDistance = _segmentsBlendFactor * planet.AtmosphereRadius;
+            Vector3 pointOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
+            float distanceToInnerBorder = GetDistanceOnPlanet(planet, vertex, pointOnBorder);
+            if (distanceToInnerBorder >= blendDistance)
+                return color;
             for (int i = 0; i < segment.Neighbors.Length; i++)
 			{
                 int neighborSegmentIndex = segment.Neighbors[i];
@@ -314,9 +321,8 @@ namespace SBaier.Master
                 Biome neighborBiome = biomes[neighborSegment.BiomeID];
                 if (neighborBiome.RegionType != biome.RegionType)
                     continue;
-                Vector3 pointOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, neighborSegmentIndex);
-                pointOnBorder = pointOnBorder.normalized * planet.AtmosphereRadius;
-                float distanceToSegment = (pointOnBorder - vertex).magnitude;
+                Vector3 pointNeighborOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, neighborSegmentIndex);
+                float distanceToSegment = GetDistanceOnPlanet(planet, vertex, pointNeighborOnBorder);
                 if (distanceToSegment > blendDistance)
                     continue;
                 float portion = 0.5f - (distanceToSegment / blendDistance) / 2;
@@ -325,14 +331,21 @@ namespace SBaier.Master
             return color;
         }
 
+        private float GetDistanceOnPlanet(Planet planet, Vector3 vertex, Vector3 point)
+		{
+            point = point.normalized * planet.AtmosphereRadius;
+            return vertex.FastSubstract(point).magnitude;
+        }
+
 		private Color Lerp(Color color, Color otherColor, float portion)
 		{
             return Color.Lerp(color, otherColor, portion);
 		}
 
-		private float CalculateDelta(Planet planet, float shapeValue, bool isOceanic)
+		private float CalculateDelta(Planet planet, float shapeValue, Biome biome)
 		{
-			if (isOceanic)
+            bool isOceanic = biome.RegionType == ContinentalRegion.Type.Oceanic;
+            if (isOceanic)
 				return CreateOceanDelta(planet);
 			else
 				return CreateLandDelta(planet, shapeValue);

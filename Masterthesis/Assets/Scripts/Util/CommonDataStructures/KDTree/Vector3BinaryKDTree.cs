@@ -19,10 +19,10 @@ namespace SBaier.Master
 		private FindNearestElementComputer _findNearestElementComputer;
 		private FindNearestElementsComputer _findNearestElementsComputer;
 
-		public Vector3BinaryKDTree(IList<Vector3> nodes, QuickSelector<Vector3> quickSelector)
+		public Vector3BinaryKDTree(Vector3[] nodes, QuickSelector<Vector3> quickSelector)
 		{
 			ValidateNodes(nodes);
-			_nodes = nodes.ToArray();
+			_nodes = nodes;
 			BuildTree(nodes, quickSelector);
 			CreateComputers();
 		}
@@ -57,23 +57,23 @@ namespace SBaier.Master
 			return _findNearestElementComputer.Compute();
 		}
 
-		public IList<int> GetNearestToWithin(Vector3 sample, float maxDistance)
+		public int[] GetNearestToWithin(Vector3 sample, float maxDistance)
 		{
 			ValidateMaxDistance(maxDistance);
 			_findNearestElementsComputer.Init(sample, -1, maxDistance);
 			return _findNearestElementsComputer.Compute();
 		}
 
-		public IList<int> GetNearestToWithin(int sampleIndex, float maxDistance)
+		public int[] GetNearestToWithin(int sampleIndex, float maxDistance)
 		{
 			ValidateMaxDistance(maxDistance);
 			_findNearestElementsComputer.Init(_nodes[sampleIndex], sampleIndex, maxDistance);
 			return _findNearestElementsComputer.Compute();
 		}
 
-		private void ValidateNodes(IList<Vector3> vectors)
+		private void ValidateNodes(Vector3[] vectors)
 		{
-			if (vectors.Count == 0)
+			if (vectors.Length == 0)
 				throw new ArgumentException();
 		}
 
@@ -84,7 +84,7 @@ namespace SBaier.Master
 		}
 
 
-		public void BuildTree(IList<Vector3> nodes, QuickSelector<Vector3> quickSelector)
+		public void BuildTree(Vector3[] nodes, QuickSelector<Vector3> quickSelector)
 		{
 			RecursiveTreeBuilder builder = new RecursiveTreeBuilder(nodes, quickSelector);
 			builder.Build();
@@ -246,7 +246,8 @@ namespace SBaier.Master
 			private Vector3 _sample;
 			private int _root;
 			private float _maxDistance;
-			private List<int> _result;
+			private int _resultCount;
+			private int[] _resultBuffer;
 
 			public FindNearestElementsComputer(
 				int root,
@@ -256,7 +257,7 @@ namespace SBaier.Master
 				base(nodes, indexPermutation, nodeToChildren)
 			{
 				_root = root;
-				_result = new List<int>();
+				_resultBuffer = new int[nodes.Length];
 			}
 
 			public void Init( 
@@ -267,21 +268,29 @@ namespace SBaier.Master
 				base.Init(sample, indexToExclude);
 				_sample = sample;
 				_maxDistance = maxDistance;
-				_result.Clear();
+				_resultCount = 0;
 			}
 
-			public IList<int> Compute()
+			public int[] Compute()
 			{
-				GetNearestToWithinRecursive(_result, _root);
-				return _result;
+				GetNearestToWithinRecursive(_root);
+				return ExtractResult();
 			}
 
-			private void GetNearestToWithinRecursive(List<int> result, int nodeIndex, int compareValueIndex = 0)
+			private int[] ExtractResult()
+			{
+				int[] result = new int[_resultCount];
+				for (int i = 0; i < _resultCount; i++)
+					result[i] = _resultBuffer[i];
+				return result;
+			}
+
+			private void GetNearestToWithinRecursive(int nodeIndex, int compareValueIndex = 0)
 			{
 				if (ShallAddNode(nodeIndex))
-					AddNodeTo(result, nodeIndex);
+					AddNodeTo(nodeIndex);
 				if (!IsNodeALeave(nodeIndex))
-					GetNearestInBranch(result, compareValueIndex, nodeIndex);
+					GetNearestInBranch(compareValueIndex, nodeIndex);
 			}
 
 			private bool ShallAddNode(int nodeIndex)
@@ -293,45 +302,46 @@ namespace SBaier.Master
 				return nodeIsWithinMaxDistance && !isNodeExcluded;
 			}
 
-			private void AddNodeTo(List<int> result, int internalNodeIndex)
+			private void AddNodeTo(int internalNodeIndex)
 			{
 				int originalNodeIndex = GetOriginalNodeIndexOf(internalNodeIndex);
-				result.Add(originalNodeIndex);
+				_resultBuffer[_resultCount] = originalNodeIndex;
+				_resultCount++;
 			}
 
-			private void GetNearestInBranch(List<int> result, int compareValueIndex, int nodeIndex)
+			private void GetNearestInBranch(int compareValueIndex, int nodeIndex)
 			{
 				int[] children = GetChildrenOf(nodeIndex);
 				bool nodeHasOneChild = HasOneChild(children);
 
 				if (nodeHasOneChild)
-					GetNearestInChild(result, compareValueIndex, nodeIndex);
+					GetNearestInChild(compareValueIndex, nodeIndex);
 				else
-					GetNearestInChildren(result, compareValueIndex, nodeIndex);
+					GetNearestInChildren(compareValueIndex, nodeIndex);
 			}
 
-			private void GetNearestInChild(List<int> result, int compareValueIndex, int nodeIndex)
+			private void GetNearestInChild(int compareValueIndex, int nodeIndex)
 			{
 				int[] children = GetChildrenOf(nodeIndex);
 				int nextNodeIndex = children[0];
 				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
-				GetNearestToWithinRecursive(result, nextNodeIndex, nextCompareValueIndex);
+				GetNearestToWithinRecursive(nextNodeIndex, nextCompareValueIndex);
 			}
 
-			private void GetNearestInChildren(List<int> result, int compareValueIndex, int nodeIndex)
+			private void GetNearestInChildren(int compareValueIndex, int nodeIndex)
 			{
 				int[] children = GetChildrenOf(nodeIndex);
 				Vector3 node = GetNode(nodeIndex);
 				int nextChildIndex = GetNextChildIndexOf(node, compareValueIndex); 
 				int nextNodeIndex = children[nextChildIndex];
 				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
-				GetNearestToWithinRecursive(result, nextNodeIndex, nextCompareValueIndex);
+				GetNearestToWithinRecursive(nextNodeIndex, nextCompareValueIndex);
 				float compareValueDistance = CalculateCompareValueDistanceToSample(node, compareValueIndex);
 				bool noOtherNodesCanBeInDistance = compareValueDistance > _maxDistance;
 				if (noOtherNodesCanBeInDistance)
 					return;
 				int otherChildIndex = GetOtherChildIndex(nextChildIndex);
-				GetNearestToWithinRecursive(result, children[otherChildIndex], nextCompareValueIndex);
+				GetNearestToWithinRecursive(children[otherChildIndex], nextCompareValueIndex);
 			}
 		}
 
@@ -356,10 +366,10 @@ namespace SBaier.Master
 
 			public void Init(
 				Vector3 sample,
-				int indicesToExclude)
+				int indexToExclude)
 			{
 				_sample = sample;
-				_indexToExclude = indicesToExclude;
+				_indexToExclude = indexToExclude;
 				_hasIndexToExclude = _indexToExclude >= 0;
 			}
 
@@ -415,17 +425,31 @@ namespace SBaier.Master
 				return nodeIsALeave;
 			}
 
+			protected float CalculateCompareValueDistanceToSample(Vector3 node, int compareValueIndex)
+			{
+				float nodeCompareValue = GetCompareValue(node, compareValueIndex);
+				float sampleCompareValue = GetCompareValue(_sample, compareValueIndex);
+				return CalculateCompareValueDistanceOf(nodeCompareValue, sampleCompareValue);
+			}
+
+			private float GetCompareValue(Vector3 node, int compareValueIndex)
+			{
+				switch(compareValueIndex)
+				{
+					case 0:
+						return node.x;
+					case 1:
+						return node.y;
+					case 2:
+						return node.z;
+				}
+				return node[compareValueIndex];
+			}
+
 			protected float CalculateCompareValueDistanceOf(float compareValue1, float compareValue2)
 			{
 				float compareValueDistance = Mathf.Abs(compareValue1 - compareValue2);
 				return compareValueDistance;
-			}
-
-			protected float CalculateCompareValueDistanceToSample(Vector3 node, int compareValueIndex)
-			{
-				float nodeCompareValue = node[compareValueIndex];
-				float sampleCompareValue = _sample[compareValueIndex];
-				return CalculateCompareValueDistanceOf(nodeCompareValue, sampleCompareValue);
 			}
 
 			protected int GetOtherChildIndex(int nextChildIndex)
@@ -453,10 +477,10 @@ namespace SBaier.Master
 			private Vector3[] _permutations;
 			private QuickSelector<Vector3> _quickSelector;
 
-			public RecursiveTreeBuilder(IList<Vector3> nodes, QuickSelector<Vector3> quickSelector)
+			public RecursiveTreeBuilder(Vector3[] nodes, QuickSelector<Vector3> quickSelector)
 			{
 				_permutations = nodes.ToArray();
-				IndexPermutation = CreateIndexPermutations(nodes.Count);
+				IndexPermutation = CreateIndexPermutations(nodes.Length);
 				_quickSelector = quickSelector;
 			}
 
