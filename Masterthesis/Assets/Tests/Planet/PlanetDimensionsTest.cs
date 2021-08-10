@@ -55,7 +55,7 @@ namespace SBaier.Master.Test
 
         private void ThenVariableAreaThicknessIsAsExpected()
         {
-            float expected = _planetDimension.AtmosphereThickness - _planetDimension.KernalThickness;
+            float expected = _planetDimension.ThicknessRadius - _planetDimension.KernalThickness;
             Assert.AreEqual(expected, _planetDimension.VariableAreaThickness);
         }
 

@@ -14,8 +14,8 @@ namespace SBaier.Master
 
 		public override float MaxAreaOfEffect { get; }
 
-		public SphericalShapePrimitive(Vector3 position, float kernelRadius, float blendArea) : 
-			base(position, blendArea)
+		public SphericalShapePrimitive(Vector3 position, float kernelRadius, float blendArea, float weight) : 
+			base(position, blendArea, weight)
 		{
 			KernelRadius = kernelRadius;
 			_effectRadius = KernelRadius + blendArea;

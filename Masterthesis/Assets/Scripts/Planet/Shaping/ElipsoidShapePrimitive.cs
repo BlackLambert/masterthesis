@@ -14,8 +14,8 @@ namespace SBaier.Master
 
 		public override float MaxAreaOfEffect { get; }
 
-		public ElipsoidShapePrimitive(Vector3 position, Vector3 stretchDirection, float min, float max, float blendArea) : 
-			base(position, blendArea)
+		public ElipsoidShapePrimitive(Vector3 position, Vector3 stretchDirection, float min, float max, float blendArea, float weight) : 
+			base(position, blendArea, weight)
 		{
 			ValidateMinMax(min, max);
 			ValidateStretchDirection(stretchDirection);

@@ -7,16 +7,15 @@ namespace SBaier.Master
     public class ContinentalPlateSegment : Polygon
     {
         public ContinentalPlateSegment(
-			VoronoiRegion voronoiRegion,
-			int biomeID)
+			VoronoiRegion voronoiRegion)
 		{
 			VoronoiRegion = voronoiRegion;
-			BiomeID = biomeID;
 		}
 
 		public Vector3 Site => VoronoiRegion.Site;
 		public VoronoiRegion VoronoiRegion { get; }
-		public int BiomeID { get; }
+		public int BiomeID { get; set; }
+		public int[] Neighbors => VoronoiRegion.Neighbors;
 
 		public override IList<int> VertexIndices => VoronoiRegion.VertexIndices;
 	}

@@ -450,20 +450,20 @@ namespace SBaier.Master
 			public int[][] NodeToChildren { get; private set; }
 			public int[] IndexPermutation { get; private set; }
 			public int Depth { get; private set; } = 0;
-			private IList<Vector3> _permutations;
+			private Vector3[] _permutations;
 			private QuickSelector<Vector3> _quickSelector;
 
 			public RecursiveTreeBuilder(IList<Vector3> nodes, QuickSelector<Vector3> quickSelector)
 			{
-				_permutations = nodes.ToList();
+				_permutations = nodes.ToArray();
 				IndexPermutation = CreateIndexPermutations(nodes.Count);
 				_quickSelector = quickSelector;
 			}
 
 			public void Build()
 			{
-				NodeToChildren = new int[_permutations.Count][];
-				BuildTreeRecursive(0, new Vector2Int(0, _permutations.Count - 1));
+				NodeToChildren = new int[_permutations.Length][];
+				BuildTreeRecursive(0, new Vector2Int(0, _permutations.Length - 1));
 			}
 
 			private void BuildTreeRecursive(int depth, Vector2Int indexRange, int previousNodeIndex = -1, int recursionIndex = 0)

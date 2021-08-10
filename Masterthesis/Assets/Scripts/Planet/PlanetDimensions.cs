@@ -10,12 +10,12 @@ namespace SBaier.Master
 			ValidateAtmosphereThickness(atmosphereThickness);
 
 			KernalThickness = kernalThickness;
-			AtmosphereThickness = atmosphereThickness;
+			ThicknessRadius = atmosphereThickness;
 		}
 
 		public float KernalThickness { get; }
-		public float AtmosphereThickness { get; }
-		public float VariableAreaThickness => AtmosphereThickness - KernalThickness;
+		public float ThicknessRadius { get; }
+		public float VariableAreaThickness => ThicknessRadius - KernalThickness;
 
 
 		private static void ValidateKernalThickness(float kernalRadius)

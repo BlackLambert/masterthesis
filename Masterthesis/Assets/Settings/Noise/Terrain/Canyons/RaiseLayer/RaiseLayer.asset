@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
   m_Name: RaiseLayer
   m_EditorClassIdentifier: 
-  _weight: 1
+  _weight: 0.4
   _frequencyFactor: 1
   _octavesCount: 2
   _baseNoise: {fileID: 11400000, guid: c9bc1ce8a998a1a4686e010cca9eb1e0, type: 2}

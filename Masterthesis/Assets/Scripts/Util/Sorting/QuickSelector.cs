@@ -5,6 +5,6 @@ namespace SBaier.Master
 {
 	public interface QuickSelector<T>
 	{
-		void QuickSelect(IList<T> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex, int selectedIndex);
+		void QuickSelect(T[] points, int[] indexPermutations, Vector2Int indexRange, int compareValueIndex, int selectedIndex);
 	}
 }

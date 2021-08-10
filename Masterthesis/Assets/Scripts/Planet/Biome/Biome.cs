@@ -6,11 +6,13 @@ namespace SBaier.Master
 {
     public class Biome 
     {
-        public Biome(Color baseColor)
+        public Biome(Color baseColor, ContinentalRegion.Type regionType)
 		{
 			BaseColor = baseColor;
+			RegionType = regionType;
 		}
 
 		public Color BaseColor { get; }
+		public ContinentalRegion.Type RegionType { get; }
 	}
 }

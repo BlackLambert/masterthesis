@@ -51,7 +51,7 @@ namespace SBaier.Master
 
 		private void UpdatePosition(Vector3[] vertices, int vertexIndex)
 		{
-			Vector3 evaluationPoint = _vertexNormalized[vertexIndex].FastMultiply(_planetData.Dimensions.AtmosphereThickness);
+			Vector3 evaluationPoint = _vertexNormalized[vertexIndex].FastMultiply(_planetData.Dimensions.ThicknessRadius);
 			vertices[vertexIndex] = evaluationPoint;
 			EvaluationPointData data = Data.EvaluationPoints[vertexIndex];
 			int layersCount = data.Layers.Count;

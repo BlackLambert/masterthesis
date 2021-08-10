@@ -34,6 +34,7 @@ namespace SBaier.Master
 				}
 				regions[i] = Create(site, neighborTriangles, i);
 			}
+			SetNeighbors(regions);
             return new VoronoiDiagram(regions, vertices);
 		}
 
@@ -95,6 +96,28 @@ namespace SBaier.Master
 				}
 			}
 			throw new ArgumentException();
+		}
+
+		private void SetNeighbors(VoronoiRegion[] regions)
+		{
+			ConnectingBordersFinder finder = new ConnectingBordersFinder(regions);
+			finder.Calcualte();
+			Vector2Int[] allNeighbors = finder.Neighbors;
+			for (int i = 0; i < regions.Length; i++)
+			{
+				VoronoiRegion currentRegion = regions[i];
+				List<int> neighbors = new List<int>();
+
+				for (int j = 0; j < allNeighbors.Length; j++)
+				{
+					Vector2Int n = allNeighbors[j];
+					if (n[0] == i)
+						neighbors.Add(n[1]);
+					if (n[1] == i)
+						neighbors.Add(n[0]);
+				}
+				currentRegion.SetNeighbors(neighbors.ToArray());
+			}
 		}
 	}
 }

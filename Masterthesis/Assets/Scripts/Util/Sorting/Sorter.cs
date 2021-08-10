@@ -7,9 +7,9 @@ namespace SBaier.Master
 {
     public interface Sorter<T>
     {
-        void Sort(IList<T> points, int compareValueIndex = 0);
-        void Sort(IList<T> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex = 0);
-        void Sort(IList<T> points, Vector2Int indexRange, int compareValueIndex = 0);
-        void Sort(IList<T> points, IList<int> indexPermutations, int compareValueIndex = 0);
+        void Sort(T[] points, int compareValueIndex = 0);
+        void Sort(T[] points, int[] indexPermutations, Vector2Int indexRange, int compareValueIndex = 0);
+        void Sort(T[] points, Vector2Int indexRange, int compareValueIndex = 0);
+        void Sort(T[] points, int[] indexPermutations, int compareValueIndex = 0);
     }
 }

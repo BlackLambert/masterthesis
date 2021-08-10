@@ -177,8 +177,9 @@ namespace SBaier.Master.Test
 			Seed seed = Container.Resolve<Seed>();
 			Func<Vector3, int, float> compareValueSelect = (p, i) => p[i];
 			QuickSelector<Vector3> selector = new QuickSorter<Vector3, float>(compareValueSelect);
+			Vector3BinaryKDTreeFactory treeFactory = new Vector3BinaryKDTreeFactory(selector);
 			RandomPointsOnSphereGenerator randomPointsGenerator = new RandomPointsOnSphereGenerator(seed);
-			SampleElimination3D sampleElimination = new SampleElimination3D(selector);
+			SampleElimination3D sampleElimination = new SampleElimination3D(treeFactory);
 			SampleEliminationSphereGenerator generator = new SampleEliminationSphereGenerator(targetSamples, baseSamplesFactor, sampleElimination, randomPointsGenerator, selector);
 			Container.Bind(typeof(MeshGenerator), typeof(SampleEliminationSphereGenerator)).To<SampleEliminationSphereGenerator>().FromInstance(generator).AsTransient();
 		}

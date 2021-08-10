@@ -76,7 +76,7 @@ namespace SBaier.Master.Test
                 for (int j = 0; j < 3; j++)
                 {
                     GivenANewSorter();
-                    IList<Vector3> testInput = _testInput[i].ToArray();
+                    Vector3[] testInput = _testInput[i].ToArray();
                     WhenSortIsCalledOn(testInput, j);
                     ThenInputIsSorted(testInput, _testInput[i].ToArray(), j);
                     Teardown();
@@ -91,7 +91,7 @@ namespace SBaier.Master.Test
             for (int i = 0; i < _invalidCompareValues.Length; i++)
             {
                 GivenANewSorter();
-                IList<Vector3> testInput = _testInput[0].ToArray();
+                Vector3[] testInput = _testInput[0].ToArray();
                 TestDelegate test = () => WhenSortIsCalledOn(testInput, _invalidCompareValues[i]);
                 ThenThrowsArgumentOutOfRangeException(test);
                 Teardown();
@@ -110,7 +110,7 @@ namespace SBaier.Master.Test
                     for (int h = 0; h < _ranges.Length; h++)
                     {
                         GivenANewSorter();
-                        IList<Vector3> testInput = _testInput[i].ToArray();
+                        Vector3[] testInput = _testInput[i].ToArray();
                         WhenSortIsCalledOn(testInput, _ranges[h], j);
                         ThenInputIsSorted(testInput, _testInput[i].ToArray(), _ranges[h], j);
                         Teardown();
@@ -126,7 +126,7 @@ namespace SBaier.Master.Test
             for (int i = 0; i < _invalidRanges.Length; i++)
             {
                 GivenANewSorter();
-                IList<Vector3> testInput = _testInput[0].ToArray();
+                Vector3[] testInput = _testInput[0].ToArray();
                 TestDelegate test = () => WhenSortIsCalledOn(testInput, _invalidRanges[i], 0);
                 ThenThrowsArgumentOutOfRangeException(test);
                 Teardown();
@@ -142,8 +142,8 @@ namespace SBaier.Master.Test
                 for (int j = 0; j < 3; j++)
                 {
                     GivenANewSorter();
-                    IList<Vector3> testInput = _testInput[i].ToArray();
-                    IList<int> permutations = CreateInitalIndexPermuations(testInput.Count);
+                    Vector3[] testInput = _testInput[i].ToArray();
+                    int[] permutations = CreateInitalIndexPermuations(testInput.Length);
                     WhenSortIsCalledOn(testInput, permutations, j);
                     ThenIndexPermutationsAreAsExpected(testInput, _testInput[i], permutations, j);
                     Teardown();
@@ -159,28 +159,28 @@ namespace SBaier.Master.Test
         }
         protected abstract void BindSorter();
 
-        private void WhenSortIsCalledOn(IList<Vector3> points, int compareValueIndex)
+        private void WhenSortIsCalledOn(Vector3[] points, int compareValueIndex)
         {
             _sorter.Sort(points, compareValueIndex);
         }
 
-        private void WhenSortIsCalledOn(IList<Vector3> points, Vector2Int indexRange, int compareValueIndex)
+        private void WhenSortIsCalledOn(Vector3[] points, Vector2Int indexRange, int compareValueIndex)
         {
             _sorter.Sort(points, indexRange, compareValueIndex);
         }
-        private void WhenSortIsCalledOn(IList<Vector3> points, IList<int> permutations, int compareValueIndex)
+        private void WhenSortIsCalledOn(Vector3[] points, int[] permutations, int compareValueIndex)
         {
             _sorter.Sort(points, permutations, compareValueIndex);
         }
 
-        private void ThenInputIsSorted(IList<Vector3> actual, IList<Vector3> points, int compareValueIndex)
+        private void ThenInputIsSorted(Vector3[] actual, Vector3[] points, int compareValueIndex)
         {
             Vector3[] expected = points.OrderBy(p => p[compareValueIndex]).ToArray();
             for (int i = 0; i < expected.Length; i++)
                 Assert.AreEqual(expected[i][compareValueIndex], actual[i][compareValueIndex]);
         }
 
-        private void ThenInputIsSorted(IList<Vector3> actual, Vector3[] points, Vector2Int range, int compareValueIndex)
+        private void ThenInputIsSorted(Vector3[] actual, Vector3[] points, Vector2Int range, int compareValueIndex)
         {
             Vector3[] rangePoints = points.Where((p, i) => i >= range.x && i <= range.y).ToArray();
             Vector3[] expected = rangePoints.OrderBy(p => p[compareValueIndex]).ToArray();
@@ -193,9 +193,9 @@ namespace SBaier.Master.Test
             }
         }
 
-        private void ThenIndexPermutationsAreAsExpected(IList<Vector3> actual, IList<Vector3> points, IList<int> permutations, int compareValueIndex)
+        private void ThenIndexPermutationsAreAsExpected(Vector3[] actual, Vector3[] points, int[] permutations, int compareValueIndex)
         {
-            for (int i = 0; i < points.Count; i++)
+            for (int i = 0; i < points.Length; i++)
                 Assert.AreEqual(actual[i][compareValueIndex], points[permutations[i]][compareValueIndex]);
         }
 
@@ -204,7 +204,7 @@ namespace SBaier.Master.Test
             Assert.Throws<ArgumentOutOfRangeException>(test);
         }
 
-        private IList<int> CreateInitalIndexPermuations(int count)
+        private int[] CreateInitalIndexPermuations(int count)
         {
             int[] result = new int[count];
             for (int i = 0; i < count; i++)

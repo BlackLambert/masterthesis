@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79631f92923cfe46aa400b531c8889f, type: 3}
-  m_Name: IceBiomeSettings
+  m_Script: {fileID: 11500000, guid: e3c1292e701f40d45bcda8954fa0efb5, type: 3}
+  m_Name: TerrainWarping_Simplex
   m_EditorClassIdentifier: 
-  _baseColor: {r: 1, g: 1, b: 1, a: 1}
-  _frequency: 1
+  _weight: 1
+  _frequencyFactor: 0.75

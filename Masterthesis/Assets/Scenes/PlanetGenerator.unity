@@ -644,7 +644,7 @@ PrefabInstance:
       objectReference: {fileID: 1521348552}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _continents
-      value: 15
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _warpFactor
@@ -652,23 +652,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _subdivisions
-      value: 300
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _bedrockRadius
-      value: 5.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _plateSegments
-      value: 150
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
-      propertyPath: _mountainsNoiseSettings
+      propertyPath: _segmentsBlendFactor
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _biomes.Array.data[5]
       value: 
-      objectReference: {fileID: 11400000, guid: 13a395c7d8f81bf4a97a2d0831e0aa0c, type: 2}
+      objectReference: {fileID: 0}
+    - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
+      propertyPath: _biomes.Array.data[6]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1206705531724666153, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: _sampleEliminationFactor
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 1206705532341609958, guid: 09a9e15135a83f24a9e421960ae41d84, type: 3}
       propertyPath: m_RootOrder

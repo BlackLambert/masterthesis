@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
   m_Name: 2OctaveSimplexNoise
   m_EditorClassIdentifier: 
-  _octavesCount: 2
+  _weight: 0.7
+  _frequencyFactor: 1
+  _octavesCount: 4
   _baseNoise: {fileID: 11400000, guid: 9d5c76a1d881a6844a021c38a6a249ca, type: 2}
-  _startFrequency: 1
-  _startWeight: 0.66

@@ -7,14 +7,21 @@ namespace SBaier.Master
     public class VoronoiRegion : Polygon
     {
         public Vector3 Site { get; }
-        public int[] _corners;
+        public int[] Corners { get; }
+        public int[] Neighbors { get; private set; }
 
-		public override IList<int> VertexIndices => _corners;
+		public override IList<int> VertexIndices => Corners;
 
 		public VoronoiRegion(Vector3 site, int[] corners)
 		{
             Site = site;
-            _corners = corners;
-		}
+            Corners = corners;
+            Neighbors = new int[0];
+        }
+
+        public void SetNeighbors(int[] neighbors)
+		{
+            Neighbors = neighbors;
+        }
     }
 }

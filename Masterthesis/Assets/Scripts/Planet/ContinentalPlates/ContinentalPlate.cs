@@ -9,7 +9,7 @@ namespace SBaier.Master
     {
         public Vector3 Site { get; }
         public IList<int> Regions { get; }
-        public float MovementAngle { get; }
+        public Vector3 MovementTangent { get; }
 		public float MovementStrength { get; }
 		public Vector2Int[] Borders { get; }
 
@@ -19,15 +19,13 @@ namespace SBaier.Master
 		public ContinentalPlate(
             Vector3 site,
             IList<int> regions,
-            float movementAngle,
+            Vector3 movementTangent,
             float movementStrength,
             Vector2Int[] borders)
 		{
-            ValidateMovementAngle(movementAngle);
-
             Site = site;
             Regions = regions;
-            MovementAngle = movementAngle;
+            MovementTangent = movementTangent;
 			MovementStrength = movementStrength;
             Borders = borders;
             _borderCorners = ExtractCorners();
@@ -37,11 +35,5 @@ namespace SBaier.Master
 		{
             return new ConvexAreaCornersExtractor(Borders).ExtractCorners();
 		}
-
-        private void ValidateMovementAngle(float movementAngle)
-        {
-            if (movementAngle < 0 || movementAngle >= 360)
-                throw new ArgumentOutOfRangeException();
-        }
     }
 }

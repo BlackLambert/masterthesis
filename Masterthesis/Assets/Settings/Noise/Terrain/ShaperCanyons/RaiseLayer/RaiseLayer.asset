@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79631f92923cfe46aa400b531c8889f, type: 3}
-  m_Name: ForestBiomeSettings
+  m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
+  m_Name: RaiseLayer
   m_EditorClassIdentifier: 
-  _baseColor: {r: 0.044125997, g: 0.6320754, b: 0.3381007, a: 1}
-  _frequency: 1
+  _weight: 0.3
+  _frequencyFactor: 1
+  _octavesCount: 2
+  _baseNoise: {fileID: 11400000, guid: c9bc1ce8a998a1a4686e010cca9eb1e0, type: 2}

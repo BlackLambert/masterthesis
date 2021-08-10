@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 864b28e3b2d34a34f9a66d57e2ee5a73, type: 3}
   m_Name: Limiter
   m_EditorClassIdentifier: 
-  _weight: 1.4
+  _weight: 0.7
   _frequencyFactor: 1
   _valueLimits: {x: 0.25, y: 1}
   _baseNoise: {fileID: 11400000, guid: 490702c1d1afb284c99e1ffd62215ac4, type: 2}

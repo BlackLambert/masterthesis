@@ -264,7 +264,7 @@ namespace SBaier.Master.Test
         {
             points = points.ToArray();
             Mock<QuickSelector<Vector3>> sorterMock = new Mock<QuickSelector<Vector3>>();
-            sorterMock.Setup(s => s.QuickSelect(It.IsAny<IList<Vector3>>(), It.IsAny<IList<int>>(), It.IsAny<Vector2Int>(), It.IsAny<int>(), It.IsAny<int>())).
+            sorterMock.Setup(s => s.QuickSelect(It.IsAny<Vector3[]>(), It.IsAny<int[]>(), It.IsAny<Vector2Int>(), It.IsAny<int>(), It.IsAny<int>())).
                 Callback<IList<Vector3>, IList<int>, Vector2Int, int, int>((p, perm, r, c, sI) => BasicSort(p, perm, r, c, points));
             return sorterMock.Object;
         }

@@ -14,7 +14,7 @@ namespace SBaier.Master
 			_compareValueSelect = compareValueSelect;
 		}
 
-		protected override void DoSort(IList<T> points, IList<int> indexPermutations, Vector2Int indexRange, int compareValueIndex)
+		protected override void DoSort(T[] points, int[] indexPermutations, Vector2Int indexRange, int compareValueIndex)
 		{
 			for (int i = indexRange.x; i <= indexRange.y; i++)
 			{

@@ -10,13 +10,22 @@ namespace SBaier.Master
 	{
 		public Vector3 Position { get; }
 		public float BlendArea { get; }
+		public float Weight { get; }
 		public abstract float MaxAreaOfEffect { get; }
 
-		public ShapingPrimitive(Vector3 position, float blendArea)
+		public ShapingPrimitive(Vector3 position, float blendArea, float weight)
 		{
+			ValidateWeight(weight);
 			ValidateBlendArea(blendArea);
 			Position = position;
 			BlendArea = blendArea;
+			Weight = weight;
+		}
+
+		private void ValidateWeight(float weight)
+		{
+			if (weight < 0 || weight > 1)
+				throw new ArgumentOutOfRangeException();
 		}
 
 		private void ValidateBlendArea(float blendArea)
@@ -30,8 +39,8 @@ namespace SBaier.Master
 			if (IsOutsideAreaOfEffect(point))
 				return 0;
 			if (IsInsideKernel(point))
-				return 1;
-			return GetBlendedValue(point);
+				return Weight;
+			return GetBlendedValue(point) * Weight;
 		}
 
 		public float[] Evaluate(IList<Vector3> points)
@@ -52,9 +61,9 @@ namespace SBaier.Master
 					continue;
 				Vector3 point = points[i];
 				if (IsInsideKernel(point))
-					result[i] = 1;
+					result[i] = Weight;
 				else
-					result[i] = GetBlendedValue(point);
+					result[i] = GetBlendedValue(point) * Weight;
 				evalIndex++;
 			}
 		}

@@ -23,7 +23,7 @@ namespace SBaier.Master
         public void OnDrawGizmosSelected()
 		{
             Gizmos.color = Color.red;
-            Vector3 axis = Vector3.up * _dimensions.AtmosphereThickness + Vector3.up * _additionalAxisLength;
+            Vector3 axis = Vector3.up * _dimensions.ThicknessRadius + Vector3.up * _additionalAxisLength;
             axis = Quaternion.AngleAxis(_axis.Angle, Vector3.forward) * axis;
             Gizmos.DrawLine(transform.position - axis, transform.position + axis);
 		}

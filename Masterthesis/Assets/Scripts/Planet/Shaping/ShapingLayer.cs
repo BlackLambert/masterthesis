@@ -36,12 +36,22 @@ namespace SBaier.Master
 				for (int j = 0; j < count; j++)
 				{
 					ShapingPrimitive primitive = Primitives[nearestPrimitives[j]];
-					result[i] = Mathf.Max(result[i], primitive.Evaluate(vertex));
+					float formerValue = result[i];
+					float evaluatedValue = primitive.Evaluate(vertex);
+					float value = Mathf.Max(formerValue, evaluatedValue);
+					result[i] = value;
 				}
-				result[i] *= evalPoints[i];
+				
+				result[i] = CalculateNewValue(evalPoints[i], result[i]);
 			}
 			evalPoints.Dispose();
 			return result;
+		}
+		private float CalculateNewValue(float evalValue, float shapingValue)
+		{
+			float newValue = (evalValue - 0.5f) * 2;
+			newValue *= shapingValue;
+			return newValue / 2 + 0.5f;
 		}
 	}
 }

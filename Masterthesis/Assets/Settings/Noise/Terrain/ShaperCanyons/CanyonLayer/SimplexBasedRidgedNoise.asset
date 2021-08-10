@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79631f92923cfe46aa400b531c8889f, type: 3}
-  m_Name: GraslandBiomeSettings
+  m_Script: {fileID: 11500000, guid: 22bc051a7d716134ea88b0f45514c304, type: 3}
+  m_Name: SimplexBasedRidgedNoise
   m_EditorClassIdentifier: 
-  _baseColor: {r: 0.34958866, g: 0.7647059, b: 0, a: 1}
-  _frequency: 1
+  _weight: 1
+  _frequencyFactor: 1
+  _baseNoiseSettings: {fileID: 11400000, guid: a804139ffdc9308499f07c0582561ec8, type: 2}

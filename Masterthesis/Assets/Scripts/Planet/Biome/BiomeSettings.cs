@@ -4,8 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    [CreateAssetMenu(fileName = "BiomeSettings", menuName = "Biome/BiomeSettings")]
-    public class BiomeSettings : ScriptableObject
+    public abstract class BiomeSettings : ScriptableObject
     {
         [SerializeField]
         private Color _baseColor = Color.white;
@@ -14,5 +13,6 @@ namespace SBaier.Master
         [SerializeField]
         private int _frequency = 1;
         public int Frequency => _frequency;
+        public abstract ContinentalRegion.Type RegionType { get; }
     }
 }

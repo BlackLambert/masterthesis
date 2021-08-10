@@ -54,19 +54,22 @@ MonoBehaviour:
   _meshGeneratorSettings: {fileID: 11400000, guid: 86b7aeb38c78f5641a1e443ed573a59a, type: 2}
   _plateSegments: 150
   _warpFactor: 0.1
+  _segmentsBlendFactor: 0.05
   _sampleEliminationFactor: 1
   _oceans: 10
   _continents: 10
   _plates: 10
   _biomes:
-  - {fileID: 11400000, guid: 5a92aef459040f742802206b355709e0, type: 2}
-  - {fileID: 11400000, guid: 54974c226362e334b865a4b621435898, type: 2}
-  - {fileID: 11400000, guid: 15f60519eb41d6144beab25f62400a8d, type: 2}
+  - {fileID: 11400000, guid: 4a6995e68f5daaa4eb5c5a6e50fbea73, type: 2}
   - {fileID: 11400000, guid: 1bf6d7eed219f314dab088ba8e64f547, type: 2}
+  - {fileID: 11400000, guid: 591b8a21d1808d54b97a95cc1249dd5f, type: 2}
+  - {fileID: 11400000, guid: 360345bef8046af4da49e31a29e6292f, type: 2}
+  - {fileID: 11400000, guid: 38cd609c0a8da0e47a754293b58ef606, type: 2}
   _continentalPlatesNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentsNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
-  _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: e370c55e666352e4899e0ac79b109266, type: 2}
-  _mountainsNoiseSettings: {fileID: 11400000, guid: cbd21afc80803434b86761ab36066b53, type: 2}
+  _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: 659ba8ba4d420cf4ab195dbd26bfad3b, type: 2}
+  _mountainsNoiseSettings: {fileID: 11400000, guid: d2aea82b9908fc3478726ab3ca4cc7ea, type: 2}
+  _canyonsNoiseSettings: {fileID: 11400000, guid: 743d90bea4a76cd4ca648c120d985a9d, type: 2}
   _delaunay: {fileID: 0}
   _voronoi: {fileID: 0}
 --- !u!1 &1206705532341609962
@@ -86,6 +89,7 @@ GameObject:
   - component: {fileID: 1206705532341609955}
   - component: {fileID: 7776973656784308505}
   - component: {fileID: 5388233829852190994}
+  - component: {fileID: 3168270925356984336}
   m_Layer: 0
   m_Name: PlanetGeneratorContext
   m_TagString: Untagged
@@ -129,6 +133,7 @@ MonoBehaviour:
   - {fileID: 1206705532341609955}
   - {fileID: 7776973656784308505}
   - {fileID: 5388233829852190994}
+  - {fileID: 3168270925356984336}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -216,5 +221,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e39147a1b629df4fab2b818fdb8cbc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3168270925356984336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206705532341609962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 052a7d098dfa9f34ebb7b65775605ee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
