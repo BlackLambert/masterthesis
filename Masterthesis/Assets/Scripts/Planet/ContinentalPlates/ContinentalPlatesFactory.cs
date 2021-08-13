@@ -26,7 +26,7 @@ namespace SBaier.Master
 
 		public ContinentalPlates Create(Parameters parameters)
 		{
-			int segmentsAmount = parameters.PlateSegments;
+			int segmentsAmount = parameters.ContinentalPlatesParameter.SegmentsAmount;
 			Vector3[] plateSegmentSites = CreateSites(parameters, segmentsAmount);
 			Triangle[] segmentsTriangles = CreatePlateSegmentTriangles(plateSegmentSites);
 			VoronoiDiagram segmentsVoronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, segmentsTriangles);
@@ -43,7 +43,7 @@ namespace SBaier.Master
 
 		private ContinentalRegion[] CreateRegions(Parameters parameters, Vector3[] plateSegmentSites, ContinentalPlateSegment[] segments)
 		{
-			int regionSitesAmount = parameters.Oceans + parameters.Continents;
+			int regionSitesAmount = parameters.ContinentalPlatesParameter.OceansAmount + parameters.ContinentalPlatesParameter.ContinentsAmount;
 			ContinentalRegion[] result = new ContinentalRegion[regionSitesAmount];
 			Vector3[] regionSites = CreateSites(parameters, regionSitesAmount);
 			KDTree<Vector3> regionSitesTree = _kdTreeFactory.Create(regionSites);
@@ -59,7 +59,7 @@ namespace SBaier.Master
 
 			List<Polygon> polygons = ExtractPolygons(regionToSegments[index], segments);
 			Vector2Int[] borders = GetBorders(polygons);
-			ContinentalRegion.Type type = index <= parameters.Oceans ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
+			ContinentalRegion.Type type = index <= parameters.ContinentalPlatesParameter.OceansAmount ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
 			List<int> segmentIndices = regionToSegments[index];
 			int[] segmentBiomes = ChooseBiomes(parameters, type, segmentIndices.Count);
 			for (int i = 0; i < segmentIndices.Count; i++)
@@ -116,10 +116,10 @@ namespace SBaier.Master
 		private ContinentalPlate[] CreatePlates(Parameters parameters, ContinentalRegion[] regions)
 		{
 			Vector3[] regionSites = regions.Select(r => r.Site).ToArray();
-			Vector3[] plateSites = CreateSites(parameters, parameters.Plates);
+			Vector3[] plateSites = CreateSites(parameters, parameters.ContinentalPlatesParameter.PlatesAmount);
 			KDTree<Vector3> platesKDTree = _kdTreeFactory.Create(plateSites);
 			List<int>[] plateToRegion = FindNearest(regionSites, platesKDTree);
-			ContinentalPlate[] result = new ContinentalPlate[parameters.Plates];
+			ContinentalPlate[] result = new ContinentalPlate[parameters.ContinentalPlatesParameter.PlatesAmount];
 			Seed seed = new Seed(parameters.Seed.Random.Next());
 			for (int i = 0; i < plateToRegion.Length; i++)
 				result[i] = CreatePlate(regions, plateSites, plateToRegion, seed, i);
@@ -189,8 +189,8 @@ namespace SBaier.Master
 		private Vector3[] CreateSites(Parameters parameters, int sitesAmount)
 		{
 			float atmosphereRadius = parameters.Planet.AtmosphereRadius;
-			int siteSamples = (int)(sitesAmount * parameters.SampleEliminationFactor);
-			Vector3[] points = _randomPointsGenerator.Generate(siteSamples, atmosphereRadius);
+			int siteSamples = (int)(sitesAmount * parameters.ContinentalPlatesParameter.SampleEliminationFactor);
+			Vector3[] points = _randomPointsGenerator.Generate(siteSamples, atmosphereRadius, parameters.Seed);
 			float sphereSurface = GetSphereSurface(parameters);
 			return _sampleElimination.Eliminate(points, sitesAmount, sphereSurface);
 		}
@@ -218,31 +218,19 @@ namespace SBaier.Master
 
 			public Parameters(Planet planet, 
 				Seed seed, 
-				int plateSegments, 
-				int plates, 
-				BiomeSettings[] biomes,
-				float sampleEliminationFactor,
-				int continents,
-				int oceans)
+				ContinentalPlatesParameter continentalPlatesParameter,
+				BiomeSettings[] biomes)
 			{
 				Planet = planet;
 				Seed = seed;
-				PlateSegments = plateSegments;
-				Plates = plates;
+				ContinentalPlatesParameter = continentalPlatesParameter;
 				Biomes = biomes;
-				SampleEliminationFactor = sampleEliminationFactor;
-				Continents = continents;
-				Oceans = oceans;
 			}
 
 			public Planet Planet { get; }
 			public Seed Seed { get; }
-			public int PlateSegments { get; }
-			public int Plates { get; }
+			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
 			public BiomeSettings[] Biomes { get; }
-			public float SampleEliminationFactor { get; }
-			public int Continents { get; }
-			public int Oceans { get; }
 		}
 	}
 }

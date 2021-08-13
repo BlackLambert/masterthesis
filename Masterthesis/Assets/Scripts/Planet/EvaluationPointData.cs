@@ -8,9 +8,9 @@ namespace SBaier.Master
     {
         public List<PlanetLayerData> Layers { get; }
         public float[] NoiseAmplifiers { get; }
-        public int BiomeIndex { get; set; } = -1;
-        public int ContinentalPlateIndex { get; set; } = -1;
-        public float Temperature { get; set; } = 0;
+        public int BiomeID { get; set; } = -1;
+        public int ContinentalPlateSegmentIndex { get; set; } = -1;
+        public Vector3 WarpedPoint { get; set; }
 
         public EvaluationPointData(float[] noiseAmplifiers)
 		{

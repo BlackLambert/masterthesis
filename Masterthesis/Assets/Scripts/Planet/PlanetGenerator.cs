@@ -10,54 +10,15 @@ namespace SBaier.Master
 {
     public class PlanetGenerator : MonoBehaviour
     {
-		private const float _oceanLevel = 0.5f;
-
-		[Header("Planet Settings")]
-        [Range(0, 350)]
-        [SerializeField]
-        private int _subdivisions = 256;
-        [SerializeField]
-        private float _bedrockRadius = 4;
-        [SerializeField]
-        private float _atmosphereRadius = 10;
-        [SerializeField]
-        private float _continentalPlateMax = 0.1f;
-
         [Header("Temperature Spectrum")]
         [SerializeField]
         private float _teperatureMin = -20f;
         [SerializeField]
         private float _teperatureMax = 50f;
 
-        [Header("Axis")]
-        [Range(0, 90)]
-        [SerializeField]
-        private float _axisAngle = 20f;
-        [SerializeField]
-        private float _secondsPerRevolution = 60f;
-
         [Header("Planet Body")]
         [SerializeField]
         private IcosahedronGeneratorSettings _meshGeneratorSettings;
-
-        [Header("Continental Plates")]
-        [SerializeField]
-        private int _plateSegments = 150;
-        [Range(0f, 1f)]
-        [SerializeField]
-        private float _warpFactor = 0.05f;
-        [Range(0f, 1f)]
-        [SerializeField]
-        private float _segmentsBlendFactor = 0.05f;
-        [Range(1f, 5f)]
-        [SerializeField]
-        private float _sampleEliminationFactor = 1;
-        [SerializeField]
-        private int _oceans = 10;
-        [SerializeField]
-        private int _continents = 10;
-        [SerializeField]
-        private int _plates = 10;
 
         [Header("Biome")]
         [SerializeField]
@@ -80,87 +41,97 @@ namespace SBaier.Master
         [SerializeField]
         private MeshFilter _voronoi;
 
-
-        private MeshGenerator _icosahedronGenerator;
-        private MeshFaceSeparator _faceSeparator;
-        private SphereMeshFormer _meshFormer;
-        private Seed _seed;
-        private MeshSubdivider _subdivider;
-        private Planet.Factory _planetFactory;
+        BasicPlanetFactory _basicPlanetFactory;
         private Vector3BinaryKDTreeFactory _treeFactory;
         private ContinentalPlatesFactory _continentalPlatesFactory;
         private ShapingFactory _shapingFactory;
+        private NoiseFactory _noiseFactory;
 
 
-        private Noise3D _continentsNoise;
         private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
 
+        private Planet _planet;
+
         [Inject]
-        public void Construct(MeshGeneratorFactory meshGeneratorFactory,
-            MeshFaceSeparator faceSeparator,
-            SphereMeshFormer meshFormer,
+        public void Construct(
+            BasicPlanetFactory basicPlanetFactory,
             NoiseFactory noiseFactory,
-            Seed seed,
-            MeshSubdivider subdivider,
-            Planet.Factory planetFactory,
             ContinentalPlatesFactory continentalPlatesFactory,
             ShapingFactory shapingFactory,
             Vector3BinaryKDTreeFactory treeFactory)
 		{
-            _faceSeparator = faceSeparator;
-            _meshFormer = meshFormer;
-            _seed = seed;
-            _subdivider = subdivider;
-            _planetFactory = planetFactory;
+            _basicPlanetFactory = basicPlanetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
             _shapingFactory = shapingFactory;
             _treeFactory = treeFactory;
-
-            _continentsNoise = noiseFactory.Create(_continentsNoiseSettings, _seed);
-            _continentalPlatesWarpingNoise = noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, _seed);
-            _mountainsNoise = noiseFactory.Create(_mountainsNoiseSettings, _seed);
-            _canyonsNoise = noiseFactory.Create(_canyonsNoiseSettings, _seed);
-            _icosahedronGenerator = meshGeneratorFactory.Create(_meshGeneratorSettings);
+            _noiseFactory = noiseFactory;
         }
 
-        protected virtual void Start()
+        public void Generate(Parameter parameter)
 		{
-			Mesh baseMesh = new Mesh();
-			GenerateMesh(baseMesh);
-			MeshFaceSeparatorTarget[] targets = SeparateMeshFaces(baseMesh);
-			PlanetFace[] faces = GetFaces(targets);
-			SubdivideFaces(faces);
-			FormSphere(faces);
-			PlanetData data = CreatePlanetData();
-			Init(faces, data);
-			Planet planet = CreatePlanet(data);
-			planet.Init(faces);
-			ContinentalPlatesFactory.Parameters continentalPlatesFactoryParameter = CreatePlatesFactoryParameters(planet);
-			ContinentalPlates plates = _continentalPlatesFactory.Create(continentalPlatesFactoryParameter);
-            ShapingFactory.Parameter shapingFactoryParameter = new ShapingFactory.Parameter(plates, data, _mountainsNoise, _canyonsNoise);
-            ShapingLayer[] shapingLayers = _shapingFactory.Create(shapingFactoryParameter);
-            
-			InitSegmentsDelaunayMesh(plates);
+			if (_planet != null)
+			{
+				Destroy(_planet.gameObject);
+				_planet = null;
+			}
+
+			Init(parameter);
+
+			Planet planet = _basicPlanetFactory.Create(CreateBasicPlanetFactoryParameter(parameter));
+            ContinentalPlates plates = CreateContinentalPlates(planet, parameter);
+            planet.Data.ContinentalPlates = plates;
+			ShapingLayer[] shapingLayers = CreateShapingLayers(planet.Data);
+
+            InitSegmentsDelaunayMesh(plates);
 			InitSegmentsVoronoiView(plates);
-			Biome[] biomes = CreateBiomes();
-			AddRockLayer(planet, plates, biomes, shapingLayers);
-			//InitContinentLayer(planet);
-			planet.UpdateMesh();
+            Biome[] biomes = CreateBiomes();
+			UpdateEvaluationPointData(planet, parameter);
+            SetVertexColors(planet, parameter.ContinentalPlatesParameter, biomes);
+            UpdateElevation(planet, biomes, shapingLayers, parameter);
+            //InitContinentLayer(planet);
+            planet.UpdateMesh();
+			_planet = planet;
+        }
+
+		private void Init(Parameter parameter)
+		{
+            _noiseFactory.ClearCache();
+            _continentalPlatesWarpingNoise = _noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, parameter.Seed);
+			_mountainsNoise = _noiseFactory.Create(_mountainsNoiseSettings, parameter.Seed);
+			_canyonsNoise = _noiseFactory.Create(_canyonsNoiseSettings, parameter.Seed);
 		}
 
-		private ContinentalPlatesFactory.Parameters CreatePlatesFactoryParameters(Planet planet)
+		private BasicPlanetFactory.Parameter CreateBasicPlanetFactoryParameter(Parameter parameter)
+		{
+            PlanetDimensions dimensions = parameter.Dimensions;
+            TemperatureSpectrum temperature = new TemperatureSpectrum(_teperatureMin, _teperatureMax);
+            PlanetAxisData axis = parameter.AxisData;
+            return new BasicPlanetFactory.Parameter(dimensions, temperature, axis, parameter.Subdivisions, parameter.Seed);
+		}
+
+		private ContinentalPlates CreateContinentalPlates(Planet planet, Parameter parameter)
+		{
+			ContinentalPlatesFactory.Parameters continentalPlatesFactoryParameter = CreatePlatesFactoryParameters(planet, parameter);
+			ContinentalPlates plates = _continentalPlatesFactory.Create(continentalPlatesFactoryParameter);
+			return plates;
+		}
+
+		private ShapingLayer[] CreateShapingLayers(PlanetData data)
+		{
+			ShapingFactory.Parameter shapingFactoryParameter = new ShapingFactory.Parameter(data, _mountainsNoise, _canyonsNoise);
+			ShapingLayer[] shapingLayers = _shapingFactory.Create(shapingFactoryParameter);
+			return shapingLayers;
+		}
+
+		private ContinentalPlatesFactory.Parameters CreatePlatesFactoryParameters(Planet planet, Parameter parameter)
 		{
 			return new ContinentalPlatesFactory.Parameters(
 				planet,
-				_seed,
-				_plateSegments,
-				_plates,
-				_biomes,
-				_sampleEliminationFactor,
-				_continents,
-				_oceans);
+                parameter.Seed,
+                parameter.ContinentalPlatesParameter,
+				_biomes);
 		}
 
 		private Biome[] CreateBiomes()
@@ -215,107 +186,64 @@ namespace SBaier.Master
             return result;
         }
 
-        private Planet CreatePlanet(PlanetData data)
+        private void UpdateEvaluationPointData(Planet planet, Parameter parameter)
 		{
-            Planet result = _planetFactory.Create(data);
-            result.transform.SetParent(null);
-            return result;
-		}
-
-		private PlanetData CreatePlanetData()
-		{
-            PlanetDimensions dimensions = new PlanetDimensions(_bedrockRadius, _atmosphereRadius);
-            TemperatureSpectrum temperature = new TemperatureSpectrum(_teperatureMin, _teperatureMax);
-            PlanetAxisData axis = new PlanetAxisData(_axisAngle, _secondsPerRevolution);
-            return new PlanetData(dimensions, temperature, axis, _seed);
-		}
-
-		private void GenerateMesh(Mesh mesh)
-		{
-            _icosahedronGenerator.GenerateMeshFor(mesh, _bedrockRadius);
-        }
-
-        private MeshFaceSeparatorTarget[] SeparateMeshFaces(Mesh mesh)
-        {
-            return _faceSeparator.Separate(mesh);
-		}
-
-        private PlanetFace[] GetFaces(MeshFaceSeparatorTarget[] targets)
-		{
-            PlanetFace[] result = new PlanetFace[targets.Length];
-            for (int i = 0; i < targets.Length; i++)
-                result[i] = targets[i].Base.GetComponentInChildren<PlanetFace>();
-            return result;
-        }
-
-        private void SubdivideFaces(PlanetFace[] faces)
-        {
-            foreach (PlanetFace face in faces)
-                _subdivider.Subdivide(face.MeshFilter.sharedMesh, _subdivisions);
-        }
-
-        private void FormSphere(PlanetFace[] faces)
-        {
-            foreach (PlanetFace face in faces)
-                _meshFormer.Form(face.MeshFilter.sharedMesh, _bedrockRadius);
-        }
-
-        private void Init(PlanetFace[] faces, PlanetData planetData)
-        {
-            foreach(PlanetFace face in faces)
-				Init(face, planetData);
-		}
-
-		private void Init(PlanetFace face, PlanetData planetData)
-		{
-			EvaluationPointData[] evaluationPointsData = CreateEvaluationPointsData(face);
-			PlanetFaceData data = new PlanetFaceData(evaluationPointsData);
-			face.Init(data, planetData);
-        }
-
-
-		private void AddRockLayer(Planet planet, ContinentalPlates plates, Biome[] biomes, ShapingLayer[] shapingLayers)
-		{
+            ContinentalPlates plates = planet.Data.ContinentalPlates;
             KDTree<Vector3> segmentsKDTree = _treeFactory.Create(plates.SegmentSites);
-            KDTree<Vector3> regionsKDTree = _treeFactory.Create(plates.RegionSites);
+            for (int i = 0; i < planet.Faces.Count; i++)
+			{
+				PlanetFace face = planet.Faces[i];
+				PlanetFaceData faceData = face.Data;
+                PlanetPointsWarper warper = new PlanetPointsWarper(_continentalPlatesWarpingNoise);
+				Vector3[] vertices = warper.Warp(face.Vertices, parameter.ContinentalPlatesParameter.WarpFactor, parameter.Dimensions.AtmosphereRadius);
+
+				for (int j = 0; j < vertices.Length; j++)
+				{
+					Vector3 vertex = vertices[j];
+					EvaluationPointData pointData = faceData.EvaluationPoints[j];
+					int segmentIndex = segmentsKDTree.GetNearestTo(vertex);
+					ContinentalPlateSegment segment = plates.Segments[segmentIndex];
+					pointData.ContinentalPlateSegmentIndex = segmentIndex;
+					pointData.BiomeID = segment.BiomeID;
+                    pointData.WarpedPoint = vertex;
+                }
+			}
+		}
+
+        private void SetVertexColors(Planet planet, ContinentalPlatesParameter continentalPlatesParameter, Biome[] biomes)
+		{
+            ContinentalPlates plates = planet.Data.ContinentalPlates;
             for (int i = 0; i < planet.Faces.Count; i++)
             {
                 PlanetFace face = planet.Faces[i];
-                Vector3[] vertices = face.Vertices;
-                float[] warpValues = WarpContientenalPlateEvaluationPoint(vertices);
-                vertices = WarpSpherePoints(vertices, warpValues);
-                PlanetShaper shaper = new PlanetShaper(shapingLayers, _oceanLevel);
-                float[] shapeValues = shaper.Shape(vertices);
+                PlanetFaceData faceData = face.Data;
                 Color[] vertexColors = new Color[face.MeshFilter.sharedMesh.vertexCount];
+                float length = faceData.EvaluationPoints.Length;
 
-                for (int j = 0; j < vertices.Length; j++)
-				{
-					Vector3 vertex = vertices[j];
-					int segmentIndex = segmentsKDTree.GetNearestTo(vertex);
-                    ContinentalPlateSegment segment = plates.Segments[segmentIndex];
-                    Biome biome = biomes[segment.BiomeID];
-					float delta = CalculateDelta(planet, shapeValues[j], biome);
-					Color vertexColor = GetVertexColor(planet, vertex, plates, biomes, segmentIndex);
-					InitContinentPlate(face.Data.EvaluationPoints[j], delta);
-					vertexColors[j] = vertexColor;
-				}
+                for (int j = 0; j < length; j++)
+                {
+                    EvaluationPointData pointData = faceData.EvaluationPoints[j];
+                    Vector3 vertex = pointData.WarpedPoint;
+                    Color vertexColor = GetVertexColor(planet, continentalPlatesParameter, vertex, plates, biomes, pointData.ContinentalPlateSegmentIndex);
+                    vertexColors[j] = vertexColor;
+                }
 
-				face.MeshFilter.sharedMesh.colors = vertexColors;
+                face.MeshFilter.sharedMesh.colors = vertexColors;
             }
         }
 
-		private Color GetVertexColor(Planet planet, Vector3 vertex, ContinentalPlates plates, Biome[] biomes, int segmentIndex)
+        private Color GetVertexColor(Planet planet, ContinentalPlatesParameter continentalPlatesParameter, Vector3 vertex, ContinentalPlates plates, Biome[] biomes, int segmentIndex)
         {
             ContinentalPlateSegment segment = plates.Segments[segmentIndex];
             Biome biome = biomes[segment.BiomeID];
             Color color = biome.BaseColor;
-            float blendDistance = _segmentsBlendFactor * planet.AtmosphereRadius;
+            float blendDistance = continentalPlatesParameter.BlendFactor * planet.AtmosphereRadius;
             Vector3 pointOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
             float distanceToInnerBorder = GetDistanceOnPlanet(planet, vertex, pointOnBorder);
             if (distanceToInnerBorder >= blendDistance)
                 return color;
             for (int i = 0; i < segment.Neighbors.Length; i++)
-			{
+            {
                 int neighborSegmentIndex = segment.Neighbors[i];
                 ContinentalPlateSegment neighborSegment = plates.Segments[neighborSegmentIndex];
                 Biome neighborBiome = biomes[neighborSegment.BiomeID];
@@ -326,9 +254,32 @@ namespace SBaier.Master
                 if (distanceToSegment > blendDistance)
                     continue;
                 float portion = 0.5f - (distanceToSegment / blendDistance) / 2;
-                color = Lerp(color, neighborBiome.BaseColor, portion);
+                color = Color.Lerp(color, neighborBiome.BaseColor, portion);
             }
             return color;
+        }
+
+
+		private void UpdateElevation(Planet planet, Biome[] biomes, ShapingLayer[] shapingLayers, Parameter parameter)
+        {
+            ContinentalPlates plates = planet.Data.ContinentalPlates;
+            KDTree<Vector3> segmentsKDTree = _treeFactory.Create(plates.SegmentSites);
+            for (int i = 0; i < planet.Faces.Count; i++)
+            {
+                PlanetFace face = planet.Faces[i];
+                PlanetShaper shaper = new PlanetShaper(shapingLayers, parameter.Dimensions.RelativeSeaLevel);
+                float[] shapeValues = shaper.Shape(face.Data.EvaluationPoints);
+
+                for (int j = 0; j < shapeValues.Length; j++)
+				{
+                    Vector3 vertex = face.Data.EvaluationPoints[j].WarpedPoint;
+                    int segmentIndex = segmentsKDTree.GetNearestTo(vertex);
+                    ContinentalPlateSegment segment = plates.Segments[segmentIndex];
+                    Biome biome = biomes[segment.BiomeID];
+					float delta = CalculateDelta(planet, shapeValues[j], biome);
+					InitContinentPlate(face.Data.EvaluationPoints[j], delta, parameter);
+				}
+            }
         }
 
         private float GetDistanceOnPlanet(Planet planet, Vector3 vertex, Vector3 point)
@@ -336,11 +287,6 @@ namespace SBaier.Master
             point = point.normalized * planet.AtmosphereRadius;
             return vertex.FastSubstract(point).magnitude;
         }
-
-		private Color Lerp(Color color, Color otherColor, float portion)
-		{
-            return Color.Lerp(color, otherColor, portion);
-		}
 
 		private float CalculateDelta(Planet planet, float shapeValue, Biome biome)
 		{
@@ -351,81 +297,57 @@ namespace SBaier.Master
 				return CreateLandDelta(planet, shapeValue);
 		}
 
-		private static float CreateOceanDelta(Planet planet)
+		private float CreateOceanDelta(Planet planet)
 		{
-			return _oceanLevel * planet.Data.Dimensions.VariableAreaThickness;
+			return planet.Data.Dimensions.RelativeSeaLevel * planet.Data.Dimensions.MaxHullThickness;
 		}
 
-		private static float CreateLandDelta(Planet planet, float shapeValue)
+		private float CreateLandDelta(Planet planet, float shapeValue)
 		{
-			return shapeValue * planet.Data.Dimensions.VariableAreaThickness;
+            float transformedShape = shapeValue - 0.5f;
+            float seaLevel = planet.Data.Dimensions.RelativeSeaLevel;
+            float transformdedSeaLevel = (seaLevel - 0.5f) * 2;
+            float posFactor = 1 - transformdedSeaLevel;
+            float negFactor = 1 + transformdedSeaLevel;
+            float factor;
+            if (transformedShape > 0)
+                factor = posFactor * transformedShape;
+            else if (transformedShape < 0)
+                factor = negFactor * transformedShape;
+            else
+                factor = 0;
+            factor += seaLevel;
+            return factor * planet.Data.Dimensions.MaxHullThickness;
 		}
 
-		private Vector3[] WarpSpherePoints(Vector3[] vertices, float[] warpValues)
-		{
-			for (int i = 0; i < vertices.Length; i++)
-			{
-                Vector3 vertex = vertices[i].normalized * _atmosphereRadius;
-                vertex = WarpSpherePoint(vertex, warpValues[i]);
-                vertices[i] = vertex.normalized * _atmosphereRadius;
-            }
-            return vertices;
-		}
-
-        private void InitContinentPlate(EvaluationPointData data, float value)
+        private void InitContinentPlate(EvaluationPointData data, float value, Parameter parameter)
         {
-            float continentalPlateHeight = value * _continentalPlateMax;
+            float continentalPlateHeight = value * parameter.Dimensions.MaxHullThickness;
             data.Layers[0].Height = data.Layers[0].Height - continentalPlateHeight;
             data.Layers.Insert(0, new PlanetLayerData(1, continentalPlateHeight));
         }
-
-        private EvaluationPointData[] CreateEvaluationPointsData(PlanetFace face)
-		{
-            int evaluationPointCount = face.VertexCount;
-            return CreateEvaluationPointsData(evaluationPointCount);
-        }
-
-        private EvaluationPointData[] CreateEvaluationPointsData(int amount)
-		{
-            EvaluationPointData[] result = new EvaluationPointData[amount];
-            for (int i = 0; i < amount; i++)
-                result[i] = CreateEvaluationPointData();
-            return result;
-        }
-
-
-        private EvaluationPointData CreateEvaluationPointData()
-		{
-            List<PlanetLayerData> layerData = new List<PlanetLayerData>(1) { new PlanetLayerData(0, 1) };
-			return new EvaluationPointData(layerData, new float[1]);
-		}
-
-		
-
-		private float[] WarpContientenalPlateEvaluationPoint(Vector3[] vertices)
-		{
-            NativeArray<Vector3> verticesNative = new NativeArray<Vector3>(vertices, Allocator.TempJob);
-            NativeArray<float> resultNative = _continentalPlatesWarpingNoise.Evaluate3D(verticesNative);
-            float[] result = resultNative.ToArray();
-            verticesNative.Dispose();
-            resultNative.Dispose();
-            return result;
-        }
-
-        private Vector3 WarpSpherePoint(Vector3 vertex, float warpValue)
-        {
-            Vector3 crossVector = vertex.normalized == Vector3.forward ? Vector3.right : Vector3.forward;
-            Vector3 tangential = Vector3.Cross(vertex, crossVector);
-            Vector3 deltaVector = tangential.normalized * warpValue * _atmosphereRadius * _warpFactor;
-            float sinWarpValueHalf = Mathf.Sin(Mathf.PI * warpValue);
-            float cosWarpValueHalf = Mathf.Cos(Mathf.PI * warpValue);
-            deltaVector = new Quaternion(sinWarpValueHalf * vertex.x,
-                sinWarpValueHalf * vertex.y,
-                sinWarpValueHalf * vertex.z,
-                cosWarpValueHalf).normalized * deltaVector;
-            return vertex + deltaVector;
-        }
-
         
+
+        public class Parameter
+		{
+            public Parameter(Seed seed,
+                int subdivisions,
+                PlanetDimensions dimensions,
+                PlanetAxisData axisData,
+                ContinentalPlatesParameter continentalPlatesParameter)
+			{
+				Seed = seed;
+				Subdivisions = subdivisions;
+				Dimensions = dimensions;
+				AxisData = axisData;
+				ContinentalPlatesParameter = continentalPlatesParameter;
+			}
+
+			public Seed Seed { get; }
+			public int Subdivisions { get; }
+			public PlanetDimensions Dimensions { get; }
+			public PlanetAxisData AxisData { get; }
+			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
+		}
     }
 }

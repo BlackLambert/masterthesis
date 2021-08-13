@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 
 namespace SBaier.Master
 {
@@ -15,12 +13,12 @@ namespace SBaier.Master
 			_oceanLevel = oceanLevel;
 		}
 
-        public float[] Shape(Vector3[] vertices)
+        public float[] Shape(EvaluationPointData[] pointsData)
 		{
-			float[] result = new float[vertices.Length];
-			int[] appliedBlendValues = new int[vertices.Length];
+			float[] result = new float[pointsData.Length];
+			int[] appliedBlendValues = new int[pointsData.Length];
 			Init(result, appliedBlendValues);
-			SumShapingValues(vertices, result, appliedBlendValues);
+			SumShapingValues(pointsData, result, appliedBlendValues);
 			CalculateAverage(result, appliedBlendValues);
 			return result;
 		}
@@ -37,15 +35,15 @@ namespace SBaier.Master
 			blendValues[index] = 0;
 		}
 
-		private void SumShapingValues(Vector3[] vertices, float[] result, int[] blendValues)
+		private void SumShapingValues(EvaluationPointData[] pointsData, float[] result, int[] blendValues)
 		{
 			for (int i = 0; i < _shapingLayers.Length; i++)
-				SumLayerShapingValues(vertices, result, blendValues, _shapingLayers[i]);
+				SumLayerShapingValues(pointsData, result, blendValues, _shapingLayers[i]);
 		}
 
-		private void SumLayerShapingValues(Vector3[] vertices, float[] result, int[] blendValues, ShapingLayer layer)
+		private void SumLayerShapingValues(EvaluationPointData[] pointsData, float[] result, int[] blendValues, ShapingLayer layer)
 		{
-			float[] evalValues = layer.Evaluate(vertices);
+			float[] evalValues = layer.Evaluate(pointsData.Select(d => d.WarpedPoint).ToArray());
 			for (int j = 0; j < evalValues.Length; j++)
 				SumShapingValues(result, blendValues, evalValues[j], j);
 		}

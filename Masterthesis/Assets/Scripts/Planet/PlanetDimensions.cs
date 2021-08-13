@@ -4,28 +4,48 @@ namespace SBaier.Master
 {
 	public struct PlanetDimensions
 	{
-		public PlanetDimensions(float kernalThickness, float atmosphereThickness)
+		public PlanetDimensions(float kernelRadius, float maxHullRadius, float relativeSeaLevel, float atmosphereRadius)
 		{
-			ValidateKernalThickness(kernalThickness);
-			ValidateAtmosphereThickness(atmosphereThickness);
+			ValidateKernalThickness(kernelRadius);
+			ValidateHullMaxRadius(maxHullRadius, kernelRadius);
+			ValidateRelativeSeaLevel(relativeSeaLevel);
+			ValidateAtmosphereThickness(atmosphereRadius, maxHullRadius);
 
-			KernalThickness = kernalThickness;
-			ThicknessRadius = atmosphereThickness;
+			KernalRadius = kernelRadius;
+			HullMaxRadius = maxHullRadius;
+			RelativeSeaLevel = relativeSeaLevel;
+			AtmosphereRadius = atmosphereRadius;
 		}
 
-		public float KernalThickness { get; }
-		public float ThicknessRadius { get; }
-		public float VariableAreaThickness => ThicknessRadius - KernalThickness;
+		public float KernalRadius { get; }
+		public float HullMaxRadius { get; }
+		public float AtmosphereRadius { get; }
+		public float RelativeSeaLevel { get; }
+		public float MaxHullThickness => HullMaxRadius - KernalRadius;
+		public float SeaLevel => (MaxHullThickness - KernalRadius) * RelativeSeaLevel + KernalRadius;
 
 
-		private static void ValidateKernalThickness(float kernalRadius)
+		private static void ValidateKernalThickness(float kernelRadius)
 		{
-			if (kernalRadius <= 0)
+			if (kernelRadius <= 0)
 				throw new ArgumentOutOfRangeException();
 		}
-		private static void ValidateAtmosphereThickness(float atmosphereThickness)
+
+		private static void ValidateHullMaxRadius(float hullMaxRadius, float kernelRadius)
 		{
-			if (atmosphereThickness <= 0)
+			if (hullMaxRadius <= kernelRadius)
+				throw new ArgumentOutOfRangeException();
+		}
+
+		private static void ValidateAtmosphereThickness(float atmosphereThickness, float maxHullRadius)
+		{
+			if (atmosphereThickness <= maxHullRadius)
+				throw new ArgumentOutOfRangeException();
+		}
+
+		private static void ValidateRelativeSeaLevel(float seaLevel)
+		{
+			if (seaLevel < 0 || seaLevel > 1)
 				throw new ArgumentOutOfRangeException();
 		}
 	}

@@ -11,6 +11,7 @@ namespace SBaier.Master
 		private RandomPointsOnSphereGenerator _randomPointsGenerator;
 		private SampleElimination3D _sampleElimination;
 		private QuickSelector<Vector3> _quickSelector;
+		private Seed _seed;
 
 		public int TargetSampleCount { get; }
 		public float BaseSamplesFactor { get; }
@@ -19,7 +20,8 @@ namespace SBaier.Master
 			float baseSamplesFactor,
 			SampleElimination3D sampleElimination,
 			RandomPointsOnSphereGenerator randomPointsGenerator,
-			QuickSelector<Vector3> quickSelector)
+			QuickSelector<Vector3> quickSelector,
+			Seed seed)
 		{
 			ValidateTargetSampes(targetSamples);
 			ValidateBaseSamplesFactor(baseSamplesFactor);
@@ -29,6 +31,7 @@ namespace SBaier.Master
 			_sampleElimination = sampleElimination;
 			_randomPointsGenerator = randomPointsGenerator;
 			_quickSelector = quickSelector;
+			_seed = seed;
 		}
 
 		private void ValidateTargetSampes(int targetSamples)
@@ -53,7 +56,6 @@ namespace SBaier.Master
 			ValidateSize(size);
 			CreateVericesFor(mesh, size);
 			CreateTrianglesFor(mesh, size);
-			_randomPointsGenerator.Reset();
 		}
 
 		private void CreateVericesFor(Mesh mesh, float size)
@@ -66,7 +68,7 @@ namespace SBaier.Master
 		private Vector3[] CreateBaseSamples(float size)
 		{
 			int baseSamplesCount = (int)(TargetSampleCount * BaseSamplesFactor);
-			return _randomPointsGenerator.Generate(baseSamplesCount, size);
+			return _randomPointsGenerator.Generate(baseSamplesCount, size, _seed);
 		}
 
 		private static void ValidateSize(float size)

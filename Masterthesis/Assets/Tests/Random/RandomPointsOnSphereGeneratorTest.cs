@@ -83,14 +83,6 @@ namespace SBaier.Master.Test
             }
         }
 
-        [Test]
-        public void Reset_ResetsTheSeed()
-		{
-            GivenADefaultSetup();
-            WhenResetIsCalledOnRandomPointsOnSphereGenerator();
-            ThenSeedIsReset();
-		}
-
 		private void GivenADefaultSetup()
 		{
             Container.Bind<Seed>().AsSingle().WithArguments(_seedNumber);
@@ -100,12 +92,8 @@ namespace SBaier.Master.Test
 
         private void WhenGenerateIsCalledWith(int amount, float radius)
         {
-            _points = _generator.Generate(amount, radius);
-        }
-
-        private void WhenResetIsCalledOnRandomPointsOnSphereGenerator()
-        {
-            _generator.Reset();
+            Seed seed = Container.Resolve<Seed>();
+            _points = _generator.Generate(amount, radius, seed);
         }
 
         private void ThenAmoutOfGeneratedPointsIsAsExpected(int amount)

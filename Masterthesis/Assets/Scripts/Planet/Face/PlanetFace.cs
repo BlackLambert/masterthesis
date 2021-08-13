@@ -51,7 +51,7 @@ namespace SBaier.Master
 
 		private void UpdatePosition(Vector3[] vertices, int vertexIndex)
 		{
-			Vector3 evaluationPoint = _vertexNormalized[vertexIndex].FastMultiply(_planetData.Dimensions.ThicknessRadius);
+			Vector3 evaluationPoint = _vertexNormalized[vertexIndex].FastMultiply(_planetData.Dimensions.AtmosphereRadius);
 			vertices[vertexIndex] = evaluationPoint;
 			EvaluationPointData data = Data.EvaluationPoints[vertexIndex];
 			int layersCount = data.Layers.Count;
@@ -64,7 +64,7 @@ namespace SBaier.Master
 			bool layerIsAir = layer.MaterialIndex == 0;
 			if (layerIsAir)
 				return;
-			float layerHeight = layer.Height * _planetData.Dimensions.VariableAreaThickness;
+			float layerHeight = layer.Height * _planetData.Dimensions.MaxHullThickness;
 			vertices[vertexIndex] = vertices[vertexIndex].FastAdd(_vertexNormalized[vertexIndex].FastMultiply(layerHeight));
 		}
 	}

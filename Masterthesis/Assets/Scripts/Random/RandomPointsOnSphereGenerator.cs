@@ -7,33 +7,25 @@ namespace SBaier.Master
 {
 	public class RandomPointsOnSphereGenerator
 	{
-		private readonly Seed _seed;
-
-		public RandomPointsOnSphereGenerator(Seed seed)
-		{
-			_seed = seed;
-		}
-
-
-		public Vector3[] Generate(int amount, float radius)
+		public Vector3[] Generate(int amount, float radius, Seed seed)
 		{
 			ValidateAmount(amount);
 			ValidateRadius(radius);
-			return DoGeneration(amount, radius);
+			return DoGeneration(amount, radius, seed);
 		}
 
-		private Vector3[] DoGeneration(int amount, float radius)
+		private Vector3[] DoGeneration(int amount, float radius, Seed seed)
 		{
 			Vector3[] vertices = new Vector3[amount];
 			for (int i = 0; i < amount; i++)
-				vertices[i] = CreateRandomVertex() * radius;
+				vertices[i] = CreateRandomVertex(seed) * radius;
 			return vertices;
 		}
 
-		private Vector3 CreateRandomVertex()
+		private Vector3 CreateRandomVertex(Seed seed)
 		{
-			float ran0 = (float)_seed.Random.NextDouble();
-			float ran1 = (float)_seed.Random.NextDouble();
+			float ran0 = (float)seed.Random.NextDouble();
+			float ran1 = (float)seed.Random.NextDouble();
 			float angle0 = ran0 * 2 * Mathf.PI;
 			float angle1 = Mathf.Acos(2 * ran1 - 1) - (Mathf.PI / 2);
 			float x = Mathf.Cos(angle1) * Mathf.Cos(angle0);
@@ -41,7 +33,7 @@ namespace SBaier.Master
 			float z = Mathf.Sin(angle1);
 			Vector3 result = new Vector3(x, y, z);
 			if (result == Vector3.zero)
-				return CreateRandomVertex();
+				return CreateRandomVertex(seed);
 			return result;
 		}
 
@@ -54,11 +46,6 @@ namespace SBaier.Master
 		{
 			if (radius <= 0)
 				throw new ArgumentOutOfRangeException();
-		}
-
-		public void Reset()
-		{
-			_seed.Reset();
 		}
 	}
 }

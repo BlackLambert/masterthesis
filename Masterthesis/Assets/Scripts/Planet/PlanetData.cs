@@ -7,6 +7,7 @@ namespace SBaier.Master
         public PlanetDimensions Dimensions { get; }
 		public TemperatureSpectrum TemperatureSpectrum { get; }
 		public PlanetAxisData PlanetAxis { get; }
+        public ContinentalPlates ContinentalPlates { get; set; }
 		public Seed Seed { get; }
 
         public PlanetData(

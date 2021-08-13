@@ -155,5 +155,10 @@ namespace SBaier.Master
 			if (argument == null)
 				throw new ArgumentNullException();
 		}
+
+		public void ClearCache()
+		{
+			_createdNoise.Clear();
+		}
 	}
 }

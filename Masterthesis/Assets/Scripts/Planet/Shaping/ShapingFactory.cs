@@ -39,7 +39,7 @@ namespace SBaier.Master
 
         private ShapingLayer[] CreateBorderShaping(Parameter parameter)
         {
-            ContinentalPlates plates = parameter.Plates;
+            ContinentalPlates plates = parameter.Data.ContinentalPlates;
             List<ShapingPrimitive> mountainPrimitives = new List<ShapingPrimitive>();
             List<ShapingPrimitive> canyonPrimitives = new List<ShapingPrimitive>();
             HashSet<Vector2Int> handledBorders = new HashSet<Vector2Int>();
@@ -86,9 +86,9 @@ namespace SBaier.Master
 
 		private ShapingPrimitive CreateCanyonsPrimitive(PlanetData data, Vector3 distanceVector, float weight, Vector3 pos)
         {
-            float maxBreadth = data.Dimensions.ThicknessRadius * _canyonsBreadthFactor;
-            float lengthAddition = data.Dimensions.ThicknessRadius * _lenthAdditionFactor;
-            float bledDistance = data.Dimensions.ThicknessRadius * _canyonsBlendDistanceFactor;
+            float maxBreadth = data.Dimensions.AtmosphereRadius * _canyonsBreadthFactor;
+            float lengthAddition = data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
+            float bledDistance = data.Dimensions.AtmosphereRadius * _canyonsBlendDistanceFactor;
             float length = distanceVector.magnitude + lengthAddition;
             float breadth = maxBreadth * weight;
             float blendValue = bledDistance * weight;
@@ -99,9 +99,9 @@ namespace SBaier.Master
 
 		private ShapingPrimitive CreateMountainPrimitive(PlanetData data, Vector3 distanceVector, float weight, Vector3 pos)
         {
-            float maxBreadth = data.Dimensions.ThicknessRadius * _mountainsBreadthFactor;
-            float lengthAddition = data.Dimensions.ThicknessRadius * _lenthAdditionFactor;
-            float bledDistance = data.Dimensions.ThicknessRadius * _mountainsBlendDistanceFactor;
+            float maxBreadth = data.Dimensions.AtmosphereRadius * _mountainsBreadthFactor;
+            float lengthAddition = data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
+            float bledDistance = data.Dimensions.AtmosphereRadius * _mountainsBlendDistanceFactor;
             float mountainLength = distanceVector.magnitude + lengthAddition;
             float mountainBreadth = maxBreadth * weight;
             float blendValue = bledDistance * weight;
@@ -133,18 +133,16 @@ namespace SBaier.Master
 
         public class Parameter
 		{
-            public Parameter(ContinentalPlates plates, 
+            public Parameter(
                 PlanetData data, 
                 Noise3D mountainNoise,
                 Noise3D canyonsNoise)
 			{
-				Plates = plates;
 				Data = data;
 				MountainNoise = mountainNoise;
 				CanyonsNoise = canyonsNoise;
 			}
 
-			public ContinentalPlates Plates { get; }
 			public PlanetData Data { get; }
 			public Noise3D MountainNoise { get; }
 			public Noise3D CanyonsNoise { get; }
