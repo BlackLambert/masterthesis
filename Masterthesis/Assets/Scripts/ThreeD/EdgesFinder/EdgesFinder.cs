@@ -7,59 +7,33 @@ namespace SBaier.Master
 {
     public abstract class EdgesFinder 
     {
-		protected IList<Polygon> _polygons;
-        public List<Vector2Int> Edges { get; }
+		protected Polygon[] _polygons;
+		protected List<Vector2Int> _edges;
 
-        public EdgesFinder(IList<Polygon> polygons)
+		public EdgesFinder()
+		{
+			Init(new Polygon[0]);
+			_edges = new List<Vector2Int>();
+		}
+
+        public EdgesFinder(Polygon[] polygons)
 		{
 			Init(polygons);
-            Edges = new List<Vector2Int>();
+            _edges = new List<Vector2Int>();
         }
 
-		public void Init(IList<Polygon> polygons)
+		public void Init(Polygon[] polygons)
 		{
 			_polygons = polygons;
 		}
 
-		public void Find()
+		public Vector2Int[] Find()
 		{
+			_edges.Clear();
 			FindEdges();
+			return _edges.ToArray();
 		}
 
-		private void FindEdges()
-		{
-			Edges.Clear();
-			for (int i = 0; i < _polygons.Count; i++)
-				AddEdges(i);
-		}
-
-		private void AddEdges(int polygonIndex)
-		{
-			Polygon polygon = _polygons[polygonIndex];
-			for (int i = 0; i < polygon.VertexIndices.Count; i++)
-				AddEdges(polygonIndex, i);
-		}
-
-		private void AddEdges(int polygonIndex, int edgeIndex)
-		{
-			Polygon polygon = _polygons[polygonIndex];
-			int corner0 = polygon.VertexIndices[edgeIndex];
-			int corner1 = polygon.VertexIndices[(edgeIndex + 1) % polygon.VertexIndices.Count];
-			Vector2Int edge = new Vector2Int(corner0, corner1);
-			if (CompareFunction(polygonIndex, edge))
-				Edges.Add(edge);
-		}
-		protected abstract bool CompareFunction(int polygonIndex, Vector2Int edge);
-
-
-		protected bool HasSharedEdge(int polygonIndex, int comparePolygonIndex, Vector2Int edge)
-		{
-			if (_polygons.Count <= 1)
-				return false;
-			if (polygonIndex == comparePolygonIndex)
-				return false;
-			Polygon polygonToCompare = _polygons[comparePolygonIndex];
-			return polygonToCompare.ContainsEdge(edge);
-		}
+		protected abstract void FindEdges();
 	}
 }

@@ -8,14 +8,14 @@ namespace SBaier.Master
     {
 		public Vector3 Site { get; }
         public Type RegionType { get; }
-		public IList<int> Segements { get; }
+		public int[] Segements { get; }
 		public Vector2Int[] Borders { get; }
 
 		private int[] _borderCorners;
-		public override IList<int> VertexIndices => _borderCorners;
+		public override int[] VertexIndices => _borderCorners;
 
 		public ContinentalRegion(Type regionType,
-			IList<int> segements,
+			int[] segements,
 			Vector3 site,
 			Vector2Int[] borders)
 		{

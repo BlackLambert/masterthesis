@@ -18,7 +18,7 @@ namespace SBaier.Master
 		{
 			Vector3[] vertices = new Vector3[amount];
 			for (int i = 0; i < amount; i++)
-				vertices[i] = CreateRandomVertex(seed) * radius;
+				vertices[i] = CreateRandomVertex(seed).normalized * radius;
 			return vertices;
 		}
 

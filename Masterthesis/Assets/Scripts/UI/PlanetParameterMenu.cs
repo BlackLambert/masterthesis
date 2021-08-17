@@ -44,6 +44,11 @@ namespace SBaier.Master
 		[SerializeField]
 		private SliderPanel _sampleEliminationPanel;
 
+		[Header("Temperature")]
+		[SerializeField]
+		private SliderPanel _minTempPanel;
+		[SerializeField]
+		private SliderPanel _maxTempPanel;
 
 		public PlanetGenerator.Parameter CreateParameters()
 		{
@@ -52,6 +57,7 @@ namespace SBaier.Master
 			PlanetDimensions dimensions = CreatePlanetDimensions();
 			PlanetAxisData axis = CreateAxisData();
 			ContinentalPlatesParameter continentalPlatesParameter = CreateContinentalPlatesParameter();
+			TemperatureSpectrum temperatureSpectrum = CreateTemperatureSpecturm();
 
 			return new PlanetGenerator.Parameter
 			(
@@ -59,8 +65,16 @@ namespace SBaier.Master
 				subdivisions: subdivisions,
 				dimensions: dimensions,
 				axisData: axis,
-				continentalPlatesParameter: continentalPlatesParameter
+				continentalPlatesParameter: continentalPlatesParameter,
+				temperatureSpectrum: temperatureSpectrum
 			);
+		}
+
+		private TemperatureSpectrum CreateTemperatureSpecturm()
+		{
+			float minTemp = _minTempPanel.Slider.value;
+			float maxTemp = _maxTempPanel.Slider.value;
+			return new TemperatureSpectrum(minTemp, maxTemp);
 		}
 
 		private PlanetDimensions CreatePlanetDimensions()

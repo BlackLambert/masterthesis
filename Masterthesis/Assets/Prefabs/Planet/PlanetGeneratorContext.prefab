@@ -43,33 +43,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7da841977e66e8479ab5c3ded757f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _subdivisions: 50
-  _bedrockRadius: 4
-  _atmosphereRadius: 8
-  _continentalPlateMax: 0.1
-  _teperatureMin: -20
-  _teperatureMax: 50
-  _axisAngle: 20
-  _secondsPerRevolution: 30
   _meshGeneratorSettings: {fileID: 11400000, guid: 86b7aeb38c78f5641a1e443ed573a59a, type: 2}
-  _plateSegments: 150
-  _warpFactor: 0.1
-  _segmentsBlendFactor: 0.05
-  _sampleEliminationFactor: 1
-  _oceans: 10
-  _continents: 10
-  _plates: 10
-  _biomes:
+  _biomeSettings:
+  - {fileID: 11400000, guid: 360345bef8046af4da49e31a29e6292f, type: 2}
+  - {fileID: 11400000, guid: 38cd609c0a8da0e47a754293b58ef606, type: 2}
+  - {fileID: 11400000, guid: 47e19f6d015b1c84c9b0ee9f5dab2f93, type: 2}
   - {fileID: 11400000, guid: 4a6995e68f5daaa4eb5c5a6e50fbea73, type: 2}
   - {fileID: 11400000, guid: 1bf6d7eed219f314dab088ba8e64f547, type: 2}
   - {fileID: 11400000, guid: 591b8a21d1808d54b97a95cc1249dd5f, type: 2}
-  - {fileID: 11400000, guid: 360345bef8046af4da49e31a29e6292f, type: 2}
-  - {fileID: 11400000, guid: 38cd609c0a8da0e47a754293b58ef606, type: 2}
   _continentalPlatesNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentsNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: 659ba8ba4d420cf4ab195dbd26bfad3b, type: 2}
   _mountainsNoiseSettings: {fileID: 11400000, guid: d2aea82b9908fc3478726ab3ca4cc7ea, type: 2}
   _canyonsNoiseSettings: {fileID: 11400000, guid: 743d90bea4a76cd4ca648c120d985a9d, type: 2}
+  _oceansNoiseSettings: {fileID: 11400000, guid: ef359df310201dd488a19e79999403b2, type: 2}
+  _continentNoiseSettings: {fileID: 11400000, guid: 10ec1d252904f784bb8aca6023025134, type: 2}
+  _baseNoiseSettings: {fileID: 11400000, guid: b2c3ef0489eadd043bc1cda94d8785a8, type: 2}
   _delaunay: {fileID: 0}
   _voronoi: {fileID: 0}
 --- !u!1 &1206705532341609962

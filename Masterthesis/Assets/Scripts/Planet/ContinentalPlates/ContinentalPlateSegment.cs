@@ -17,6 +17,6 @@ namespace SBaier.Master
 		public int BiomeID { get; set; }
 		public int[] Neighbors => VoronoiRegion.Neighbors;
 
-		public override IList<int> VertexIndices => VoronoiRegion.VertexIndices;
+		public override int[] VertexIndices => VoronoiRegion.VertexIndices;
 	}
 }

@@ -29,7 +29,7 @@ namespace SBaier.Master
 			int segmentsAmount = parameters.ContinentalPlatesParameter.SegmentsAmount;
 			Vector3[] plateSegmentSites = CreateSites(parameters, segmentsAmount);
 			Triangle[] segmentsTriangles = CreatePlateSegmentTriangles(plateSegmentSites);
-			VoronoiDiagram segmentsVoronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, segmentsTriangles);
+			VoronoiDiagram segmentsVoronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, segmentsTriangles, parameters.Planet.AtmosphereRadius);
 			ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites, segmentsVoronoi);
 			ContinentalRegion[] regions = CreateRegions(parameters, plateSegmentSites, segments);
 			ContinentalPlate[] plates = CreatePlates(parameters, regions);
@@ -58,50 +58,69 @@ namespace SBaier.Master
 		{
 
 			List<Polygon> polygons = ExtractPolygons(regionToSegments[index], segments);
-			Vector2Int[] borders = GetBorders(polygons);
-			ContinentalRegion.Type type = index <= parameters.ContinentalPlatesParameter.OceansAmount ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
+			Vector2Int[] borders = GetBorders(polygons.ToArray());
+			ContinentalRegion.Type type = index < parameters.ContinentalPlatesParameter.OceansAmount ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
 			List<int> segmentIndices = regionToSegments[index];
-			int[] segmentBiomes = ChooseBiomes(parameters, type, segmentIndices.Count);
+
 			for (int i = 0; i < segmentIndices.Count; i++)
-				segments[segmentIndices[i]].BiomeID = segmentBiomes[i];
-			return new ContinentalRegion(type, regionToSegments[index], regionSites[index], borders);
+			{
+				ContinentalPlateSegment segment = segments[segmentIndices[i]];
+				int biomeIndex = ChooseBiome(parameters, segment, type);
+				segment.BiomeID = biomeIndex;
+			}
+			
+			return new ContinentalRegion(type, regionToSegments[index].ToArray(), regionSites[index], borders);
 		}
 
-		private int[] ChooseBiomes(Parameters parameters, ContinentalRegion.Type type, int count)
+		private int ChooseBiome(Parameters parameters, ContinentalPlateSegment segment, ContinentalRegion.Type type)
 		{
+			float temperature = CalculateTemperature(parameters, segment);
+
 			List<int> possibleBiomes = new List<int>();
-			int[] result = new int[count];
 			int sum = 0;
 			for (int i = 0; i < parameters.Biomes.Length; i++)
 			{
-				if (parameters.Biomes[i].RegionType != type)
+				if (!IsBiomePossible(parameters.Biomes[i], type, temperature))
 					continue;
 				possibleBiomes.Add(i);
 				sum += parameters.Biomes[i].Frequency;
 			}
 
-			for (int i = 0; i < count; i++)
+			int randomNum = parameters.Seed.Random.Next(0, sum + 1);
+			int frequencyArea = 0;
+			for (int j = 0; j < possibleBiomes.Count; j++)
 			{
-				int randomNum = parameters.Seed.Random.Next(0, sum + 1);
-				int frequencyArea = 0;
-				for (int j = 0; j < possibleBiomes.Count; j++)
-				{
-					int biomeID = possibleBiomes[j];
-					BiomeSettings biome = parameters.Biomes[biomeID];
-					frequencyArea += biome.Frequency;
-					if (frequencyArea >= randomNum)
-					{
-						result[i] = biomeID;
-						break;
-					}
-				}
+				int biomeID = possibleBiomes[j];
+				BiomeSettings biome = parameters.Biomes[biomeID];
+				frequencyArea += biome.Frequency;
+				if (frequencyArea >= randomNum)
+					return biomeID;
 			}
-			return result;
+			throw new NoFittingBiomeFoundException();
 		}
 
-		private VoronoiDiagram CreatePlateSegmentVoronoiDiagram(Vector3[] plateSegmentSites, Triangle[] triangles)
+		private bool IsBiomePossible(BiomeSettings biome, ContinentalRegion.Type type, float temperature)
 		{
-			VoronoiDiagram diagram = new SphericalVoronoiCalculator(triangles, plateSegmentSites).CalculateVoronoiDiagram();
+			bool isRightRegion = biome.RegionType == type;
+			float minTemp = biome.TemperatureSpecturm.x;
+			float maxTemp = biome.TemperatureSpecturm.y;
+			bool isInsideTempSpectrum = temperature >= minTemp && temperature <= maxTemp;
+			bool hasRightTemperature = !biome.UseTemeratureSpectrum || isInsideTempSpectrum;
+			return isRightRegion && hasRightTemperature;
+		}
+
+		private float CalculateTemperature(Parameters parameters, ContinentalPlateSegment segment)
+		{
+			Vector3 site = segment.Site;
+			TemperatureSpectrum spectrum = parameters.Planet.Data.TemperatureSpectrum;
+			float angle = Vector3.Angle(site, Vector3.up);
+			float t = 1 - Mathf.Abs((angle - 90) / 90);
+			return Mathf.Lerp(spectrum.Min, spectrum.Max, t);
+		}
+
+		private VoronoiDiagram CreatePlateSegmentVoronoiDiagram(Vector3[] plateSegmentSites, Triangle[] triangles, float radius)
+		{
+			VoronoiDiagram diagram = new SphericalVoronoiCalculator(triangles, plateSegmentSites, radius).CalculateVoronoiDiagram();
 			return diagram;
 		}
 
@@ -131,7 +150,7 @@ namespace SBaier.Master
 			Vector3 movementTangent = CalculateMovementTangent(plateSites[index], seed);
 			float movementStrength = CalculateMovementStrength(seed);
 			List<Polygon> polygons = ExtractPolygons(plateToRegion[index], regions);
-			Vector2Int[] borders = GetBorders(polygons);
+			Vector2Int[] borders = GetBorders(polygons.ToArray());
 			return new ContinentalPlate(plateSites[index], plateToRegion[index].ToArray(), movementTangent, movementStrength, borders);
 		}
 
@@ -155,11 +174,10 @@ namespace SBaier.Master
 				cosWarpValueHalf).normalized * tangential;
 		}
 
-		private static Vector2Int[] GetBorders(IList<Polygon> polygons)
+		private static Vector2Int[] GetBorders(Polygon[] polygons)
 		{
 			EdgesFinder finder = new UnsharedEdgesFinder(polygons);
-			finder.Find();
-			Vector2Int[] borders = finder.Edges.ToArray();
+			Vector2Int[] borders = finder.Find();
 			return borders;
 		}
 
@@ -212,11 +230,11 @@ namespace SBaier.Master
 			result[siteIndex].Add(index);
 		}
 
-
 		public class Parameters
 		{
 
-			public Parameters(Planet planet, 
+			public Parameters(
+				Planet planet, 
 				Seed seed, 
 				ContinentalPlatesParameter continentalPlatesParameter,
 				BiomeSettings[] biomes)
@@ -232,5 +250,7 @@ namespace SBaier.Master
 			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
 			public BiomeSettings[] Biomes { get; }
 		}
+
+		public class NoFittingBiomeFoundException : ArgumentException { }
 	}
 }

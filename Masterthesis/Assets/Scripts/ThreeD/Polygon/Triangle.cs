@@ -9,15 +9,15 @@ namespace SBaier.Master
     {
 		private int[] _vertexIndices;
 		public Vector3 Normal { get; }
-        public Vector3 Circumcenter { get; }
+        public Vector3 CircumcenterCenter { get; }
 
-		public override IList<int> VertexIndices => _vertexIndices;
+		public override int[] VertexIndices => _vertexIndices;
 
-		public Triangle(int[] vertexIndices, Vector3 normal, Vector3 circumcenter)
+		public Triangle(int[] vertexIndices, Vector3 normal, Vector3 circumcenterCenter)
 		{
             _vertexIndices = vertexIndices;
             Normal = normal;
-            Circumcenter = circumcenter;
+            CircumcenterCenter = circumcenterCenter;
         }
 	}
 }

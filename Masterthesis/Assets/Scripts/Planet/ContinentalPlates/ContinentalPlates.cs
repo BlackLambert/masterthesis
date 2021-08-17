@@ -31,7 +31,6 @@ namespace SBaier.Master
 		public ContinentalPlate[] Plates { get; }
 		public Vector3[] SegmentSites => GetSegmentSites();
 		public Vector3[] SegmentCorners => SegmentsVoronoi.Vertices;
-		public Vector3[] RegionSites => GetRegionSites();
 		public Vector2Int[] PlateNeighbors { get; }
 		public Dictionary<Vector2Int, Vector2Int[]> PlateBorders { get; }
 		public VoronoiDiagram SegmentsVoronoi { get; }

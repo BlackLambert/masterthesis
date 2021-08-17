@@ -11,18 +11,18 @@ namespace SBaier.Master
 			ValidateRelativeSeaLevel(relativeSeaLevel);
 			ValidateAtmosphereThickness(atmosphereRadius, maxHullRadius);
 
-			KernalRadius = kernelRadius;
+			KernelRadius = kernelRadius;
 			HullMaxRadius = maxHullRadius;
 			RelativeSeaLevel = relativeSeaLevel;
 			AtmosphereRadius = atmosphereRadius;
 		}
 
-		public float KernalRadius { get; }
+		public float KernelRadius { get; }
 		public float HullMaxRadius { get; }
 		public float AtmosphereRadius { get; }
 		public float RelativeSeaLevel { get; }
-		public float MaxHullThickness => HullMaxRadius - KernalRadius;
-		public float SeaLevel => (MaxHullThickness - KernalRadius) * RelativeSeaLevel + KernalRadius;
+		public float MaxHullThickness => HullMaxRadius - KernelRadius;
+		public float SeaLevel => MaxHullThickness * RelativeSeaLevel + KernelRadius;
 
 
 		private static void ValidateKernalThickness(float kernelRadius)

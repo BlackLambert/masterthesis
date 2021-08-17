@@ -8,17 +8,17 @@ namespace SBaier.Master
     public class ContinentalPlate : Polygon
     {
         public Vector3 Site { get; }
-        public IList<int> Regions { get; }
+        public int[] Regions { get; }
         public Vector3 MovementTangent { get; }
 		public float MovementStrength { get; }
 		public Vector2Int[] Borders { get; }
 
         private int[] _borderCorners;
-		public override IList<int> VertexIndices => _borderCorners;
+		public override int[] VertexIndices => _borderCorners;
 
 		public ContinentalPlate(
             Vector3 site,
-            IList<int> regions,
+            int[] regions,
             Vector3 movementTangent,
             float movementStrength,
             Vector2Int[] borders)

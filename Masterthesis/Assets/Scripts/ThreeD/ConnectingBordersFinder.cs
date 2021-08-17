@@ -10,9 +10,13 @@ namespace SBaier.Master
 		public Dictionary<Vector2Int, Vector2Int[]> NeighborsToBorders { get; private set; }
 		public Vector2Int[] Neighbors { get; private set; }
 
-		public ConnectingBordersFinder(IList<Polygon> polygons)
+		private SharedEdgesFinder _sharedEdgesFinder;
+
+		public ConnectingBordersFinder(
+			IList<Polygon> polygons)
 		{
 			_polygons = polygons;
+			_sharedEdgesFinder = new SharedEdgesFinder();
 		}
 
 		public void Calcualte()
@@ -34,15 +38,14 @@ namespace SBaier.Master
 		{
 			Vector2Int polyBorderIJ = new Vector2Int(poly0Index, poly1Index);
 			Polygon[] polygones = new Polygon[] { _polygons[poly0Index], _polygons[poly1Index] };
-			Vector2Int[] edges = GetBorders(polygones);
-			result.Add(polyBorderIJ, edges);
+			Vector2Int[] edges = GetSharedBorders(polygones);
+			result[polyBorderIJ] = edges;
 		}
 
-		private static Vector2Int[] GetBorders(IList<Polygon> polygons)
+		private Vector2Int[] GetSharedBorders(Polygon[] polygons)
 		{
-			EdgesFinder finder = new SharedEdgesFinder(polygons);
-			finder.Find();
-			Vector2Int[] borders = finder.Edges.ToArray();
+			_sharedEdgesFinder.Init(polygons);
+			Vector2Int[] borders = _sharedEdgesFinder.Find();
 			return borders;
 		}
 

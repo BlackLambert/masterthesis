@@ -9,12 +9,14 @@ namespace SBaier.Master
     {
 		private readonly IList<Triangle> _delaunayTriangles;
 		private readonly IList<Vector3> _sites;
+		private readonly float _radius;
 
 		public SphericalVoronoiCalculator(IList<Triangle> delaunayTriangles,
-			IList<Vector3> sites)
+			IList<Vector3> sites, float radius)
 		{
-			this._delaunayTriangles = delaunayTriangles;
-			this._sites = sites;
+			_delaunayTriangles = delaunayTriangles;
+			_sites = sites;
+			_radius = radius;
 		}
 
         public VoronoiDiagram CalculateVoronoiDiagram()
@@ -22,27 +24,34 @@ namespace SBaier.Master
 			Vector3[] vertices = GetVertices(_delaunayTriangles);
             VoronoiRegion[] regions = new VoronoiRegion[_sites.Count];
 			for (int i = 0; i < _sites.Count; i++)
-			{
-				Vector3 site = _sites[i];
-				List<int> neighborTriangles = new List<int>();
-				for (int j = 0; j < _delaunayTriangles.Count; j++)
-				{
-					Triangle triangle = _delaunayTriangles[j];
-					if (!triangle.ContainsCorner(i))
-						continue;
-					neighborTriangles.Add(j);
-				}
-				regions[i] = Create(site, neighborTriangles, i);
-			}
+				regions[i] = CreateRegion(i);
 			SetNeighbors(regions);
             return new VoronoiDiagram(regions, vertices);
+		}
+
+		private VoronoiRegion CreateRegion(int siteIndex)
+		{
+			Vector3 site = _sites[siteIndex];
+			List<int> neighborTriangles = new List<int>();
+			for (int j = 0; j < _delaunayTriangles.Count; j++)
+			{
+				if(TriangleHasCorner(j, siteIndex))
+					neighborTriangles.Add(j);
+			}
+			return Create(site, neighborTriangles, siteIndex);
+		}
+
+		private bool TriangleHasCorner(int triangleIndex, int siteIndex)
+		{
+			Triangle triangle = _delaunayTriangles[triangleIndex];
+			return triangle.HasCorner(siteIndex);
 		}
 
 		private Vector3[] GetVertices(IList<Triangle> delaunayTriangles)
 		{
 			Vector3[] result = new Vector3[delaunayTriangles.Count];
 			for (int i = 0; i < delaunayTriangles.Count; i++)
-				result[i] = delaunayTriangles[i].Circumcenter;
+				result[i] = delaunayTriangles[i].CircumcenterCenter.normalized * _radius;
 			return result;
 		}
 
@@ -111,10 +120,10 @@ namespace SBaier.Master
 				for (int j = 0; j < allNeighbors.Length; j++)
 				{
 					Vector2Int n = allNeighbors[j];
-					if (n[0] == i)
-						neighbors.Add(n[1]);
-					if (n[1] == i)
-						neighbors.Add(n[0]);
+					if (n.x == i)
+						neighbors.Add(n.y);
+					if (n.y == i)
+						neighbors.Add(n.x);
 				}
 				currentRegion.SetNeighbors(neighbors.ToArray());
 			}

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-	public class ElipsoidShapePrimitive : ShapingPrimitive
+	public class ElipsoidShapingPrimitive : ShapingPrimitive
 	{
 		private Vector3 _kernelFocus0;
 		private Vector3 _kernelFocus1;
@@ -12,9 +12,11 @@ namespace SBaier.Master
 		private float _areaOfEffectFocusDistance;
 		private float _distanceDelta;
 
+		private float _focusDistance;
+
 		public override float MaxAreaOfEffect { get; }
 
-		public ElipsoidShapePrimitive(Vector3 position, Vector3 stretchDirection, float min, float max, float blendArea, float weight) : 
+		public ElipsoidShapingPrimitive(Vector3 position, Vector3 stretchDirection, float min, float max, float blendArea, float weight) : 
 			base(position, blendArea, weight)
 		{
 			ValidateMinMax(min, max);
@@ -63,24 +65,27 @@ namespace SBaier.Master
 			return new Vector3[] { focus0 , focus1};
 		}
 
+		protected override void InitEvaluation(Vector3 point)
+		{
+			_focusDistance = GetFocusDistance(point);
+		}
+
 		protected override float GetBlendedValue(Vector3 point)
 		{
-			float kernelDistance = GetFocusDistance(point);
-			float kernelDelta = kernelDistance - _kernelFocusDistance;
-			float result = Mathf.Pow(1 - kernelDelta / _distanceDelta, 2);
+			float kernelDelta = _focusDistance - _kernelFocusDistance;
+			float result = 1 - kernelDelta / _distanceDelta;
+			result *= result;
 			return result;
 		}
 
 		protected override bool IsInsideKernel(Vector3 point)
 		{
-			float distanceSum = GetFocusDistance(point);
-			return distanceSum <= _kernelFocusDistance;
+			return _focusDistance <= _kernelFocusDistance;
 		}
 
-		public override bool IsOutsideAreaOfEffect(Vector3 point)
+		protected override bool IsOutsideAreaOfEffect(Vector3 point)
 		{
-			float distanceSum = GetFocusDistance(point);
-			return distanceSum > _areaOfEffectFocusDistance;
+			return _focusDistance > _areaOfEffectFocusDistance;
 		}
 
 		private float GetFocusDistance(Vector3 point)
@@ -89,11 +94,6 @@ namespace SBaier.Master
 			Vector3 focusDistance1 = point.FastSubstract(_kernelFocus1);
 			float distanceSum = focusDistance0.magnitude + focusDistance1.magnitude;
 			return distanceSum;
-		}
-
-		protected override NativeArray<float> Evaluate(NativeArray<Vector3> points)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

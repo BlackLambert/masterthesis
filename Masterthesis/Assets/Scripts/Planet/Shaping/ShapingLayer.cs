@@ -13,18 +13,26 @@ namespace SBaier.Master
 
 		public ShapingPrimitive[] Primitives { get; }
 		public Noise3D Noise { get; }
+		public Mode ShapingMode { get; }
 
-		public ShapingLayer(ShapingPrimitive[] primitives, KDTree<Vector3> primitivesTree, Noise3D noise)
+
+		public ShapingLayer(ShapingPrimitive[] primitives, KDTree<Vector3> primitivesTree, Noise3D noise, Mode mode)
 		{
 			Primitives = primitives;
 			Noise = noise;
 			_kDTree = primitivesTree;
-			_maxAreaOfEffect = Primitives.Max(p => p.MaxAreaOfEffect);
+			_maxAreaOfEffect = Primitives.Length > 0 ? Primitives.Max(p => p.MaxAreaOfEffect) : 0;
+			ShapingMode = mode;
 		}
 
-		public float[] Evaluate(Vector3[] vertices)
+		public Result Evaluate(Vector3[] vertices)
 		{
-			float[] result = new float[vertices.Length];
+			float[] weights = new float[vertices.Length];
+			float[] evaluatedValues = new float[vertices.Length];
+
+			if (Primitives.Length == 0)
+				return new Result(evaluatedValues, weights);
+
 			NativeArray<Vector3> nativeVertices = new NativeArray<Vector3>(vertices, Allocator.TempJob);
 			NativeArray<float> evalPoints = Noise.Evaluate3D(nativeVertices);
 			nativeVertices.Dispose();
@@ -36,22 +44,36 @@ namespace SBaier.Master
 				for (int j = 0; j < count; j++)
 				{
 					ShapingPrimitive primitive = Primitives[nearestPrimitives[j]];
-					float formerValue = result[i];
-					float evaluatedValue = primitive.Evaluate(vertex);
-					float value = Mathf.Max(formerValue, evaluatedValue);
-					result[i] = value;
+					float formerWeight = weights[i];
+					float evaluatedWeight = primitive.Evaluate(vertex);
+					float value = Mathf.Max(formerWeight, evaluatedWeight);
+					weights[i] = value;
 				}
-				
-				result[i] = CalculateNewValue(evalPoints[i], result[i]);
+
+				evaluatedValues[i] = evalPoints[i];
 			}
 			evalPoints.Dispose();
-			return result;
+			return new Result(evaluatedValues, weights);
 		}
-		private float CalculateNewValue(float evalValue, float shapingValue)
+
+		public class Result
 		{
-			float newValue = (evalValue - 0.5f) * 2;
-			newValue *= shapingValue;
-			return newValue / 2 + 0.5f;
+			public Result(float[] evaluatedValues,
+				float[] weight)
+			{
+				EvaluatedValues = evaluatedValues;
+				Weight = weight;
+			}
+
+			public float[] EvaluatedValues { get; }
+			public float[] Weight { get; }
+		}
+
+		public enum Mode
+		{
+			Blend = 0,
+			Add = 1,
+			Substract = 2
 		}
 	}
 }

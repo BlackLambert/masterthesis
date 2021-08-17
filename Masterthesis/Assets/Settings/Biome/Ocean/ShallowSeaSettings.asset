@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caf9c650b0cddbd4f808a05a790bc18d, type: 3}
   m_Name: ShallowSeaSettings
   m_EditorClassIdentifier: 
-  _baseColor: {r: 0.19496846, g: 0.59748423, b: 1, a: 1}
+  _baseColor: {r: 0, g: 0.3529412, b: 0.7058824, a: 1}
   _frequency: 1
+  _useTemeratureSpectrum: 1
+  _temperatureSpecturm: {x: 0, y: 1000}

@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: IceBiomeSettings
   m_EditorClassIdentifier: 
   _baseColor: {r: 1, g: 1, b: 1, a: 1}
-  _frequency: 1
+  _frequency: 2
+  _useTemeratureSpectrum: 1
+  _temperatureSpecturm: {x: -1000, y: 0}
   _mountainSlopeColor: {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
+  _slopeThreshold: 0.3

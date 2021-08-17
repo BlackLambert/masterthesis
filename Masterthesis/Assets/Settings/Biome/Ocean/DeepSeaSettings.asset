@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caf9c650b0cddbd4f808a05a790bc18d, type: 3}
   m_Name: DeepSeaSettings
   m_EditorClassIdentifier: 
-  _baseColor: {r: 0, g: 0.35273615, b: 0.7075472, a: 1}
+  _baseColor: {r: 0, g: 0.2924528, b: 0.5849056, a: 1}
   _frequency: 1
+  _useTemeratureSpectrum: 1
+  _temperatureSpecturm: {x: 0, y: 1000}

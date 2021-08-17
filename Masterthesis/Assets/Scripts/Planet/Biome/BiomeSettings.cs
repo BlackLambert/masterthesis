@@ -14,5 +14,13 @@ namespace SBaier.Master
         private int _frequency = 1;
         public int Frequency => _frequency;
         public abstract ContinentalRegion.Type RegionType { get; }
+
+        [SerializeField]
+        private bool _useTemeratureSpectrum = true;
+        public bool UseTemeratureSpectrum => _useTemeratureSpectrum;
+
+        [SerializeField]
+        private Vector2 _temperatureSpecturm = new Vector2(0, 30);
+        public Vector2 TemperatureSpecturm => _temperatureSpecturm;
     }
 }

@@ -63,9 +63,8 @@ namespace SBaier.Master
 			for (int i = 0; i < trianglesToRemove.Count; i++)
 				Result.RemoveAt(trianglesToRemove[i]);
 
-			EdgesFinder unsharedEdgesFinder = new UnsharedEdgesFinder(trianglesInView);
-			unsharedEdgesFinder.Find();
-			Vector2Int[] unsharedEdges = unsharedEdgesFinder.Edges.ToArray();
+			EdgesFinder unsharedEdgesFinder = new UnsharedEdgesFinder(trianglesInView.ToArray());
+			Vector2Int[] unsharedEdges = unsharedEdgesFinder.Find();
 
 			foreach (Vector2Int edge in unsharedEdges)
 				ReconnectPoints(index, edge);

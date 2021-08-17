@@ -1,28 +1,44 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SBaier.Master
 {
 	public class SharedEdgesFinder : EdgesFinder
 	{
-		public SharedEdgesFinder(IList<Polygon> polygons) : base(polygons)
+		public SharedEdgesFinder() : base() { }
+		public SharedEdgesFinder(Polygon[] polygons) : base(polygons) { }
+
+		protected override void FindEdges()
 		{
+			int polygonsCount = _polygons.Length;
+			for (int i = 0; i < polygonsCount; i++)
+				FindSharedEdges(i);
 		}
 
-		protected override bool CompareFunction(int polygonIndex, Vector2Int edge)
+		private void FindSharedEdges(int polygonIndex)
 		{
-			return IsSharedEdge(polygonIndex, edge);
+			Polygon polygon = _polygons[polygonIndex];
+			int cornersCount = polygon.VertexIndices.Length;
+			for (int i = 0; i < cornersCount; i++)
+				FindSharedEdges(polygonIndex, i);
+		}
+
+		private void FindSharedEdges(int polygonIndex, int edgeIndex)
+		{
+			Polygon polygon = _polygons[polygonIndex];
+			int corner0 = polygon.VertexIndices[edgeIndex];
+			int corner1 = polygon.VertexIndices[(edgeIndex + 1) % polygon.VertexIndices.Length];
+			Vector2Int edge = new Vector2Int(corner0, corner1);
+			if (IsSharedEdge(polygonIndex, edge))
+				_edges.Add(edge);
 		}
 
 		private bool IsSharedEdge(int polygonIndex, Vector2Int edge)
 		{
-			for (int k = 0; k < _polygons.Count; k++)
+			int polygonsCount = _polygons.Length;
+			for (int i = polygonIndex + 1; i < polygonsCount; i++)
 			{
-				Vector2Int reverse = new Vector2Int(edge.y, edge.x);
-				if (Edges.Contains(edge) || Edges.Contains(reverse))
-					return false;
-				if (HasSharedEdge(polygonIndex, k, edge))
+				Polygon polygonToCompare = _polygons[i];
+				if (polygonToCompare.HasEdge(edge))
 					return true;
 			}
 			return false;

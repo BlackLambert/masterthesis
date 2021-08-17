@@ -28,11 +28,11 @@ namespace SBaier.Master
         public Planet Create(Parameter parameter)
 		{
 			Mesh baseMesh = new Mesh();
-            _icosahedronGenerator.GenerateMeshFor(baseMesh, parameter.Dimensions.KernalRadius);
+            _icosahedronGenerator.GenerateMeshFor(baseMesh, parameter.Dimensions.KernelRadius);
             MeshFaceSeparatorTarget[] targets = _faceSeparator.Separate(baseMesh);
             PlanetFace[] faces = GetFaces(targets);
 			SubdivideFaces(faces, parameter.Subdivisions);
-			FormSphere(faces, parameter.Dimensions.KernalRadius);
+			FormSphere(faces, parameter.Dimensions.KernelRadius);
 			PlanetData data = CreatePlanetData(parameter);
 			Init(faces, data);
 			Planet planet = CreatePlanet(data);

@@ -10,19 +10,13 @@ namespace SBaier.Master
 {
     public class PlanetGenerator : MonoBehaviour
     {
-        [Header("Temperature Spectrum")]
-        [SerializeField]
-        private float _teperatureMin = -20f;
-        [SerializeField]
-        private float _teperatureMax = 50f;
-
         [Header("Planet Body")]
         [SerializeField]
         private IcosahedronGeneratorSettings _meshGeneratorSettings;
 
         [Header("Biome")]
         [SerializeField]
-        private BiomeSettings[] _biomes;
+        private BiomeSettings[] _biomeSettings;
 
         [Header("Noise")]
         [SerializeField]
@@ -35,13 +29,21 @@ namespace SBaier.Master
         private NoiseSettings _mountainsNoiseSettings;
         [SerializeField]
         private NoiseSettings _canyonsNoiseSettings;
+        [SerializeField]
+        private NoiseSettings _oceansNoiseSettings;
+        [SerializeField]
+        private NoiseSettings _continentNoiseSettings;
+        [SerializeField]
+        private NoiseSettings _baseNoiseSettings;
 
         [SerializeField]
         private MeshFilter _delaunay;
         [SerializeField]
         private MeshFilter _voronoi;
+        [SerializeField]
+        private Transform _atmosphere;
 
-        BasicPlanetFactory _basicPlanetFactory;
+        private BasicPlanetFactory _basicPlanetFactory;
         private Vector3BinaryKDTreeFactory _treeFactory;
         private ContinentalPlatesFactory _continentalPlatesFactory;
         private ShapingFactory _shapingFactory;
@@ -51,8 +53,12 @@ namespace SBaier.Master
         private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
+        private Noise3D _oceansNoise;
+        private Noise3D _continentNoise;
+        private Noise3D _baseNoise;
 
         private Planet _planet;
+        private Biome[] _biomes;
 
         [Inject]
         public void Construct(
@@ -67,32 +73,43 @@ namespace SBaier.Master
             _shapingFactory = shapingFactory;
             _treeFactory = treeFactory;
             _noiseFactory = noiseFactory;
+
+            _biomes = CreateBiomes();
         }
 
         public void Generate(Parameter parameter)
+		{
+			CleanPlanet();
+			Init(parameter);
+			_planet = _basicPlanetFactory.Create(CreateBasicPlanetFactoryParameter(parameter));
+			ContinentalPlates plates = CreateContinentalPlates(_planet, parameter);
+			_planet.Data.ContinentalPlates = plates;
+			ShapingLayer[] shapingLayers = CreateShapingLayers(_planet.Data);
+
+			InitSegmentsDelaunayMesh(plates);
+			InitSegmentsVoronoiView(plates);
+            _atmosphere.localScale = Vector3.one * _planet.Data.Dimensions.AtmosphereRadius * 2;
+
+            UpdateEvaluationPointData(_planet, parameter);
+			UpdateElevation(_planet, _biomes, shapingLayers, parameter);
+			_planet.UpdateMesh();
+			SetVertexColors(_planet, parameter.ContinentalPlatesParameter, _biomes);
+			//InitContinentLayer(planet);
+		}
+
+		private void CleanPlanet()
 		{
 			if (_planet != null)
 			{
 				Destroy(_planet.gameObject);
 				_planet = null;
 			}
+		}
 
-			Init(parameter);
-
-			Planet planet = _basicPlanetFactory.Create(CreateBasicPlanetFactoryParameter(parameter));
-            ContinentalPlates plates = CreateContinentalPlates(planet, parameter);
-            planet.Data.ContinentalPlates = plates;
-			ShapingLayer[] shapingLayers = CreateShapingLayers(planet.Data);
-
-            InitSegmentsDelaunayMesh(plates);
-			InitSegmentsVoronoiView(plates);
-            Biome[] biomes = CreateBiomes();
-			UpdateEvaluationPointData(planet, parameter);
-            SetVertexColors(planet, parameter.ContinentalPlatesParameter, biomes);
-            UpdateElevation(planet, biomes, shapingLayers, parameter);
-            //InitContinentLayer(planet);
-            planet.UpdateMesh();
-			_planet = planet;
+		private void SetVertexColors(Planet planet, ContinentalPlatesParameter continentalPlatesParameter, Biome[] biomes)
+		{
+            PlanetColorizer colorizer = new PlanetColorizer(planet, continentalPlatesParameter, biomes);
+            colorizer.Compute();
         }
 
 		private void Init(Parameter parameter)
@@ -101,12 +118,15 @@ namespace SBaier.Master
             _continentalPlatesWarpingNoise = _noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, parameter.Seed);
 			_mountainsNoise = _noiseFactory.Create(_mountainsNoiseSettings, parameter.Seed);
 			_canyonsNoise = _noiseFactory.Create(_canyonsNoiseSettings, parameter.Seed);
-		}
+            _oceansNoise = _noiseFactory.Create(_oceansNoiseSettings, parameter.Seed);
+            _continentNoise = _noiseFactory.Create(_continentNoiseSettings, parameter.Seed);
+            _baseNoise = _noiseFactory.Create(_baseNoiseSettings, parameter.Seed);
+        }
 
 		private BasicPlanetFactory.Parameter CreateBasicPlanetFactoryParameter(Parameter parameter)
 		{
             PlanetDimensions dimensions = parameter.Dimensions;
-            TemperatureSpectrum temperature = new TemperatureSpectrum(_teperatureMin, _teperatureMax);
+            TemperatureSpectrum temperature = parameter.TemperatureSpectrum;
             PlanetAxisData axis = parameter.AxisData;
             return new BasicPlanetFactory.Parameter(dimensions, temperature, axis, parameter.Subdivisions, parameter.Seed);
 		}
@@ -120,7 +140,7 @@ namespace SBaier.Master
 
 		private ShapingLayer[] CreateShapingLayers(PlanetData data)
 		{
-			ShapingFactory.Parameter shapingFactoryParameter = new ShapingFactory.Parameter(data, _mountainsNoise, _canyonsNoise);
+			ShapingFactory.Parameter shapingFactoryParameter = new ShapingFactory.Parameter(data, _mountainsNoise, _canyonsNoise, _oceansNoise, _continentNoise, _baseNoise);
 			ShapingLayer[] shapingLayers = _shapingFactory.Create(shapingFactoryParameter);
 			return shapingLayers;
 		}
@@ -131,18 +151,25 @@ namespace SBaier.Master
 				planet,
                 parameter.Seed,
                 parameter.ContinentalPlatesParameter,
-				_biomes);
+				_biomeSettings);
 		}
 
 		private Biome[] CreateBiomes()
 		{
-            Biome[] result = new Biome[_biomes.Length];
-			for (int i = 0; i < _biomes.Length; i++)
-			{
-                BiomeSettings settings = _biomes[i];
-                result[i] = new Biome(settings.BaseColor, settings.RegionType);
-			}
-            return result;
+            Biome[] result = new Biome[_biomeSettings.Length];
+			for (int i = 0; i < _biomeSettings.Length; i++)
+                result[i] = CreateBiome(_biomeSettings[i]);
+			return result;
+		}
+
+		private Biome CreateBiome(BiomeSettings settings)
+		{
+            if (settings is ContinentBiomeSettings)
+            {
+                ContinentBiomeSettings continental = settings as ContinentBiomeSettings;
+                return new ContinentalBiome(continental.BaseColor, continental.RegionType, continental.MountainSlopeColor, continental.SlopeThreshold);
+            }
+			return new Biome(settings.BaseColor, settings.RegionType);
 		}
 
 		private void InitSegmentsVoronoiView(ContinentalPlates plates)
@@ -156,10 +183,10 @@ namespace SBaier.Master
         {
             foreach (VoronoiRegion region in diagram.Regions)
             {
-                for (int i = 0; i < region.VertexIndices.Count; i++)
+                for (int i = 0; i < region.VertexIndices.Length; i++)
                 {
                     Vector3 c0 = diagram.Vertices[region.VertexIndices[i]];
-                    Vector3 c1 = diagram.Vertices[region.VertexIndices[(i + 1) % region.VertexIndices.Count]];
+                    Vector3 c1 = diagram.Vertices[region.VertexIndices[(i + 1) % region.VertexIndices.Length]];
                     Debug.DrawLine(c0, c1, Color.green, 60);
                 }
             }
@@ -210,54 +237,7 @@ namespace SBaier.Master
 			}
 		}
 
-        private void SetVertexColors(Planet planet, ContinentalPlatesParameter continentalPlatesParameter, Biome[] biomes)
-		{
-            ContinentalPlates plates = planet.Data.ContinentalPlates;
-            for (int i = 0; i < planet.Faces.Count; i++)
-            {
-                PlanetFace face = planet.Faces[i];
-                PlanetFaceData faceData = face.Data;
-                Color[] vertexColors = new Color[face.MeshFilter.sharedMesh.vertexCount];
-                float length = faceData.EvaluationPoints.Length;
-
-                for (int j = 0; j < length; j++)
-                {
-                    EvaluationPointData pointData = faceData.EvaluationPoints[j];
-                    Vector3 vertex = pointData.WarpedPoint;
-                    Color vertexColor = GetVertexColor(planet, continentalPlatesParameter, vertex, plates, biomes, pointData.ContinentalPlateSegmentIndex);
-                    vertexColors[j] = vertexColor;
-                }
-
-                face.MeshFilter.sharedMesh.colors = vertexColors;
-            }
-        }
-
-        private Color GetVertexColor(Planet planet, ContinentalPlatesParameter continentalPlatesParameter, Vector3 vertex, ContinentalPlates plates, Biome[] biomes, int segmentIndex)
-        {
-            ContinentalPlateSegment segment = plates.Segments[segmentIndex];
-            Biome biome = biomes[segment.BiomeID];
-            Color color = biome.BaseColor;
-            float blendDistance = continentalPlatesParameter.BlendFactor * planet.AtmosphereRadius;
-            Vector3 pointOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
-            float distanceToInnerBorder = GetDistanceOnPlanet(planet, vertex, pointOnBorder);
-            if (distanceToInnerBorder >= blendDistance)
-                return color;
-            for (int i = 0; i < segment.Neighbors.Length; i++)
-            {
-                int neighborSegmentIndex = segment.Neighbors[i];
-                ContinentalPlateSegment neighborSegment = plates.Segments[neighborSegmentIndex];
-                Biome neighborBiome = biomes[neighborSegment.BiomeID];
-                if (neighborBiome.RegionType != biome.RegionType)
-                    continue;
-                Vector3 pointNeighborOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, neighborSegmentIndex);
-                float distanceToSegment = GetDistanceOnPlanet(planet, vertex, pointNeighborOnBorder);
-                if (distanceToSegment > blendDistance)
-                    continue;
-                float portion = 0.5f - (distanceToSegment / blendDistance) / 2;
-                color = Color.Lerp(color, neighborBiome.BaseColor, portion);
-            }
-            return color;
-        }
+       
 
 
 		private void UpdateElevation(Planet planet, Biome[] biomes, ShapingLayer[] shapingLayers, Parameter parameter)
@@ -282,25 +262,21 @@ namespace SBaier.Master
             }
         }
 
-        private float GetDistanceOnPlanet(Planet planet, Vector3 vertex, Vector3 point)
-		{
-            point = point.normalized * planet.AtmosphereRadius;
-            return vertex.FastSubstract(point).magnitude;
-        }
-
 		private float CalculateDelta(Planet planet, float shapeValue, Biome biome)
 		{
-            bool isOceanic = biome.RegionType == ContinentalRegion.Type.Oceanic;
-            if (isOceanic)
-				return CreateOceanDelta(planet);
-			else
+            //bool isOceanic = biome.RegionType == ContinentalRegion.Type.Oceanic;
+            //if (isOceanic)
+				//return CreateOceanDelta(planet, shapeValue);
+			//else
 				return CreateLandDelta(planet, shapeValue);
 		}
 
-		private float CreateOceanDelta(Planet planet)
+		private float CreateOceanDelta(Planet planet, float shapeValue)
 		{
-			return planet.Data.Dimensions.RelativeSeaLevel * planet.Data.Dimensions.MaxHullThickness;
-		}
+            if(shapeValue <= 0.5f)
+                return planet.Data.Dimensions.RelativeSeaLevel * planet.Data.Dimensions.MaxHullThickness;
+            return CreateLandDelta(planet, shapeValue);
+        }
 
 		private float CreateLandDelta(Planet planet, float shapeValue)
 		{
@@ -322,9 +298,9 @@ namespace SBaier.Master
 
         private void InitContinentPlate(EvaluationPointData data, float value, Parameter parameter)
         {
-            float continentalPlateHeight = value * parameter.Dimensions.MaxHullThickness;
-            data.Layers[0].Height = data.Layers[0].Height - continentalPlateHeight;
-            data.Layers.Insert(0, new PlanetLayerData(1, continentalPlateHeight));
+            //float continentalPlateHeight = value * parameter.Dimensions.MaxHullThickness;
+            data.Layers[0].Height = data.Layers[0].Height - value;
+            data.Layers.Insert(0, new PlanetLayerData(1, value));
         }
         
 
@@ -334,13 +310,15 @@ namespace SBaier.Master
                 int subdivisions,
                 PlanetDimensions dimensions,
                 PlanetAxisData axisData,
-                ContinentalPlatesParameter continentalPlatesParameter)
+                ContinentalPlatesParameter continentalPlatesParameter,
+                TemperatureSpectrum temperatureSpectrum)
 			{
 				Seed = seed;
 				Subdivisions = subdivisions;
 				Dimensions = dimensions;
 				AxisData = axisData;
 				ContinentalPlatesParameter = continentalPlatesParameter;
+				TemperatureSpectrum = temperatureSpectrum;
 			}
 
 			public Seed Seed { get; }
@@ -348,6 +326,7 @@ namespace SBaier.Master
 			public PlanetDimensions Dimensions { get; }
 			public PlanetAxisData AxisData { get; }
 			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
+			public TemperatureSpectrum TemperatureSpectrum { get; }
 		}
     }
 }

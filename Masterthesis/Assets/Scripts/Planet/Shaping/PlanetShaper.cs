@@ -1,76 +1,76 @@
+using System;
 using System.Linq;
 
 namespace SBaier.Master
 {
-    public class PlanetShaper
-    {
-        private ShapingLayer[] _shapingLayers;
-		private readonly float _oceanLevel;
+	public class PlanetShaper
+	{
+		private ShapingLayer[] _shapingLayers;
 
 		public PlanetShaper(ShapingLayer[] shapingLayers, float oceanLevel)
 		{
-            _shapingLayers = shapingLayers;
-			_oceanLevel = oceanLevel;
+			_shapingLayers = shapingLayers;
 		}
 
-        public float[] Shape(EvaluationPointData[] pointsData)
+		public float[] Shape(EvaluationPointData[] pointsData)
 		{
-			float[] result = new float[pointsData.Length];
-			int[] appliedBlendValues = new int[pointsData.Length];
-			Init(result, appliedBlendValues);
-			SumShapingValues(pointsData, result, appliedBlendValues);
-			CalculateAverage(result, appliedBlendValues);
+			ShapingLayer.Result[] evalResults = EvaluatePoints(pointsData);
+			return CalculateResult(evalResults);
+		}
+
+		private ShapingLayer.Result[] EvaluatePoints(EvaluationPointData[] pointsData)
+		{
+			ShapingLayer.Result[] evalResult = new ShapingLayer.Result[_shapingLayers.Length];
+			for (int i = 0; i < evalResult.Length; i++)
+				evalResult[i] = _shapingLayers[i].Evaluate(pointsData.Select(d => d.WarpedPoint).ToArray());
+			return evalResult;
+		}
+
+		private float[] CalculateResult(ShapingLayer.Result[] evalResults)
+		{
+			float[] result = new float[evalResults[0].EvaluatedValues.Length];
+			for (int i = 0; i < _shapingLayers.Length; i++)
+			{
+				ShapingLayer layer = _shapingLayers[i];
+				ShapingLayer.Result evalResult = evalResults[i];
+				result = CombineLayerResult(result, layer, evalResult);
+			}
 			return result;
 		}
 
-		private void Init(float[] result, int[] blendValues)
+		private float[] CombineLayerResult(float[] result, ShapingLayer layer, ShapingLayer.Result evalResult)
 		{
-			for (int i = 0; i < result.Length; i++)
-				Init(result, blendValues, i);
+			switch(layer.ShapingMode)
+			{
+				case ShapingLayer.Mode.Add:
+					return AddLayerResult(result, evalResult);
+				case ShapingLayer.Mode.Blend:
+					return BlendLayerResult(result, evalResult);
+				case ShapingLayer.Mode.Substract:
+					return SubstractLayerResult(result, evalResult);
+			}
+			return result;
 		}
 
-		private void Init(float[] result, int[] blendValues, int index)
+		private float[] SubstractLayerResult(float[] result, ShapingLayer.Result evalResult)
 		{
-			result[index] = 0;
-			blendValues[index] = 0;
+			for (int i = 0; i < evalResult.EvaluatedValues.Length; i++)
+				result[i] -= evalResult.EvaluatedValues[i] * evalResult.Weight[i];
+			return result;
 		}
 
-		private void SumShapingValues(EvaluationPointData[] pointsData, float[] result, int[] blendValues)
+		private float[] BlendLayerResult(float[] result, ShapingLayer.Result evalResult)
 		{
-			for (int i = 0; i < _shapingLayers.Length; i++)
-				SumLayerShapingValues(pointsData, result, blendValues, _shapingLayers[i]);
+			for (int i = 0; i < evalResult.EvaluatedValues.Length; i++)
+				result[i] = (result[i] + evalResult.EvaluatedValues[i] * evalResult.Weight[i]) / (1 + evalResult.Weight[i]);
+			return result;
 		}
 
-		private void SumLayerShapingValues(EvaluationPointData[] pointsData, float[] result, int[] blendValues, ShapingLayer layer)
+		private float[] AddLayerResult(float[] result, ShapingLayer.Result evalResult)
 		{
-			float[] evalValues = layer.Evaluate(pointsData.Select(d => d.WarpedPoint).ToArray());
-			for (int j = 0; j < evalValues.Length; j++)
-				SumShapingValues(result, blendValues, evalValues[j], j);
-		}
-
-		private void SumShapingValues(float[] result, int[] blendValues, float evalValue, int index)
-		{
-			if (evalValue == 0)
-				return;
-			result[index] += evalValue;
-			blendValues[index]++;
-		}
-
-		private void CalculateAverage(float[] result, int[] blendValues)
-		{
-			for (int i = 0; i < result.Length; i++)
-				CalcualteAverage(result, blendValues, i);
-		}
-
-		private void CalcualteAverage(float[] result, int[] blendValues, int index)
-		{
-			float value = result[index];
-			int blends = blendValues[index];
-			if (value == 0)
-				result[index] = _oceanLevel;
-			if (blends == 0)
-				return;
-			result[index] /= blends;
+			for (int i = 0; i < evalResult.EvaluatedValues.Length; i++)
+				result[i] += evalResult.EvaluatedValues[i] * evalResult.Weight[i];
+			return result;
 		}
 	}
 }

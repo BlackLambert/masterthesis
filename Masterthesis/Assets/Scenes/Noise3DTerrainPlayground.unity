@@ -693,7 +693,7 @@ PrefabInstance:
     - target: {fileID: 5120874629129263057, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: _noise
       value: 
-      objectReference: {fileID: 11400000, guid: 659ba8ba4d420cf4ab195dbd26bfad3b, type: 2}
+      objectReference: {fileID: 11400000, guid: 10ec1d252904f784bb8aca6023025134, type: 2}
     - target: {fileID: 5120874629129263059, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: m_Name
       value: MultiMesh3DNoiseTestPlanet

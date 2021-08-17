@@ -53,6 +53,13 @@ namespace SBaier.Master
                 face.MeshFilter.sharedMesh.RecalculateNormals();
         }
 
+        public float GetDistanceOnSurface(Vector3 p0, Vector3 p1)
+		{
+            p0 = p0.normalized * AtmosphereRadius;
+            p1 = p1.normalized * AtmosphereRadius;
+            return p0.FastSubstract(p1).magnitude;
+        }
+
         public class Factory : PlaceholderFactory<PlanetData, Planet> { }
     }
 }

@@ -12,5 +12,9 @@ namespace SBaier.Master
         [SerializeField]
         private Color _mountainSlopeColor;
         public Color MountainSlopeColor => _mountainSlopeColor;
+
+        [SerializeField]
+        private float _slopeThreshold = 0.5f;
+        public float SlopeThreshold => _slopeThreshold;
     }
 }

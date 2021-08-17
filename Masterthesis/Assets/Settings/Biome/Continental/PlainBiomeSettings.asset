@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a77d7da78387884c9f7cb2ccd30aacf, type: 3}
   m_Name: PlainBiomeSettings
   m_EditorClassIdentifier: 
-  _baseColor: {r: 0.46398804, g: 0.8679245, b: 0.070962325, a: 1}
-  _frequency: 1
-  _mountainSlopeColor: {r: 0.6132076, g: 0.46196222, b: 0.04435144, a: 1}
+  _baseColor: {r: 0.40309098, g: 0.754717, b: 0.06170637, a: 1}
+  _frequency: 3
+  _useTemeratureSpectrum: 1
+  _temperatureSpecturm: {x: 0, y: 35}
+  _mountainSlopeColor: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 1}
+  _slopeThreshold: 0.4
