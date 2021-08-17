@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class Biome 
+    public abstract class Biome 
     {
         public Biome(Color baseColor, ContinentalRegion.Type regionType)
 		{

@@ -51,8 +51,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4a6995e68f5daaa4eb5c5a6e50fbea73, type: 2}
   - {fileID: 11400000, guid: 1bf6d7eed219f314dab088ba8e64f547, type: 2}
   - {fileID: 11400000, guid: 591b8a21d1808d54b97a95cc1249dd5f, type: 2}
-  _continentalPlatesNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
-  _continentsNoiseSettings: {fileID: 11400000, guid: 05250fe50077a944cbb16a1876696298, type: 2}
   _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: 659ba8ba4d420cf4ab195dbd26bfad3b, type: 2}
   _mountainsNoiseSettings: {fileID: 11400000, guid: d2aea82b9908fc3478726ab3ca4cc7ea, type: 2}
   _canyonsNoiseSettings: {fileID: 11400000, guid: 743d90bea4a76cd4ca648c120d985a9d, type: 2}
@@ -80,6 +78,8 @@ GameObject:
   - component: {fileID: 5388233829852190994}
   - component: {fileID: 3168270925356984336}
   - component: {fileID: 1783776500270546392}
+  - component: {fileID: 2053312876855662528}
+  - component: {fileID: 5997813472034842968}
   m_Layer: 0
   m_Name: PlanetGeneratorContext
   m_TagString: Untagged
@@ -125,6 +125,8 @@ MonoBehaviour:
   - {fileID: 5388233829852190994}
   - {fileID: 3168270925356984336}
   - {fileID: 1783776500270546392}
+  - {fileID: 2053312876855662528}
+  - {fileID: 5997813472034842968}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -239,3 +241,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _settings: {fileID: 11400000, guid: 86b7aeb38c78f5641a1e443ed573a59a, type: 2}
+--- !u!114 &2053312876855662528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206705532341609962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 618b154d1a1990346a00b2dcbad09831, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5997813472034842968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206705532341609962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f2e31edc2034f64c992ec97fed2e911, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -10,6 +10,8 @@ namespace SBaier.Master
     {
         [SerializeField]
         private Transform _facesHook;
+        [SerializeField]
+        private Transform _atmoSphere;
 
         public IList<PlanetFace> Faces { get; private set; }
         public PlanetData Data { get; private set; }
@@ -19,6 +21,7 @@ namespace SBaier.Master
         public void Construct(PlanetData data)
 		{
             Data = data;
+            UpdateAtmosphere();
         }
 
 		public void Init(IList<PlanetFace> faces)
@@ -29,17 +32,22 @@ namespace SBaier.Master
             UpdateMesh();
         }
 
-		private void AttatchFaces()
+        public void UpdateMesh()
+        {
+            UpdateVertexPositions();
+            RecalculateFaceNormals();
+        }
+
+        private void UpdateAtmosphere()
+        {
+            _atmoSphere.localScale = Vector3.one * Data.Dimensions.AtmosphereRadius * 2;
+        }
+
+        private void AttatchFaces()
 		{
 			foreach (PlanetFace face in Faces)
                 face.Base.SetParent(_facesHook, false);
 		}
-
-		public void UpdateMesh()
-		{
-            UpdateVertexPositions();
-            RecalculateFaceNormals();
-        }
 
         private void UpdateVertexPositions()
         {
