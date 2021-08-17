@@ -63,7 +63,6 @@ namespace SBaier.Master
 		{
             ContinentalPlates plates = parameter.Data.ContinentalPlates;
             List<ShapingPrimitive> primitives = new List<ShapingPrimitive>();
-            KDTree<Vector3> segmentsTree = _kdTreeFactory.Create(plates.SegmentSites);
             for (int i = 0; i < plates.Regions.Length; i++)
             {
                 ContinentalRegion region = plates.Regions[i];
@@ -72,20 +71,20 @@ namespace SBaier.Master
                 for (int j = 0; j < region.Segements.Length; j++)
                 {
                     int segmentIndex = region.Segements[j];
-                    primitives.Add(CreateContinentPrimitives(parameter, segmentIndex, segmentsTree));
+                    primitives.Add(CreateContinentPrimitives(parameter, segmentIndex));
                 }
             }
             return primitives;
         }
 
-		private ShapingPrimitive CreateContinentPrimitives(Parameter parameter, int segmentIndex, KDTree<Vector3> segmentsTree)
+		private ShapingPrimitive CreateContinentPrimitives(Parameter parameter, int segmentIndex)
 		{
             ContinentalPlates plates = parameter.Data.ContinentalPlates;
             ContinentalPlateSegment segment = plates.Segments[segmentIndex];
             PolygonBody body = plates.SegmentsVoronoi;
             Vector3 pos = segment.Site;
             float blendDistance = _continentsBlendDistanceFactor * parameter.Data.Dimensions.AtmosphereRadius;
-            return new ConvexPolygonShapingPrimitive(body, segmentsTree, segmentIndex, pos, blendDistance, _continentWeight);
+            return new ConvexPolygonShapingPrimitive(body, segmentIndex, pos, blendDistance, _continentWeight);
         }
 
 		private List<ShapingPrimitive> CreateOceanPrimitives(Parameter parameter)
@@ -114,7 +113,7 @@ namespace SBaier.Master
             PolygonBody body = plates.SegmentsVoronoi;
             Vector3 pos = segment.Site;
             float blendDistance = _oceansBlendDistanceFactor * parameter.Data.Dimensions.AtmosphereRadius;
-            return new ConvexPolygonShapingPrimitive(body, segmentsTree, segmentIndex, pos, blendDistance, _oceanWeight);
+            return new ConvexPolygonShapingPrimitive(body, segmentIndex, pos, blendDistance, _oceanWeight);
         }
 
 		private ShapingLayer[] CreateBorderShaping(Parameter parameter)

@@ -44,16 +44,12 @@ namespace SBaier.Master
 
         private Vector3 WarpSpherePoint(Vector3 vertex, float warpValue, float warpFactor, float evalRadius)
         {
-            Vector3 crossVector = vertex.normalized == Vector3.forward ? Vector3.right : Vector3.forward;
+            float dot = Vector3.Dot(vertex.normalized, Vector3.forward);
+            Vector3 crossVector = dot > Mathf.PI / 2 ? Vector3.right : Vector3.forward;
             Vector3 tangential = Vector3.Cross(vertex, crossVector);
             Vector3 deltaVector = tangential.normalized * warpValue * evalRadius * warpFactor;
-            float sinWarpValueHalf = Mathf.Sin(Mathf.PI * warpValue);
-            float cosWarpValueHalf = Mathf.Cos(Mathf.PI * warpValue);
-            deltaVector = new Quaternion(sinWarpValueHalf * vertex.x,
-                sinWarpValueHalf * vertex.y,
-                sinWarpValueHalf * vertex.z,
-                cosWarpValueHalf).normalized * deltaVector;
-            return vertex + deltaVector;
+            Quaternion rot = Quaternion.AngleAxis(warpValue * 360, vertex);
+            return vertex + rot * deltaVector;
         }
     }
 }
