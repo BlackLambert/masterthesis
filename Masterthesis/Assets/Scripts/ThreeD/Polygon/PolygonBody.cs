@@ -32,7 +32,7 @@ namespace SBaier.Master
 			{
 				Vector3 current = GetNearestBorderPointOf(point, polygon, i);
 				Vector3 distanceVector = point.FastSubstract(current);
-				float distance = distanceVector.magnitude;
+				float distance = distanceVector.sqrMagnitude;
 				if (distance < minDistance)
 				{
 					minDistance = distance;
@@ -41,6 +41,7 @@ namespace SBaier.Master
 			}
 			return pointOnBorder;
 		}
+
 		private Vector3 GetNearestBorderPointOf(Vector3 point, Polygon polygon, int vertexIndex)
 		{
 			int[] indices = polygon.VertexIndices;
@@ -67,39 +68,6 @@ namespace SBaier.Master
 			return result;
 		}
 
-
-
-		public float GetMaxDiameter(int polygonIndex)
-		{
-			float result = 0;
-			Polygon polygon = _polygons[polygonIndex];
-			for (int i = 0; i < polygon.VertexIndices.Length; i++)
-			{
-				Vector3 c1 = _vertices[polygon.VertexIndices[i]];
-				for (int j = i + 1; j < polygon.VertexIndices.Length; j++)
-				{
-					Vector3 c2 = _vertices[polygon.VertexIndices[j]];
-					float distance = (c1.FastSubstract(c2)).magnitude;
-					if (distance > result)
-						result = distance;
-				}
-			}
-			return result;
-		}
-
-		public float GetDistanceToCornersSum(int polygonIndex, Vector3 point)
-		{
-			Polygon polygon = _polygons[polygonIndex];
-			float result = 0;
-			for (int i = 0; i < polygon.VertexIndices.Length; i++)
-			{
-				Vector3 corner = _vertices[polygon.VertexIndices[i]];
-				float distance = (point - corner).magnitude;
-				result += distance;
-			}
-			return result;
-		}
-
 		public Polygon GetPolygon(int polygonIndex)
 		{
 			return _polygons[polygonIndex];
@@ -116,12 +84,15 @@ namespace SBaier.Master
 			Vector3 result = Vector3.zero;
 			int vertexCount = polygon.VertexIndices.Length;
 			for (int i = 0; i < vertexCount; i++)
-			{
-				Vector3 v0 = _vertices[polygon.VertexIndices[i]];
-				Vector3 v1 = _vertices[polygon.VertexIndices[(i + 1) % vertexCount]];
-				result += Vector3.Cross(v0, v1);
-			}
+				result += GetBorderNormal(polygon, vertexCount, i);
 			return result.normalized;
+		}
+
+		private Vector3 GetBorderNormal(Polygon polygon, int vertexCount, int vertexIndex)
+		{
+			Vector3 v0 = _vertices[polygon.VertexIndices[vertexIndex]];
+			Vector3 v1 = _vertices[polygon.VertexIndices[(vertexIndex + 1) % vertexCount]];
+			return Vector3.Cross(v0, v1);
 		}
 	}
 }

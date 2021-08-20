@@ -30,7 +30,7 @@ namespace SBaier.Master
 
 		public void Compute()
 		{
-            for (int i = 0; i < _planet.Faces.Count; i++)
+            for (int i = 0; i < _planet.Faces.Length; i++)
 				UpdateFaceVertexColors(i);
 		}
 

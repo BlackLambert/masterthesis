@@ -7,37 +7,42 @@ namespace SBaier.Master
 {
     public class PlanetLayerMaterializer
     {
-        private Vector3BinaryKDTreeFactory _treeFactory;
-
         private Planet _planet;
         private Biome[] _biomes;
         private ShapingLayer[] _shapingLayers;
-        private KDTree<Vector3> _segmentsKDTree;
+        private float _maxHullThickness;
+        private float _relativeSeaLevel;
+        private float _transformedSeaLevel;
 
-        public PlanetLayerMaterializer(Vector3BinaryKDTreeFactory treeFactory)
+        public PlanetLayerMaterializer()
 		{
-            _treeFactory = treeFactory;
         }
 
         public void UpdateElevation(Parameter parameter)
         {
             Init(parameter);
-            for (int i = 0; i < _planet.Faces.Count; i++)
+            for (int i = 0; i < _planet.Faces.Length; i++)
                 UpdateElevation(_planet.Faces[i]);
         }
 
         private void Init(Parameter parameter)
-        {
-            _planet = parameter.Planet;
-            _biomes = parameter.Biomes;
-            _shapingLayers = parameter.ShapingLayers;
-            ContinentalPlates plates = _planet.Data.ContinentalPlates;
-            _segmentsKDTree = _treeFactory.Create(plates.SegmentSites);
-        }
-
-        private void UpdateElevation(PlanetFace face)
 		{
-            PlanetShaper shaper = new PlanetShaper(_shapingLayers, _planet.Data.Dimensions.RelativeSeaLevel);
+			_planet = parameter.Planet;
+			_biomes = parameter.Biomes;
+			_shapingLayers = parameter.ShapingLayers;
+			_maxHullThickness = _planet.Data.Dimensions.MaxHullThickness;
+			_relativeSeaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
+			_transformedSeaLevel = GetTransformedSeaLevel();
+		}
+
+		private float GetTransformedSeaLevel()
+		{
+			return (_relativeSeaLevel - 0.5f) * 2;
+		}
+
+		private void UpdateElevation(PlanetFace face)
+		{
+            PlanetShaper shaper = new PlanetShaper(_shapingLayers, _maxHullThickness);
             float[] shapeValues = shaper.Shape(face.Data.EvaluationPoints);
 
             for (int j = 0; j < shapeValues.Length; j++)
@@ -47,9 +52,9 @@ namespace SBaier.Master
 		private void UpdateElevation(PlanetFace face, float[] shapeValues, int index)
         {
             ContinentalPlates plates = _planet.Data.ContinentalPlates;
-            Vector3 vertex = face.Data.EvaluationPoints[index].WarpedPoint;
-			int segmentIndex = _segmentsKDTree.GetNearestTo(vertex);
-			ContinentalPlateSegment segment = plates.Segments[segmentIndex];
+            EvaluationPointData data = face.Data.EvaluationPoints[index];
+            int segmentIndex = data.ContinentalPlateSegmentIndex;
+            ContinentalPlateSegment segment = plates.Segments[segmentIndex];
 			Biome biome = _biomes[segment.BiomeID];
 			float delta = CalculateDelta(shapeValues[index], biome);
 			InitContinentPlate(face.Data.EvaluationPoints[index], delta);
@@ -67,33 +72,31 @@ namespace SBaier.Master
         private float CreateOceanDelta(float shapeValue)
         {
             if (shapeValue <= 0.5f)
-                return _planet.Data.Dimensions.RelativeSeaLevel * _planet.Data.Dimensions.MaxHullThickness;
+                return _relativeSeaLevel * _maxHullThickness;
             return CreateLandDelta(shapeValue);
         }
 
         private float CreateLandDelta(float shapeValue)
         {
             float transformedShape = shapeValue - 0.5f;
-            float seaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
-            float transformdedSeaLevel = (seaLevel - 0.5f) * 2;
-            float posFactor = 1 - transformdedSeaLevel;
-            float negFactor = 1 + transformdedSeaLevel;
             float factor;
             if (transformedShape > 0)
-                factor = posFactor * transformedShape;
+                factor = (1 - _transformedSeaLevel) * transformedShape;
             else if (transformedShape < 0)
-                factor = negFactor * transformedShape;
+                factor = (1 + _transformedSeaLevel) * transformedShape;
             else
                 factor = 0;
-            factor += seaLevel;
-            return factor * _planet.Data.Dimensions.MaxHullThickness;
+            factor += _relativeSeaLevel;
+            return factor * _maxHullThickness;
         }
 
         private void InitContinentPlate(EvaluationPointData data, float value)
         {
             //float continentalPlateHeight = value * parameter.Dimensions.MaxHullThickness;
-            data.Layers[0].Height = data.Layers[0].Height - value;
-            data.Layers.Insert(0, new PlanetLayerData(1, value));
+            List<PlanetLayerData> layers = data.Layers;
+            PlanetLayerData airLayer = layers[0];
+            airLayer.Height = airLayer.Height - value;
+            layers.Insert(0, new PlanetLayerData(1, value));
         }
 
         public class Parameter

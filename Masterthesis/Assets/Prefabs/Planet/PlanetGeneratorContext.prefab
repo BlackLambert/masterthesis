@@ -80,6 +80,7 @@ GameObject:
   - component: {fileID: 1783776500270546392}
   - component: {fileID: 2053312876855662528}
   - component: {fileID: 5997813472034842968}
+  - component: {fileID: 156704442049911199}
   m_Layer: 0
   m_Name: PlanetGeneratorContext
   m_TagString: Untagged
@@ -127,6 +128,7 @@ MonoBehaviour:
   - {fileID: 1783776500270546392}
   - {fileID: 2053312876855662528}
   - {fileID: 5997813472034842968}
+  - {fileID: 156704442049911199}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -263,5 +265,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f2e31edc2034f64c992ec97fed2e911, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &156704442049911199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206705532341609962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 825497a84fdf1dd48bbddf21cae09c23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -1,11 +1,17 @@
 using System;
 using System.Linq;
+using UnityEngine;
 
 namespace SBaier.Master
 {
 	public class PlanetShaper
 	{
 		private ShapingLayer[] _shapingLayers;
+		private ShapingLayer.Result[] _evaluationResults;
+		private int _pointsAmount;
+		private float[] _result;
+
+		private int ShapingLayersAmount => _shapingLayers.Length;
 
 		public PlanetShaper(ShapingLayer[] shapingLayers, float oceanLevel)
 		{
@@ -14,63 +20,96 @@ namespace SBaier.Master
 
 		public float[] Shape(EvaluationPointData[] pointsData)
 		{
-			ShapingLayer.Result[] evalResults = EvaluatePoints(pointsData);
-			return CalculateResult(evalResults);
+			_pointsAmount = pointsData.Length;
+			EvaluatePoints(pointsData);
+			CalculateResult();
+			return _result;
 		}
 
-		private ShapingLayer.Result[] EvaluatePoints(EvaluationPointData[] pointsData)
+		private void EvaluatePoints(EvaluationPointData[] pointsData)
 		{
-			ShapingLayer.Result[] evalResult = new ShapingLayer.Result[_shapingLayers.Length];
-			for (int i = 0; i < evalResult.Length; i++)
-				evalResult[i] = _shapingLayers[i].Evaluate(pointsData.Select(d => d.WarpedPoint).ToArray());
-			return evalResult;
+			_evaluationResults = new ShapingLayer.Result[ShapingLayersAmount];
+			for (int i = 0; i < ShapingLayersAmount; i++)
+				_evaluationResults[i] = EvaluatePoints(pointsData, _shapingLayers[i]);
 		}
 
-		private float[] CalculateResult(ShapingLayer.Result[] evalResults)
+		private ShapingLayer.Result EvaluatePoints(EvaluationPointData[] pointsData, ShapingLayer layer)
 		{
-			float[] result = new float[evalResults[0].EvaluatedValues.Length];
-			for (int i = 0; i < _shapingLayers.Length; i++)
-			{
-				ShapingLayer layer = _shapingLayers[i];
-				ShapingLayer.Result evalResult = evalResults[i];
-				result = CombineLayerResult(result, layer, evalResult);
-			}
-			return result;
+			Vector3[] warpedVertices = pointsData.Select(d => d.WarpedPoint).ToArray();
+			return layer.Evaluate(warpedVertices);
 		}
 
-		private float[] CombineLayerResult(float[] result, ShapingLayer layer, ShapingLayer.Result evalResult)
+		private void CalculateResult()
 		{
-			switch(layer.ShapingMode)
+			_result = new float[_pointsAmount];
+			for (int i = 0; i < ShapingLayersAmount; i++)
+				CombineLayerResult(i);
+		}
+
+		private void CombineLayerResult(int layerIndex)
+		{
+			ShapingLayer layer = _shapingLayers[layerIndex];
+			ShapingLayer.Result evaluationResult = _evaluationResults[layerIndex];
+			switch (layer.ShapingMode)
 			{
 				case ShapingLayer.Mode.Add:
-					return AddLayerResult(result, evalResult);
+					AddLayerResult(evaluationResult);
+					break;
 				case ShapingLayer.Mode.Blend:
-					return BlendLayerResult(result, evalResult);
+					BlendLayerResult(evaluationResult);
+					break;
 				case ShapingLayer.Mode.Substract:
-					return SubstractLayerResult(result, evalResult);
+					SubstractLayerResult(evaluationResult);
+					break;
+				default:
+					throw new NotImplementedException();
 			}
-			return result;
 		}
 
-		private float[] SubstractLayerResult(float[] result, ShapingLayer.Result evalResult)
+		private void AddLayerResult(ShapingLayer.Result evaluationResult)
 		{
-			for (int i = 0; i < evalResult.EvaluatedValues.Length; i++)
-				result[i] -= evalResult.EvaluatedValues[i] * evalResult.Weight[i];
-			return result;
+			for (int i = 0; i < _pointsAmount; i++)
+				AddLayerResult(evaluationResult, i);
 		}
 
-		private float[] BlendLayerResult(float[] result, ShapingLayer.Result evalResult)
+		private void BlendLayerResult(ShapingLayer.Result evaluationResult)
 		{
-			for (int i = 0; i < evalResult.EvaluatedValues.Length; i++)
-				result[i] = (result[i] + evalResult.EvaluatedValues[i] * evalResult.Weight[i]) / (1 + evalResult.Weight[i]);
-			return result;
+			for (int i = 0; i < _pointsAmount; i++)
+				BlendLayerResult(evaluationResult, i);
 		}
 
-		private float[] AddLayerResult(float[] result, ShapingLayer.Result evalResult)
+		private void SubstractLayerResult(ShapingLayer.Result evaluationResult)
 		{
-			for (int i = 0; i < evalResult.EvaluatedValues.Length; i++)
-				result[i] += evalResult.EvaluatedValues[i] * evalResult.Weight[i];
-			return result;
+			for (int i = 0; i < _pointsAmount; i++)
+				SubstractLayerResult(evaluationResult, i);
+		}
+
+		private void SubstractLayerResult(ShapingLayer.Result evaluationResult, int pointIndex)
+		{
+			float substractionWeight = evaluationResult.Weight[pointIndex];
+			float substractionValue = evaluationResult.EvaluatedValues[pointIndex];
+			float substraction = substractionWeight * substractionValue;
+			_result[pointIndex] -= substraction;
+		}
+
+		private void BlendLayerResult(ShapingLayer.Result evaluationResult, int pointIndex)
+		{
+			float additionWeight = evaluationResult.Weight[pointIndex];
+			float additionValue = evaluationResult.EvaluatedValues[pointIndex];
+			float weightAddition = additionWeight * additionValue;
+			float formerValue = _result[pointIndex];
+			float formerValueWeight = 1;
+			float valueSum = formerValue + weightAddition;
+			float weightSum = formerValueWeight + additionWeight;
+			_result[pointIndex] = valueSum / weightSum;
+		}
+
+		private void AddLayerResult(ShapingLayer.Result evaluationResult, int pointIndex)
+		{
+			float additionWeight = evaluationResult.Weight[pointIndex];
+			float additionValue = evaluationResult.EvaluatedValues[pointIndex];
+			float addition = additionWeight * additionValue;
+			_result[pointIndex] += addition;
 		}
 	}
 }

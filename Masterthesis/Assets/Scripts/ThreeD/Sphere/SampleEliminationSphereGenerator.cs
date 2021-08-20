@@ -10,7 +10,7 @@ namespace SBaier.Master
 	{
 		private RandomPointsOnSphereGenerator _randomPointsGenerator;
 		private SampleElimination3D _sampleElimination;
-		private QuickSelector<Vector3> _quickSelector;
+		private Vector3BinaryKDTreeFactory _treeFactory;
 		private Seed _seed;
 
 		public int TargetSampleCount { get; }
@@ -20,7 +20,7 @@ namespace SBaier.Master
 			float baseSamplesFactor,
 			SampleElimination3D sampleElimination,
 			RandomPointsOnSphereGenerator randomPointsGenerator,
-			QuickSelector<Vector3> quickSelector,
+			Vector3BinaryKDTreeFactory treeFactory,
 			Seed seed)
 		{
 			ValidateTargetSampes(targetSamples);
@@ -30,7 +30,7 @@ namespace SBaier.Master
 			BaseSamplesFactor = baseSamplesFactor;
 			_sampleElimination = sampleElimination;
 			_randomPointsGenerator = randomPointsGenerator;
-			_quickSelector = quickSelector;
+			_treeFactory = treeFactory;
 			_seed = seed;
 		}
 
@@ -80,7 +80,7 @@ namespace SBaier.Master
 		private void CreateTrianglesFor(Mesh mesh, float size)
 		{
 			Vector3[] vertices = mesh.vertices;
-			Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vertices, _quickSelector);
+			KDTree<Vector3> tree = _treeFactory.Create(vertices);
 			Vector2 minMaxDistance = GetMinMaxVertexDistance(vertices, tree, size);
 			float radius = minMaxDistance[1] * 5;
 			List<int> triangles = new List<int>();
@@ -137,7 +137,7 @@ namespace SBaier.Master
 			mesh.triangles = triangles.ToArray();
 		}
 
-		private Vector2 GetMinMaxVertexDistance(Vector3[] vertices, Vector3BinaryKDTree tree, float size)
+		private Vector2 GetMinMaxVertexDistance(Vector3[] vertices, KDTree<Vector3> tree, float size)
 		{
 			float min = float.MaxValue;
 			float max = float.MinValue;

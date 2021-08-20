@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace SBaier.Master
 {
@@ -18,7 +19,16 @@ namespace SBaier.Master
 		[SerializeField]
 		private int _times = 1000;
 
-        private Vector3BinaryKDTree _tree;
+		private Vector3BinaryKDTreeFactory _treeFactory;
+
+		private KDTree<Vector3> _tree;
+
+		[Inject]
+		public void Construct(Vector3BinaryKDTreeFactory treeFactory)
+		{
+			_treeFactory = treeFactory;
+		}
+
 
         protected virtual void Start()
 		{
@@ -35,8 +45,7 @@ namespace SBaier.Master
 		private Vector2 DoKDTreeSearch(Vector3[] points)
 		{
 			float timeStamp = Time.realtimeSinceStartup;
-			QuickSorter<Vector3, float> sorter = new QuickSorter<Vector3, float>(CompareValueSelect);
-			_tree = new Vector3BinaryKDTree(points, sorter);
+			_tree = _treeFactory.Create(points);
 			Debug.Log($"The creation of the tree took {Time.realtimeSinceStartup - timeStamp} seconds");
 			int depth = _tree.Depth;
 			Debug.Log($"The created tree has a depth of {depth}");

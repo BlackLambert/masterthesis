@@ -13,7 +13,7 @@ namespace SBaier.Master
         [SerializeField]
         private Transform _atmoSphere;
 
-        public IList<PlanetFace> Faces { get; private set; }
+        public PlanetFace[] Faces { get; private set; }
         public PlanetData Data { get; private set; }
         public float AtmosphereRadius => Data.Dimensions.AtmosphereRadius;
 
@@ -24,7 +24,7 @@ namespace SBaier.Master
             UpdateAtmosphere();
         }
 
-		public void Init(IList<PlanetFace> faces)
+		public void Init(PlanetFace[] faces)
 		{
             Faces = faces;
 

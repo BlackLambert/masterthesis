@@ -191,7 +191,8 @@ namespace SBaier.Master.Test
 		private void GivenAKDTree(Vector3[] vectors)
 		{
             Container.Bind<QuickSelector<Vector3>>().FromMethod(() => CreateMockedSelector(vectors)).AsTransient();
-            Vector3BinaryKDTree tree = new Vector3BinaryKDTree(vectors, Container.Resolve<QuickSelector<Vector3>>());
+            Vector3BinaryKDTreeFactory treeFactory = new Vector3BinaryKDTreeFactory(Container.Resolve<QuickSelector<Vector3>>());
+            Vector3BinaryKDTree tree = treeFactory.Create(vectors) as Vector3BinaryKDTree;
             Container.Bind<Vector3BinaryKDTree>().FromInstance(tree).AsTransient();
         }
 

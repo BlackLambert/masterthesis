@@ -5,7 +5,7 @@ namespace SBaier.Master
 {
 	public class ConvexPolygonShapingPrimitive : ShapingPrimitive
 	{
-		private float _epsilon = 18f;
+		private float _epsilon = 0.01f;
 		private readonly float _angleSumMax = 360f;
 
 		public override float MaxAreaOfEffect { get; }
@@ -19,18 +19,27 @@ namespace SBaier.Master
 		private float _blendValue;
 		private bool _inside;
 		private Vector3[] _corners;
+		private Vector3[] _projectedCorners;
 
 		public ConvexPolygonShapingPrimitive(PolygonBody body, int polygonIndex, Vector3 position, float blendArea, float weight) : 
 			base(position, blendArea, weight)
 		{
 			_body = body;
 			_polygonIndex = polygonIndex;
-			Vector3[] corners = _body.GetVertices(_polygonIndex);
-			_center = CalculateCenter(corners);
-			MaxAreaOfEffect = CalculateMaxAreaOfEffect(corners, blendArea);
+			_corners = _body.GetVertices(_polygonIndex);
+			_center = CalculateCenter(_corners);
+			MaxAreaOfEffect = CalculateMaxAreaOfEffect(_corners, blendArea);
 			_corner0 = _body.GetVertex(_body.GetPolygon( _polygonIndex).VertexIndices[0]); 
 			_normal = _body.GetNormal(_polygonIndex);
-			_corners = _body.GetVertices(_polygonIndex);
+			_projectedCorners = GetProjectedCorners(_corners);
+		}
+
+		private Vector3[] GetProjectedCorners(Vector3[] corners)
+		{
+			Vector3[] result = new Vector3[corners.Length];
+			for (int i = 0; i < corners.Length; i++)
+				result[i] = GetProjectionOnPolygonPlane(corners[i]);
+			return result;
 		}
 
 		protected override void InitEvaluation(Vector3 point)
@@ -92,10 +101,10 @@ namespace SBaier.Master
 		private bool CalculateInside(Vector3 projection)
 		{
 			float angleSum = 0;
-			for (int i = 0; i < _corners.Length; i++)
+			for (int i = 0; i < _projectedCorners.Length; i++)
 			{
-				Vector3 c0 = _corners[i].FastSubstract(projection);
-				Vector3 c1 = _corners[(i + 1) % _corners.Length].FastSubstract(projection);
+				Vector3 c0 = _projectedCorners[i].FastSubstract(projection);
+				Vector3 c1 = _projectedCorners[(i + 1) % _projectedCorners.Length].FastSubstract(projection);
 				float angle = Vector3.Angle(c0, c1);
 				angleSum += angle;
 			}

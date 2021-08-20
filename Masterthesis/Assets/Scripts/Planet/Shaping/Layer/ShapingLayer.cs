@@ -11,49 +11,81 @@ namespace SBaier.Master
 		private float _maxAreaOfEffect;
 		private KDTree<Vector3> _kDTree;
 
-		public ShapingPrimitive[] Primitives { get; }
-		public Noise3D Noise { get; }
+		public ShapingPrimitive[] _primitives;
+		private bool _hasPrimitves;
+		private Noise3D _noise;
 		public Mode ShapingMode { get; }
 
+		private float[] _weights;
+		private float[] _evaluatedValues;
+		private Vector3[] _vertices;
 
 		public ShapingLayer(ShapingPrimitive[] primitives, KDTree<Vector3> primitivesTree, Noise3D noise, Mode mode)
 		{
-			Primitives = primitives;
-			Noise = noise;
+			_primitives = primitives;
+			_hasPrimitves = _primitives.Length > 0;
+			_noise = noise;
 			_kDTree = primitivesTree;
-			_maxAreaOfEffect = Primitives.Length > 0 ? Primitives.Max(p => p.MaxAreaOfEffect) : 0;
 			ShapingMode = mode;
+			_maxAreaOfEffect = GetMaxAreaOfEffect();
+		}
+
+		private float GetMaxAreaOfEffect()
+		{
+			return _primitives.Length > 0 ? _primitives.Max(p => p.MaxAreaOfEffect) : 0;
 		}
 
 		public Result Evaluate(Vector3[] vertices)
 		{
-			float[] weights = new float[vertices.Length];
-			float[] evaluatedValues = new float[vertices.Length];
+			if (!_hasPrimitves)
+				CreateEmptyResult(vertices.Length);
+			Init(vertices);
+			return CreateResult();
+		}
 
-			if (Primitives.Length == 0)
-				return new Result(evaluatedValues, weights);
+		private Result CreateEmptyResult(int verticesAmount)
+		{
+			return new Result(new float[verticesAmount], new float[verticesAmount]);
+		}
 
-			NativeArray<Vector3> nativeVertices = new NativeArray<Vector3>(vertices, Allocator.TempJob);
-			NativeArray<float> evalPoints = Noise.Evaluate3D(nativeVertices);
+		private void Init(Vector3[] vertices)
+		{
+			_weights = new float[vertices.Length];
+			_vertices = vertices;
+		}
+
+		private Result CreateResult()
+		{
+			EvaluateNoise();
+			for (int i = 0; i < _vertices.Length; i++)
+				CalculateWeight(i);
+			return new Result(_evaluatedValues, _weights);
+		}
+
+		private void EvaluateNoise()
+		{
+			NativeArray<Vector3> nativeVertices = new NativeArray<Vector3>(_vertices, Allocator.TempJob);
+			NativeArray<float> evalPoints = _noise.Evaluate3D(nativeVertices);
+			_evaluatedValues = evalPoints.ToArray();
 			nativeVertices.Dispose();
-			for (int i = 0; i < vertices.Length; i++)
-			{
-				Vector3 vertex = vertices[i];
-				IList<int> nearestPrimitives = _kDTree.GetNearestToWithin(vertex, _maxAreaOfEffect);
-				int count = nearestPrimitives.Count;
-				for (int j = 0; j < count; j++)
-				{
-					ShapingPrimitive primitive = Primitives[nearestPrimitives[j]];
-					float formerWeight = weights[i];
-					float evaluatedWeight = primitive.Evaluate(vertex);
-					float value = Mathf.Max(formerWeight, evaluatedWeight);
-					weights[i] = value;
-				}
-
-				evaluatedValues[i] = evalPoints[i];
-			}
 			evalPoints.Dispose();
-			return new Result(evaluatedValues, weights);
+		}
+
+		private void CalculateWeight(int vertexIndex)
+		{
+			Vector3 vertex = _vertices[vertexIndex];
+			int[] primitivesInRange = _kDTree.GetNearestToWithin(vertex, _maxAreaOfEffect);
+			for (int j = 0; j < primitivesInRange.Length; j++)
+				CalculateWeight(vertexIndex, _primitives[primitivesInRange[j]]);
+		}
+
+		private void CalculateWeight(int vertexIndex, ShapingPrimitive primitive)
+		{
+			Vector3 vertex = _vertices[vertexIndex];
+			float formerWeight = _weights[vertexIndex];
+			float evaluatedWeight = primitive.Evaluate(vertex);
+			float value = Mathf.Max(formerWeight, evaluatedWeight);
+			_weights[vertexIndex] = value;
 		}
 
 		public class Result

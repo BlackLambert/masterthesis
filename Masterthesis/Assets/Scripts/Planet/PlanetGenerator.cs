@@ -37,14 +37,12 @@ namespace SBaier.Master
         private VoronoiMesh _voronoi;
 
         private BasicPlanetFactory _basicPlanetFactory;
-        private Vector3BinaryKDTreeFactory _treeFactory;
         private ContinentalPlatesFactory _continentalPlatesFactory;
         private ShapingFactory _shapingFactory;
         private NoiseFactory _noiseFactory;
         private PlanetLayerMaterializer _layerMaterializer;
-
-
-        private Noise3D _continentalPlatesWarpingNoise;
+		private EvaluationPointDatasInitializer _evaluationPointDatasInitializer;
+		private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
         private Noise3D _oceansNoise;
@@ -53,6 +51,7 @@ namespace SBaier.Master
 
         private Planet _planet;
         private Biome[] _biomes;
+        private Parameter _parameter;
 
         [Inject]
         public void Construct(
@@ -60,16 +59,16 @@ namespace SBaier.Master
             NoiseFactory noiseFactory,
             ContinentalPlatesFactory continentalPlatesFactory,
             ShapingFactory shapingFactory,
-            Vector3BinaryKDTreeFactory treeFactory,
             BiomeFactory biomeFactory,
-            PlanetLayerMaterializer layerMaterializer)
+            PlanetLayerMaterializer layerMaterializer,
+            EvaluationPointDatasInitializer evaluationPointDatasInitializer)
 		{
             _basicPlanetFactory = basicPlanetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
             _shapingFactory = shapingFactory;
-            _treeFactory = treeFactory;
             _noiseFactory = noiseFactory;
             _layerMaterializer = layerMaterializer;
+            _evaluationPointDatasInitializer = evaluationPointDatasInitializer;
 
             _biomes = biomeFactory.Create(_biomeSettings);
         }
@@ -78,19 +77,13 @@ namespace SBaier.Master
 		{
 			CleanPlanet();
 			Init(parameter);
-			_planet = _basicPlanetFactory.Create(CreateBasicPlanetFactoryParameter(parameter));
-			ContinentalPlates plates = CreateContinentalPlates(_planet, parameter);
-			_planet.Data.ContinentalPlates = plates;
-			ShapingLayer[] shapingLayers = CreateShapingLayers(_planet.Data);
-
-            _delaunay.UpdateView(plates.SegmentSites, plates.SegmentsDelaunayTriangles);
-            _voronoi.UpdateView(plates.SegmentsVoronoi);
-
-			UpdateEvaluationPointData(_planet, parameter);
-            _layerMaterializer.UpdateElevation(new PlanetLayerMaterializer.Parameter(_planet, _biomes, shapingLayers));
+			CreatePlanet();
+			_planet.Data.ContinentalPlates = CreateContinentalPlates();
+			UpdateDebugView();
+            _evaluationPointDatasInitializer.Compute(CreateEvaluationPointDatasInitializerParameter());
+            _layerMaterializer.UpdateElevation(CreateMaterializerParameter(CreateShapingLayers()));
 			_planet.UpdateMesh();
-			SetVertexColors(_planet, parameter.ContinentalPlatesParameter, _biomes);
-			//InitContinentLayer(planet);
+			SetVertexColors(parameter.ContinentalPlatesParameter, _biomes);
 		}
 
 		private void CleanPlanet()
@@ -102,70 +95,99 @@ namespace SBaier.Master
         }
 
         private void Init(Parameter parameter)
-        {
-            _noiseFactory.ClearCache();
-            _continentalPlatesWarpingNoise = _noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, parameter.Seed);
-            _mountainsNoise = _noiseFactory.Create(_mountainsNoiseSettings, parameter.Seed);
-            _canyonsNoise = _noiseFactory.Create(_canyonsNoiseSettings, parameter.Seed);
-            _oceansNoise = _noiseFactory.Create(_oceansNoiseSettings, parameter.Seed);
-            _continentNoise = _noiseFactory.Create(_continentNoiseSettings, parameter.Seed);
-            _baseNoise = _noiseFactory.Create(_baseNoiseSettings, parameter.Seed);
-        }
-
-		private BasicPlanetFactory.Parameter CreateBasicPlanetFactoryParameter(Parameter parameter)
 		{
-            PlanetDimensions dimensions = parameter.Dimensions;
-            TemperatureSpectrum temperature = parameter.TemperatureSpectrum;
-            PlanetAxisData axis = parameter.AxisData;
-            return new BasicPlanetFactory.Parameter(dimensions, temperature, axis, parameter.Subdivisions, parameter.Seed);
+            _parameter = parameter;
+			CreateNoise(parameter);
 		}
 
-		private ContinentalPlates CreateContinentalPlates(Planet planet, Parameter parameter)
+		private void CreateNoise(Parameter parameter)
 		{
-			ContinentalPlatesFactory.Parameters continentalPlatesFactoryParameter = CreatePlatesFactoryParameters(planet, parameter);
+			_noiseFactory.ClearCache();
+			_continentalPlatesWarpingNoise = _noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, parameter.Seed);
+			_mountainsNoise = _noiseFactory.Create(_mountainsNoiseSettings, parameter.Seed);
+			_canyonsNoise = _noiseFactory.Create(_canyonsNoiseSettings, parameter.Seed);
+			_oceansNoise = _noiseFactory.Create(_oceansNoiseSettings, parameter.Seed);
+			_continentNoise = _noiseFactory.Create(_continentNoiseSettings, parameter.Seed);
+			_baseNoise = _noiseFactory.Create(_baseNoiseSettings, parameter.Seed);
+        }
+
+        private void CreatePlanet()
+        {
+            _planet = _basicPlanetFactory.Create(CreateBasicPlanetFactoryParameter());
+        }
+
+        private BasicPlanetFactory.Parameter CreateBasicPlanetFactoryParameter()
+		{
+            PlanetDimensions dimensions = _parameter.Dimensions;
+            TemperatureSpectrum temperature = _parameter.TemperatureSpectrum;
+            PlanetAxisData axis = _parameter.AxisData;
+            return new BasicPlanetFactory.Parameter(
+                dimensions, 
+                temperature, 
+                axis, 
+                _parameter.Subdivisions, 
+                _parameter.Seed);
+		}
+
+		private ContinentalPlates CreateContinentalPlates()
+		{
+			ContinentalPlatesFactory.Parameters continentalPlatesFactoryParameter = CreatePlatesFactoryParameters();
 			ContinentalPlates plates = _continentalPlatesFactory.Create(continentalPlatesFactoryParameter);
 			return plates;
 		}
 
-		private ShapingLayer[] CreateShapingLayers(PlanetData data)
+        private EvaluationPointDatasInitializer.Parameter CreateEvaluationPointDatasInitializerParameter()
+        {
+            return new EvaluationPointDatasInitializer.Parameter(
+                _planet, 
+                _continentalPlatesWarpingNoise, 
+                _parameter.ContinentalPlatesParameter.WarpFactor);
+        }
+
+        private void UpdateDebugView()
+        {
+            ContinentalPlates plates = _planet.Data.ContinentalPlates;
+            _delaunay.UpdateView(plates.SegmentSites, plates.SegmentsDelaunayTriangles);
+            _voronoi.UpdateView(plates.SegmentsVoronoi);
+        }
+
+        private ShapingLayer[] CreateShapingLayers()
 		{
-			ShapingFactory.Parameter shapingFactoryParameter = new ShapingFactory.Parameter(data, _mountainsNoise, _canyonsNoise, _oceansNoise, _continentNoise, _baseNoise);
-			ShapingLayer[] shapingLayers = _shapingFactory.Create(shapingFactoryParameter);
+            PlanetData data = _planet.Data;
+			ShapingFactory.Parameter parameter = new ShapingFactory.Parameter(
+                data, 
+                _mountainsNoise, 
+                _canyonsNoise, 
+                _oceansNoise, 
+                _continentNoise, 
+                _baseNoise);
+			ShapingLayer[] shapingLayers = _shapingFactory.Create(parameter);
 			return shapingLayers;
 		}
 
-		private ContinentalPlatesFactory.Parameters CreatePlatesFactoryParameters(Planet planet, Parameter parameter)
+		private ContinentalPlatesFactory.Parameters CreatePlatesFactoryParameters()
 		{
-			return new ContinentalPlatesFactory.Parameters(planet, parameter.Seed, parameter.ContinentalPlatesParameter, _biomeSettings);
+			return new ContinentalPlatesFactory.Parameters(
+                _planet, 
+                _parameter.Seed, 
+                _parameter.ContinentalPlatesParameter, 
+                _biomeSettings);
 		}
 
-        private void UpdateEvaluationPointData(Planet planet, Parameter parameter)
-		{
-            ContinentalPlates plates = planet.Data.ContinentalPlates;
-            KDTree<Vector3> segmentsKDTree = _treeFactory.Create(plates.SegmentSites);
-            for (int i = 0; i < planet.Faces.Count; i++)
-			{
-				PlanetFace face = planet.Faces[i];
-				PlanetFaceData faceData = face.Data;
-                PlanetPointsWarper warper = new PlanetPointsWarper(_continentalPlatesWarpingNoise);
-				Vector3[] vertices = warper.Warp(face.Vertices, parameter.ContinentalPlatesParameter.WarpFactor, parameter.Dimensions.AtmosphereRadius);
-
-				for (int j = 0; j < vertices.Length; j++)
-				{
-					Vector3 vertex = vertices[j];
-					EvaluationPointData pointData = faceData.EvaluationPoints[j];
-					int segmentIndex = segmentsKDTree.GetNearestTo(vertex);
-					ContinentalPlateSegment segment = plates.Segments[segmentIndex];
-					pointData.ContinentalPlateSegmentIndex = segmentIndex;
-					pointData.BiomeID = segment.BiomeID;
-                    pointData.WarpedPoint = vertex;
-                }
-			}
-		}
-
-        private void SetVertexColors(Planet planet, ContinentalPlatesParameter continentalPlatesParameter, Biome[] biomes)
+        private PlanetLayerMaterializer.Parameter CreateMaterializerParameter(ShapingLayer[] shapingLayers)
         {
-            PlanetColorizer colorizer = new PlanetColorizer(planet, continentalPlatesParameter, biomes);
+            return new PlanetLayerMaterializer.Parameter(
+                _planet, 
+                _biomes, 
+                shapingLayers);
+        }
+
+        private void SetVertexColors(ContinentalPlatesParameter continentalPlatesParameter, Biome[] biomes)
+        {
+            PlanetColorizer colorizer = new PlanetColorizer(
+                _planet, 
+                continentalPlatesParameter, 
+                biomes);
             colorizer.Compute();
         }
 
