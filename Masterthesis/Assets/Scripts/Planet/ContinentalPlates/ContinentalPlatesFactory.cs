@@ -8,7 +8,7 @@ namespace SBaier.Master
 {
     public class ContinentalPlatesFactory
     {
-		private const float _minPlatesForce = 0.33f;
+		private const float _minPlatesForce = 0.5f;
 
 		private RandomPointsOnSphereGenerator _randomPointsGenerator;
 		private SampleElimination3D _sampleElimination;
@@ -31,7 +31,7 @@ namespace SBaier.Master
 			Triangle[] segmentsTriangles = CreatePlateSegmentTriangles(plateSegmentSites);
 			VoronoiDiagram segmentsVoronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, segmentsTriangles, parameters.Planet.AtmosphereRadius);
 			ContinentalPlateSegment[] segments = CreateContinentalPlateSegments(plateSegmentSites, segmentsVoronoi);
-			ContinentalRegion[] regions = CreateRegions(parameters, plateSegmentSites, segments);
+			ContinentalRegion[] regions = CreateRegions(parameters, plateSegmentSites, segments, segmentsVoronoi);
 			ContinentalPlate[] plates = CreatePlates(parameters, regions);
 			ConnectingBordersFinder connectingBordersFinder = new ConnectingBordersFinder(plates);
 			connectingBordersFinder.Calcualte();
@@ -41,16 +41,82 @@ namespace SBaier.Master
 			return result;
 		}
 
-		private ContinentalRegion[] CreateRegions(Parameters parameters, Vector3[] plateSegmentSites, ContinentalPlateSegment[] segments)
+		private ContinentalRegion[] CreateRegions(Parameters parameters, Vector3[] plateSegmentSites, ContinentalPlateSegment[] segments, VoronoiDiagram segmentsVoronoi)
 		{
 			int regionSitesAmount = parameters.ContinentalPlatesParameter.OceansAmount + parameters.ContinentalPlatesParameter.ContinentsAmount;
 			ContinentalRegion[] result = new ContinentalRegion[regionSitesAmount];
 			Vector3[] regionSites = CreateSites(parameters, regionSitesAmount);
-			KDTree<Vector3> regionSitesTree = _kdTreeFactory.Create(regionSites);
-			List<int>[] regionToSegments = FindNearest(plateSegmentSites, regionSitesTree);
+			//KDTree<Vector3> regionSitesTree = _kdTreeFactory.Create(regionSites);
+			KDTree<Vector3> segmentSitesTree = _kdTreeFactory.Create(plateSegmentSites);
+			List<int>[] regionToSegments = ChooseSegments(parameters, regionSites, segments, segmentSitesTree, segmentsVoronoi);
 			for (int i = 0; i < result.Length; i++)
 				result[i] = CreateRegion(parameters, regionToSegments, segments, regionSites, i);
 			return result;
+		}
+
+		private List<int>[] ChooseSegments(Parameters parameters, Vector3[] regionSites, ContinentalPlateSegment[] segments, KDTree<Vector3> segmentSitesTree, VoronoiDiagram segmentsVoronoi)
+		{
+			List<int>[] result = new List<int>[regionSites.Length];
+			for (int i = 0; i < result.Length; i++)
+				result[i] = new List<int>();
+
+			int[][] possibleNext = new int[regionSites.Length][];
+			HashSet<int> chosenSites = new HashSet<int>();
+			int[] startSegments = segmentSitesTree.GetNearestTo(regionSites);
+			List<int> openRegions = new List<int>();
+			for (int i = 0; i < startSegments.Length; i++)
+			{
+				possibleNext[i] = new int[] { startSegments[i] };
+				openRegions.Add(i);
+			}
+				
+
+			while (openRegions.Count > 0)
+			{
+				for (int i = 0; i < openRegions.Count; i++)
+				{
+					int region = openRegions[i];
+					int[] neighbors = possibleNext[region];
+					int[] indices = CreateRandomIndices(neighbors.Length, parameters.Seed);
+					bool foundNext = false;
+
+					for (int j = 0; j < indices.Length; j++)
+					{
+						int neighbor = neighbors[indices[j]];
+						if (chosenSites.Contains(neighbor))
+							continue;
+						result[region].Add(neighbor);
+						chosenSites.Add(neighbor);
+						possibleNext[region] = GetNeighbors(result[region], segmentsVoronoi);
+						foundNext = true;
+						break;
+					}
+
+					if(!foundNext)
+						openRegions.Remove(region);
+				}
+			}
+			return result;
+		}
+
+		private int[] GetNeighbors(List<int> segementIndices, VoronoiDiagram diagram)
+		{
+			HashSet<int> neighbors = new HashSet<int>();
+			for (int i = 0; i < segementIndices.Count; i++)
+			{
+				VoronoiRegion region = diagram.Regions[segementIndices[i]];
+				for (int j = 0; j < region.Neighbors.Length; j++)
+					neighbors.Add(region.Neighbors[j]);
+			}
+			return neighbors.ToArray();
+		}
+
+		private int[] CreateRandomIndices(int count, Seed seed)
+		{
+			int[] result = new int[count];
+			for (int i = 0; i < count; i++)
+				result[i] = i;
+			return result.OrderBy(x => seed.Random.Next()).ToArray();
 		}
 
 		private ContinentalRegion CreateRegion(Parameters parameters, List<int>[] regionToSegments,
@@ -63,13 +129,16 @@ namespace SBaier.Master
 			List<int> segmentIndices = regionToSegments[index];
 
 			for (int i = 0; i < segmentIndices.Count; i++)
-			{
-				ContinentalPlateSegment segment = segments[segmentIndices[i]];
-				int biomeIndex = ChooseBiome(parameters, segment, type);
-				segment.BiomeID = biomeIndex;
-			}
-			
+				SetBiome(parameters, segments, type, segmentIndices, i);
+
 			return new ContinentalRegion(type, regionToSegments[index].ToArray(), regionSites[index], borders);
+		}
+
+		private void SetBiome(Parameters parameters, ContinentalPlateSegment[] segments, ContinentalRegion.Type type, List<int> segmentIndices, int i)
+		{
+			ContinentalPlateSegment segment = segments[segmentIndices[i]];
+			int biomeIndex = ChooseBiome(parameters, segment, type);
+			segment.BiomeID = biomeIndex;
 		}
 
 		private int ChooseBiome(Parameters parameters, ContinentalPlateSegment segment, ContinentalRegion.Type type)
@@ -141,24 +210,24 @@ namespace SBaier.Master
 			ContinentalPlate[] result = new ContinentalPlate[parameters.ContinentalPlatesParameter.PlatesAmount];
 			Seed seed = new Seed(parameters.Seed.Random.Next());
 			for (int i = 0; i < plateToRegion.Length; i++)
-				result[i] = CreatePlate(regions, plateSites, plateToRegion, seed, i);
+				result[i] = CreatePlate(parameters, regions, plateSites, plateToRegion, seed, i);
 			return result;
 		}
 
-		private ContinentalPlate CreatePlate(ContinentalRegion[] regions, Vector3[] plateSites, List<int>[] plateToRegion, Seed seed, int index)
+		private ContinentalPlate CreatePlate(Parameters parameters, ContinentalRegion[] regions, Vector3[] plateSites, List<int>[] plateToRegion, Seed seed, int index)
 		{
 			Vector3 movementTangent = CalculateMovementTangent(plateSites[index], seed);
-			float movementStrength = CalculateMovementStrength(seed);
+			float movementStrength = CalculateMovementStrength(seed, parameters.ContinentalPlatesParameter.PlatesMinForce);
 			List<Polygon> polygons = ExtractPolygons(plateToRegion[index], regions);
 			Vector2Int[] borders = GetBorders(polygons.ToArray());
 			return new ContinentalPlate(plateSites[index], plateToRegion[index].ToArray(), movementTangent, movementStrength, borders);
 		}
 
-		private static float CalculateMovementStrength(Seed seed)
+		private float CalculateMovementStrength(Seed seed, float minPlatesForce)
 		{
 			float value = (float)seed.Random.NextDouble();
-			float delta = value * (1 - _minPlatesForce);
-			return _minPlatesForce + delta;
+			float delta = value * (1 - minPlatesForce);
+			return minPlatesForce + delta;
 		}
 
 		private Vector3 CalculateMovementTangent(Vector3 site, Seed seed)
@@ -214,25 +283,19 @@ namespace SBaier.Master
 		}
 
 
-		private static List<int>[] FindNearest(Vector3[] samples, KDTree<Vector3> regionSitesTree)
+		private List<int>[] FindNearest(Vector3[] samples, KDTree<Vector3> tree)
 		{
-			List<int>[] result = new List<int>[regionSitesTree.Count];
+			List<int>[] result = new List<int>[tree.Count];
 			for (int i = 0; i < result.Length; i++)
 				result[i] = new List<int>();
-			for (int i = 0; i < samples.Length; i++)
-				AddNearstTo(result, samples, regionSitesTree, i);
+			int[] nearestResult = tree.GetNearestTo(samples);
+			for (int i = 0; i < nearestResult.Length; i++)
+				result[nearestResult[i]].Add(i);
 			return result;
-		}
-
-		private static void AddNearstTo(List<int>[] result, Vector3[] samples, KDTree<Vector3> regionSitesTree, int index)
-		{
-			int siteIndex = regionSitesTree.GetNearestTo(samples[index]);
-			result[siteIndex].Add(index);
 		}
 
 		public class Parameters
 		{
-
 			public Parameters(
 				Planet planet, 
 				Seed seed, 

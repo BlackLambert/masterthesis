@@ -13,7 +13,8 @@ namespace SBaier.Master
             int platesAmount,
 			float warpFactor,
 			float blendFactor,
-			float sampleEliminationFactor)
+			float sampleEliminationFactor,
+			float platesMinForce)
 		{
 			SegmentsAmount = segmentsAmount;
 			ContinentsAmount = continentsAmount;
@@ -22,6 +23,7 @@ namespace SBaier.Master
 			WarpFactor = warpFactor;
 			BlendFactor = blendFactor;
 			SampleEliminationFactor = sampleEliminationFactor;
+			PlatesMinForce = platesMinForce;
 		}
 
 		public int SegmentsAmount { get; }
@@ -31,5 +33,6 @@ namespace SBaier.Master
 		public float WarpFactor { get; }
 		public float BlendFactor { get; }
 		public float SampleEliminationFactor { get; }
+		public float PlatesMinForce { get; }
 	}
 }

@@ -28,7 +28,7 @@ namespace SBaier.Master
             ShapingLayer oceansShaping = segmentShapings[0];
             ShapingLayer continentsShaping = segmentShapings[1];
             ShapingLayer[] continentsBorderShaping = _plateLayerFactory.Create(
-                new PlatesShapingLayerFactory.Parameter(parameter.Data, parameter.MountainNoise, parameter.CanyonsNoise));
+                new PlatesShapingLayerFactory.Parameter(parameter.Data, parameter.Shaping.Plates, parameter.MountainNoise, parameter.CanyonsNoise));
             ShapingLayer mountainsShaping = continentsBorderShaping[0];
             ShapingLayer canyonsShaping = continentsBorderShaping[1];
             result.Add(baseLayer);
@@ -42,7 +42,8 @@ namespace SBaier.Master
         public class Parameter
 		{
             public Parameter(
-                PlanetData data, 
+                PlanetData data,
+                ShapingParameter shaping,
                 Noise3D mountainNoise,
                 Noise3D canyonsNoise,
                 Noise3D oceanNoise,
@@ -50,7 +51,8 @@ namespace SBaier.Master
                 Noise3D seaLevelNoise)
 			{
 				Data = data;
-				MountainNoise = mountainNoise;
+                Shaping = shaping;
+                MountainNoise = mountainNoise;
 				CanyonsNoise = canyonsNoise;
 				OceanNoise = oceanNoise;
                 ContinentNoise = continentNoise;
@@ -58,6 +60,7 @@ namespace SBaier.Master
 			}
 
 			public PlanetData Data { get; }
+            public ShapingParameter Shaping { get; }
 			public Noise3D MountainNoise { get; }
 			public Noise3D CanyonsNoise { get; }
 			public Noise3D OceanNoise { get; }

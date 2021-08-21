@@ -51,6 +51,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4a6995e68f5daaa4eb5c5a6e50fbea73, type: 2}
   - {fileID: 11400000, guid: 1bf6d7eed219f314dab088ba8e64f547, type: 2}
   - {fileID: 11400000, guid: 591b8a21d1808d54b97a95cc1249dd5f, type: 2}
+  - {fileID: 11400000, guid: 7d069cab3f76f2242a3fd9df6c2d53c7, type: 2}
+  - {fileID: 11400000, guid: c85327c22822225479731878a1755d15, type: 2}
   _continentalPlatesWarpingNoiseSettings: {fileID: 11400000, guid: 659ba8ba4d420cf4ab195dbd26bfad3b, type: 2}
   _mountainsNoiseSettings: {fileID: 11400000, guid: d2aea82b9908fc3478726ab3ca4cc7ea, type: 2}
   _canyonsNoiseSettings: {fileID: 11400000, guid: 743d90bea4a76cd4ca648c120d985a9d, type: 2}

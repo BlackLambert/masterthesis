@@ -18,13 +18,13 @@ namespace SBaier.Master
 		{
 			RecursiveTreeBuilder builder = new RecursiveTreeBuilder(nodes, _quickSelector);
 			builder.Build();
-			return new Vector3BinaryKDTree(nodes, builder.Root, builder.NodeToChildren, builder.IndexPermutation, builder.Depth);
+			return new Vector3BinaryKDTree(nodes, builder.Root, builder.NodeChildren, builder.IndexPermutation, builder.Depth);
 		}
 
 		private class RecursiveTreeBuilder
 		{
 			public int Root { get; private set; }
-			public int[][] NodeToChildren { get; private set; }
+			public int[] NodeChildren { get; private set; }
 			public int[] IndexPermutation { get; private set; }
 			public int Depth { get; private set; } = 0;
 			private Vector3[] _permutations;
@@ -39,8 +39,16 @@ namespace SBaier.Master
 
 			public void Build()
 			{
-				NodeToChildren = new int[_permutations.Length][];
+				NodeChildren = CreateNodeChildren();
 				BuildTreeRecursive(0, new Vector2Int(0, _permutations.Length - 1));
+			}
+
+			private int[] CreateNodeChildren()
+			{
+				int[] result = new int[_permutations.Length * 2];
+				for (int i = 0; i < result.Length; i++)
+					result[i] = -1;
+				return result;
 			}
 
 			private void BuildTreeRecursive(int depth, Vector2Int indexRange, int previousNodeIndex = -1, int recursionIndex = 0)
@@ -57,22 +65,20 @@ namespace SBaier.Master
 			{
 				int count = indexRange.y - indexRange.x + 1;
 				if (count == 1)
-					BuildLeave(depth, currentNodeIndex);
+					BuildLeave(depth);
 				else if (count == 2)
 					BuildOneChildNode(depth, indexRange, currentNodeIndex);
 				else if (count > 2)
 					BuildTwoChildNodes(depth, indexRange, currentNodeIndex);
 			}
 
-			private void BuildLeave(int depth, int nodeIndex)
+			private void BuildLeave(int depth)
 			{
-				NodeToChildren[nodeIndex] = new int[0];
 				UpdateDepth(depth);
 			}
 
 			private void BuildOneChildNode(int depth, Vector2Int indexRange, int nodeIndex)
 			{
-				NodeToChildren[nodeIndex] = new int[] { -1 };
 				Vector2Int newRange;
 				if (indexRange.x == nodeIndex)
 					newRange = SkipNodesBeforeMedian(indexRange, nodeIndex);
@@ -83,7 +89,6 @@ namespace SBaier.Master
 
 			private void BuildTwoChildNodes(int depth, Vector2Int indexRange, int nodeIndex)
 			{
-				NodeToChildren[nodeIndex] = new int[] { -1, -1 };
 				Vector2Int firstNewIndexRange = TakeNodesBeforeMedian(indexRange, nodeIndex);
 				Vector2Int secondNewIndexRange = SkipNodesBeforeMedian(indexRange, nodeIndex);
 				BuildTreeRecursive(depth + 1, firstNewIndexRange, nodeIndex, 0);
@@ -93,7 +98,7 @@ namespace SBaier.Master
 			private void UpdatePreviousNodeChildren(int previousNodeIndex, int recursionIndex, int currentNodeIndex)
 			{
 				if (previousNodeIndex >= 0)
-					NodeToChildren[previousNodeIndex][recursionIndex] = currentNodeIndex;
+					NodeChildren[previousNodeIndex * 2 + recursionIndex] = currentNodeIndex;
 			}
 
 			private Vector2Int SkipNodesBeforeMedian(Vector2Int range, int median)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace SBaier.Master
 		public Result Evaluate(Vector3[] vertices)
 		{
 			if (!_hasPrimitves)
-				CreateEmptyResult(vertices.Length);
+				return CreateEmptyResult(vertices.Length);
 			Init(vertices);
 			return CreateResult();
 		}
@@ -57,8 +58,7 @@ namespace SBaier.Master
 		private Result CreateResult()
 		{
 			EvaluateNoise();
-			for (int i = 0; i < _vertices.Length; i++)
-				CalculateWeight(i);
+			CalculateWeight();
 			return new Result(_evaluatedValues, _weights);
 		}
 
@@ -71,12 +71,22 @@ namespace SBaier.Master
 			evalPoints.Dispose();
 		}
 
-		private void CalculateWeight(int vertexIndex)
+		private void CalculateWeight()
 		{
-			Vector3 vertex = _vertices[vertexIndex];
-			int[] primitivesInRange = _kDTree.GetNearestToWithin(vertex, _maxAreaOfEffect);
-			for (int j = 0; j < primitivesInRange.Length; j++)
-				CalculateWeight(vertexIndex, _primitives[primitivesInRange[j]]);
+			int[][] primitivesInRange = _kDTree.GetNearestToWithin(_vertices, _maxAreaOfEffect);
+			CalculateWeight(primitivesInRange);
+		}
+
+		private void CalculateWeight(int[][] primitivesInRange)
+		{
+			for (int i = 0; i < primitivesInRange.Length; i++)
+				CalculateWeight(i, primitivesInRange[i]);
+		}
+
+		private void CalculateWeight(int vertexIndex, int[] primitivesInRange)
+		{
+			for (int i = 0; i < primitivesInRange.Length; i++)
+				CalculateWeight(vertexIndex, _primitives[primitivesInRange[i]]);
 		}
 
 		private void CalculateWeight(int vertexIndex, ShapingPrimitive primitive)

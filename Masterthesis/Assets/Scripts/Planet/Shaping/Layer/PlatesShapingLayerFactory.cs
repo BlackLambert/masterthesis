@@ -6,10 +6,6 @@ namespace SBaier.Master
 {
 	public class PlatesShapingLayerFactory : ShapingLayerFactory
 	{
-		private const float _mountainsBreadthFactor = 0.10f;
-		private const float _mountainsBlendDistanceFactor = 0.15f;
-		private const float _canyonsBreadthFactor = 0.05f;
-		private const float _canyonsBlendDistanceFactor = 0.08f;
 		private const float _lenthAdditionFactor = 0.05f;
 
 		private List<ShapingPrimitive> _mountainPrimitives;
@@ -29,7 +25,7 @@ namespace SBaier.Master
 			Init(parameter);
 			ContinentalPlates plates = _data.ContinentalPlates;
 			for (int i = 0; i < plates.PlateNeighbors.Length; i++)
-				Create(plates.PlateNeighbors[i]);
+				Create(parameter.ShapingParameter, plates.PlateNeighbors[i]);
 			return CreateLayers(parameter);
 		}
 
@@ -49,16 +45,16 @@ namespace SBaier.Master
 			return CreateLayers(primitives, noise, modes);
 		}
 
-		private void Create(Vector2Int neighbors)
+		private void Create(PlatesShapingParameter parameter, Vector2Int neighbors)
 		{
 			float weight = CalculateWeight(_data.ContinentalPlates, neighbors);
 			ContinentalPlates plates = _data.ContinentalPlates;
 			Vector2Int[] borders = plates.PlateBorders[neighbors];
 			for (int i = 0; i < borders.Length; i++)
-				Create(borders[i], weight);
+				Create(parameter, borders[i], weight);
 		}
 
-		private void Create(Vector2Int border, float weight)
+		private void Create(PlatesShapingParameter parameter, Vector2Int border, float weight)
 		{
 			bool borderAlreadyHandled = _handledBorders.Contains(border);
 			if (borderAlreadyHandled)
@@ -68,7 +64,7 @@ namespace SBaier.Master
 			if (borderLengthIsZero)
 				return;
 			Vector3 pos = CalculateSegmentPosition(border, borderVector);
-			CreatePrmitive(weight, borderVector, pos);
+			CreatePrmitive(parameter, weight, borderVector, pos);
 			_handledBorders.Add(border);
 		}
 
@@ -87,19 +83,19 @@ namespace SBaier.Master
 			return (corner0 + borderVector / 2).normalized * corner0.magnitude;
 		}
 
-		private void CreatePrmitive(float weight, Vector3 borderVector, Vector3 pos)
+		private void CreatePrmitive(PlatesShapingParameter parameter, float weight, Vector3 borderVector, Vector3 pos)
 		{
 			if (weight > 0)
-				_mountainPrimitives.Add(CreateMountainPrimitive(borderVector, weight, pos));
+				_mountainPrimitives.Add(CreateMountainPrimitive(parameter, borderVector, weight, pos));
 			else
-				_canyonPrimitives.Add(CreateCanyonsPrimitive(borderVector, -weight, pos));
+				_canyonPrimitives.Add(CreateCanyonsPrimitive(parameter, borderVector, -weight, pos));
 		}
 
-		private ShapingPrimitive CreateCanyonsPrimitive(Vector3 distanceVector, float weight, Vector3 pos)
+		private ShapingPrimitive CreateCanyonsPrimitive(PlatesShapingParameter parameter, Vector3 distanceVector, float weight, Vector3 pos)
 		{
-			float maxBreadth = _data.Dimensions.AtmosphereRadius * _canyonsBreadthFactor;
+			float maxBreadth = _data.Dimensions.AtmosphereRadius * parameter.CanyonsBreadthFactor;
 			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
-			float bledDistance = _data.Dimensions.AtmosphereRadius * _canyonsBlendDistanceFactor;
+			float bledDistance = _data.Dimensions.AtmosphereRadius * parameter.CanyonsBlendDistanceFactor;
 			float length = distanceVector.magnitude + lengthAddition;
 			float breadth = maxBreadth * weight;
 			float blendValue = bledDistance * weight;
@@ -108,16 +104,16 @@ namespace SBaier.Master
 			return new ElipsoidShapingPrimitive(pos, distanceVector, min, max, blendValue, weight);
 		}
 
-		private ShapingPrimitive CreateMountainPrimitive(Vector3 distanceVector, float weight, Vector3 pos)
+		private ShapingPrimitive CreateMountainPrimitive(PlatesShapingParameter parameter, Vector3 distanceVector, float weight, Vector3 pos)
 		{
-			float maxBreadth = _data.Dimensions.AtmosphereRadius * _mountainsBreadthFactor;
+			float maxBreadth = _data.Dimensions.AtmosphereRadius * parameter.MountainsBreadthFactor;
 			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
-			float bledDistance = _data.Dimensions.AtmosphereRadius * _mountainsBlendDistanceFactor;
-			float mountainLength = distanceVector.magnitude + lengthAddition;
-			float mountainBreadth = maxBreadth * weight;
+			float bledDistance = _data.Dimensions.AtmosphereRadius * parameter.MountainsBlendDistanceFactor;
+			float length = distanceVector.magnitude + lengthAddition;
+			float breadth = maxBreadth * weight;
 			float blendValue = bledDistance * weight;
-			float max = Mathf.Max(mountainLength, mountainBreadth);
-			float min = Mathf.Min(mountainLength, mountainBreadth);
+			float max = Mathf.Max(length, breadth);
+			float min = Mathf.Min(length, breadth);
 			return new ElipsoidShapingPrimitive(pos, distanceVector, min, max, blendValue, weight);
 		}
 
@@ -145,15 +141,18 @@ namespace SBaier.Master
 		{
 			public Parameter(
 				PlanetData data,
+				PlatesShapingParameter shapingParameter,
 				Noise3D mountainNoise,
 				Noise3D canyonsNoise)
 			{
 				Data = data;
+				ShapingParameter = shapingParameter;
 				MountainNoise = mountainNoise;
 				CanyonsNoise = canyonsNoise;
 			}
 
 			public PlanetData Data { get; }
+			public PlatesShapingParameter ShapingParameter { get; }
 			public Noise3D MountainNoise { get; }
 			public Noise3D CanyonsNoise { get; }
 		}

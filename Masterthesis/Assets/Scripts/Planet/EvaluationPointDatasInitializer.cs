@@ -32,13 +32,13 @@ namespace SBaier.Master
 			PlanetFaceData faceData = face.Data;
 			PlanetPointsWarper warper = new PlanetPointsWarper(_warpNoise);
 			Vector3[] warpedVertices = warper.Warp(face.Vertices, _warpFactor, _planet.Data.Dimensions.AtmosphereRadius);
-			for (int j = 0; j < warpedVertices.Length; j++)
-				Compute(faceData.EvaluationPoints[j], warpedVertices[j]);
+			int[] segmentIndices = _segmentsKDTree.GetNearestTo(warpedVertices);
+			for (int i = 0; i < segmentIndices.Length; i++)
+				InitData(faceData.EvaluationPoints[i], segmentIndices[i], warpedVertices[i]);
 		}
 
-		private void Compute(EvaluationPointData pointData, Vector3 warpedVertex)
+		private void InitData(EvaluationPointData pointData, int segmentIndex, Vector3 warpedVertex)
 		{
-			int segmentIndex = _segmentsKDTree.GetNearestTo(warpedVertex);
 			ContinentalPlateSegment segment = _plates.Segments[segmentIndex];
 			pointData.ContinentalPlateSegmentIndex = segmentIndex;
 			pointData.BiomeID = segment.BiomeID;

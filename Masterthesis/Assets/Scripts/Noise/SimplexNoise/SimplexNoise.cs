@@ -31,8 +31,8 @@ namespace SBaier.Master
 			new Vector3Int(0,-1,-1)
 		};
 
-		private IList<short> _dP = new short[_doublePermutationCount];
-		private IList<short> _dPMod = new short[_doublePermutationCount];
+		private short[] _dP = new short[_doublePermutationCount];
+		private short[] _dPMod = new short[_doublePermutationCount];
 
 		public NoiseType NoiseType => NoiseType.Simplex;
 
@@ -114,8 +114,8 @@ namespace SBaier.Master
 		{
 			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
 			NativeArray<Vector3Int> gradients = CreateNativeGradients3D();
-			NativeArray<short> dP = new NativeArray<short>(_dP.ToArray(), Allocator.TempJob);
-			NativeArray<short> dPMod = new NativeArray<short>(_dPMod.ToArray(), Allocator.TempJob);
+			NativeArray<short> dP = new NativeArray<short>(_dP, Allocator.TempJob);
+			NativeArray<short> dPMod = new NativeArray<short>(_dPMod, Allocator.TempJob);
 
 			SimplexNoise3DEvaluationJob job = new SimplexNoise3DEvaluationJob(evaluatedPoints, points, dP, dPMod, gradients, Weight);
 			return job;
@@ -124,8 +124,8 @@ namespace SBaier.Master
 		public NoiseEvaluationJob CreateEvaluate2DJob(NativeArray<Vector2> points)
 		{
 			NativeArray<float> evaluatedPoints = new NativeArray<float>(points.Length, Allocator.TempJob);
-			NativeArray<short> dP = new NativeArray<short>(_dP.ToArray(), Allocator.TempJob);
-			NativeArray<short> dPMod = new NativeArray<short>(_dPMod.ToArray(), Allocator.TempJob);
+			NativeArray<short> dP = new NativeArray<short>(_dP, Allocator.TempJob);
+			NativeArray<short> dPMod = new NativeArray<short>(_dPMod, Allocator.TempJob);
 			NativeArray<Vector2Int> gradients = CreateNativeGradients2D();
 
 			SimplexNoise2DEvaluationJob job = new SimplexNoise2DEvaluationJob(evaluatedPoints, points, dP, dPMod, gradients, Weight);

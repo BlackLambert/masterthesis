@@ -1,30 +1,31 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace SBaier.Master
 {
     public class Vector3BinaryKDTree : KDTree<Vector3>
 	{
+
+		private const int _jobBatchSize = 16;
+
 		public int Depth { get; private set; }
 
 		public int Count => _nodes.Length;
-
 		private int _root;
 		private Vector3[] _nodes;
 		private int[] _indexPermutation;
-		private int[][] _nodeToChildren;
-		private FindNearestElementComputer _findNearestElementComputer;
+		private int[] _nodeChildren;
 		private FindNearestElementsComputer _findNearestElementsComputer;
 
-		public Vector3BinaryKDTree(Vector3[] nodes, int root, int[][] nodeToChildren, int[] indexPermutation, int depth)
+		public Vector3BinaryKDTree(Vector3[] nodes, int root, int[] nodeToChildren, int[] indexPermutation, int depth)
 		{
 			ValidateNodes(nodes);
 			_nodes = nodes;
 			_root = root;
-			_nodeToChildren = nodeToChildren;
+			_nodeChildren = nodeToChildren;
 			_indexPermutation = indexPermutation;
 			Depth = depth;
 			CreateComputers();
@@ -32,32 +33,80 @@ namespace SBaier.Master
 
 		private void CreateComputers()
 		{
-			_findNearestElementComputer = new FindNearestElementComputer
-			(
-				_root,
-				_nodes,
-				_indexPermutation,
-				_nodeToChildren
-			);
 			_findNearestElementsComputer = new FindNearestElementsComputer
 			(
 				_root,
 				_nodes,
 				_indexPermutation,
-				_nodeToChildren
+				_nodeChildren
 			);
 		}
 
 		public int GetNearestTo(Vector3 sample)
 		{
-			_findNearestElementComputer.Init(sample, -1);
-			return _findNearestElementComputer.Compute();
+			return GetNearestTo(new Vector3[] { sample })[0];
 		}
 
 		public int GetNearestTo(int sampleIndex)
 		{
-			_findNearestElementComputer.Init(_nodes[sampleIndex], sampleIndex);
-			return _findNearestElementComputer.Compute();
+			return GetNearestTo(new int[] { sampleIndex })[0];
+		}
+
+		public int[] GetNearestTo(Vector3[] samples)
+		{
+			FindNearestElementJob job = CreateFindNearestJob(samples, CreateEmptyIndicesToExclude(samples.Length));
+			int[] r2 = FinishJob(job);
+			return r2;
+		}
+
+		public int[] GetNearestTo(int[] sampleIndices)
+		{
+			FindNearestElementJob job = CreateFindNearestJob(FindSamples(sampleIndices), sampleIndices);
+			return FinishJob(job);
+		}
+
+		private Vector3[] FindSamples(int[] sampleIndices)
+		{
+			Vector3[] result = new Vector3[sampleIndices.Length];
+			for (int i = 0; i < result.Length; i++)
+				result[i] = _nodes[sampleIndices[i]];
+			return result;
+		}
+
+		private int[] CreateEmptyIndicesToExclude(int length)
+		{
+			int[] result = new int[length];
+			for (int i = 0; i < result.Length; i++)
+				result[i] = -1;
+			return result;
+		}
+
+		private int[] FinishJob(FindNearestElementJob job)
+		{
+			job.Schedule(job.Result.Length, _jobBatchSize).Complete();
+			int[] result = job.Result.ToArray();
+			job.Dispose();
+			return result;
+		}
+
+		private FindNearestElementJob CreateFindNearestJob(Vector3[] samples, int[] indicesToExclude)
+		{
+			NativeArray<int> result = new NativeArray<int>(samples.Length, Allocator.TempJob);
+			NativeArray<Vector3> nodes = new NativeArray<Vector3>(_nodes, Allocator.TempJob);
+			NativeArray<Vector3> samplesNative = new NativeArray<Vector3>(samples, Allocator.TempJob);
+			NativeArray<int> indexPermutations = new NativeArray<int>(_indexPermutation, Allocator.TempJob);
+			NativeArray<int> nodeChildren = new NativeArray<int>(_nodeChildren, Allocator.TempJob);
+			NativeArray<int> indicesToExcludeNative = new NativeArray<int>(indicesToExclude, Allocator.TempJob);
+			return new FindNearestElementJob
+			(
+				result: result,
+				samples: samplesNative,
+				root: _root,
+				nodes: nodes,
+				indexPermutation: indexPermutations,
+				nodeChildren: nodeChildren,
+				indicesToExclude: indicesToExcludeNative
+			);
 		}
 
 		public int[] GetNearestToWithin(Vector3 sample, float maxDistance)
@@ -74,6 +123,90 @@ namespace SBaier.Master
 			return _findNearestElementsComputer.Compute();
 		}
 
+		public int[][] GetNearestToWithin(Vector3[] samples, float maxDistance)
+		{
+			ValidateMaxDistance(maxDistance);
+			int[][] result = new int[samples.Length][];
+			for (int i = 0; i < samples.Length; i++)
+				result[i] = GetNearestToWithin(samples[i], maxDistance);
+			return result;
+			//FindNearestElementsJob[] jobs = CreateFindNearestElementsJobs(samples, CreateEmptyIndicesToExclude(samples.Length), maxDistance);
+			//JobHandle[] handles = Start(jobs);
+			//return FinishJob(jobs, handles);
+		}
+
+		public int[][] GetNearestToWithin(int[] sampleIndices, float maxDistance)
+		{
+			ValidateMaxDistance(maxDistance);
+			int[][] result = new int[sampleIndices.Length][];
+			for (int i = 0; i < sampleIndices.Length; i++)
+				result[i] = GetNearestToWithin(sampleIndices[i], maxDistance);
+			return result;
+			//FindNearestElementsJob[] jobs = CreateFindNearestElementsJobs(FindSamples(sampleIndices), sampleIndices, maxDistance);
+			//JobHandle[] handles = Start(jobs);
+			//return FinishJob(jobs, handles);
+		}
+
+		private JobHandle[] Start(FindNearestElementsJob[] jobs)
+		{
+			JobHandle[] result = new JobHandle[jobs.Length];
+			for (int i = 0; i < jobs.Length; i++)
+				result[i] = jobs[i].Schedule();
+			return result;
+		}
+
+		private int[][] FinishJob(FindNearestElementsJob[] jobs, JobHandle[] handles)
+		{
+			int[][] result = new int[jobs.Length][];
+			for (int i = 0; i < jobs.Length; i++)
+			{
+				FindNearestElementsJob job = jobs[i];
+				JobHandle handle = handles[i];
+				handle.Complete();
+				result[i] = job.Result.ToArray();
+				job.Dispose();
+			}
+			if (jobs.Length > 0)
+			{
+				jobs[0].Nodes.Dispose();
+				jobs[0].IndexPermutation.Dispose();
+				jobs[0].NodeChildren.Dispose();
+			}
+			return result;
+		}
+
+		private FindNearestElementsJob[] CreateFindNearestElementsJobs(Vector3[] samples, int[] indicesToExclude, float maxDistance)
+		{
+			FindNearestElementsJob[] jobs = new FindNearestElementsJob[samples.Length];
+			NativeArray<Vector3> nodes = new NativeArray<Vector3>(_nodes, Allocator.TempJob);
+			NativeArray<int> indexPermutations = new NativeArray<int>(_indexPermutation, Allocator.TempJob);
+			NativeArray<int> nodeChildren = new NativeArray<int>(_nodeChildren, Allocator.TempJob);
+			for (int i = 0; i < samples.Length; i++)
+				jobs[i] = CreateFindNearestElementsJobs(samples[i], indicesToExclude[i], nodes, indexPermutations, nodeChildren, maxDistance);
+			return jobs;
+		}
+
+		private FindNearestElementsJob CreateFindNearestElementsJobs(Vector3 sample, 
+			int indexToExclude, 
+			NativeArray<Vector3> nodes, 
+			NativeArray<int> indexPermutations, 
+			NativeArray<int> nodeChildren, 
+			float maxDistance)
+		{
+			NativeList<int> result = new NativeList<int>(1, Allocator.TempJob);
+			return new FindNearestElementsJob
+			(
+				result: result,
+				sample: sample,
+				root: _root,
+				nodes: nodes,
+				indexPermutation: indexPermutations,
+				nodeChildren: nodeChildren,
+				indexToExclude: indexToExclude,
+				maxDistance: maxDistance
+			);
+		}
+
 		private void ValidateNodes(Vector3[] vectors)
 		{
 			if (vectors.Length == 0)
@@ -86,153 +219,7 @@ namespace SBaier.Master
 				throw new ArgumentOutOfRangeException();
 		}
 
-		private class FindNearestElementComputer : Computer
-		{
-			private Vector3 _sample;
-			private int _root;
-
-			public FindNearestElementComputer(
-				int root,
-				Vector3[] nodes,
-				int[] indexPermutation,
-				int[][] nodeToChildren) : 
-				base(nodes, indexPermutation, nodeToChildren)
-			{
-				_root = root;
-			}
-
-			public new void Init(
-				Vector3 sample,
-				int indexToExclude)
-			{
-				base.Init(sample, indexToExclude);
-				_sample = sample;
-			}
-
-			public int Compute()
-			{
-				return GetOriginalNodeIndexOf(GetNearestToRecursive(_root));
-			}
-
-			private int GetNearestToRecursive(int nodeIndex, int compareValueIndex = 0)
-			{
-				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeIsALeave = HasNoChild(children);
-				if (nodeIsALeave)
-					return GetNearestOfLeave(nodeIndex);
-				else
-					return GetNearestOfBranch(nodeIndex, compareValueIndex);
-			}
-
-			private int GetNearestOfLeave(int nodeIndex)
-			{
-				bool nodeIsExcluded = IsNodeToExclude(nodeIndex);
-				return nodeIsExcluded ? -1 : nodeIndex;
-			}
-
-			private int GetNearestOfBranch(int nodeIndex, int compareValueIndex = 0)
-			{
-				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeHasOneChild = HasOneChild(children);
-				if (nodeHasOneChild)
-					return GetNearestOfOneChild(nodeIndex, compareValueIndex);
-				else
-					return GetNearestOfTwoChildren(nodeIndex, compareValueIndex);
-				
-			}
-
-			private int GetNearestOfOneChild(int nodeIndex, int compareValueIndex)
-			{
-				bool nodeIsExcluded = IsNodeToExclude(nodeIndex);
-
-				if (!nodeIsExcluded)
-					return GetNearestOfChildAndNode(nodeIndex, compareValueIndex);
-
-				int[] children = GetChildrenOf(nodeIndex);
-				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
-				return GetNearestToRecursive(children[0], nextCompareValueIndex);
-			}
-
-			private int GetNearestOfChildAndNode(int nodeIndex, int compareValueIndex)
-			{
-				int[] children = GetChildrenOf(nodeIndex);
-				int childIndex = children[0];
-				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
-				int childNearest = GetNearestToRecursive(childIndex, nextCompareValueIndex);
-
-				if (childNearest < 0)
-					return nodeIndex;
-
-				Vector3 child = GetNode(childNearest);
-				Vector3 currentNode = GetNode(nodeIndex);
-				float nodeDistanceToSampleSqr = (currentNode - _sample).sqrMagnitude;
-				float childSmallestDistanceToSampleSqr = (child - _sample).sqrMagnitude;
-				bool nodeDistanceSmaller = nodeDistanceToSampleSqr < childSmallestDistanceToSampleSqr;
-				return nodeDistanceSmaller ? nodeIndex : childNearest;
-			}
-
-			private int GetNearestOfTwoChildren(int nodeIndex, int compareValueIndex)
-			{
-				bool nodeIsExcluded = IsNodeToExclude(nodeIndex);
-
-				if (nodeIsExcluded)
-					return GetNearestOfTwoChildrenParentExcluded(nodeIndex, compareValueIndex);
-				else
-					return GetNearestOfTwoChildrenAndParent(nodeIndex, compareValueIndex);
-			}
-
-			private int GetNearestOfTwoChildrenParentExcluded(int nodeIndex, int compareValueIndex)
-			{
-				int[] children = GetChildrenOf(nodeIndex);
-				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
-				int child0Nearest = GetNearestToRecursive(children[0], nextCompareValueIndex);
-				int child1Nearest = GetNearestToRecursive(children[1], nextCompareValueIndex);
-				if (child0Nearest < 0)
-					return child1Nearest;
-				else if (child1Nearest < 0)
-					return child0Nearest;
-				else
-					return GetSmaller(child0Nearest, child1Nearest);
-			}
-
-			private int GetNearestOfTwoChildrenAndParent(int nodeIndex, int compareValueIndex)
-			{
-				Vector3 node = GetNode(nodeIndex);
-				int nextChildIndex = GetNextChildIndexOf(node, compareValueIndex);
-				int otherChildIndex = GetOtherChildIndex(nextChildIndex);
-				int[] children = GetChildrenOf(nodeIndex);
-				int nextNodeIndex = children[nextChildIndex];
-				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
-				int child0Smallest = GetNearestToRecursive(nextNodeIndex, nextCompareValueIndex);
-				int currentSmallest = nodeIndex;
-				float nodeDistanceToSampleSqr = node.FastSubstract(_sample).sqrMagnitude;
-				float currentSmallestDistanceToSample = Mathf.Sqrt(nodeDistanceToSampleSqr);
-				if (child0Smallest >= 0)
-				{
-					Vector3 nodeChild0 = GetNode(child0Smallest);
-					float childSmallestDistanceToSampleSqr = nodeChild0.FastSubstract(_sample).sqrMagnitude;
-					bool nodeDistanceSmaller = nodeDistanceToSampleSqr < childSmallestDistanceToSampleSqr;
-					currentSmallest = nodeDistanceSmaller ? nodeIndex : child0Smallest;
-					currentSmallestDistanceToSample = nodeDistanceSmaller ?
-						currentSmallestDistanceToSample :
-						Mathf.Sqrt(childSmallestDistanceToSampleSqr);
-				}
-
-				float compareValueDistance = CalculateCompareValueDistanceToSample(node, compareValueIndex);
-				bool currentIsSmallestOfThisBranch = currentSmallestDistanceToSample <= compareValueDistance;
-				if (currentIsSmallestOfThisBranch)
-					return currentSmallest;
-
-				int child1Smallest = GetNearestToRecursive(children[otherChildIndex], nextCompareValueIndex);
-				if (child1Smallest < 0)
-					return currentSmallest;
-				Vector3 nodeChild1 = GetNode(child1Smallest);
-				float child1SmallestDistanceToSample = nodeChild1.FastSubstract(_sample).magnitude;
-				currentSmallest = child1SmallestDistanceToSample < currentSmallestDistanceToSample ? child1Smallest : currentSmallest;
-				return currentSmallest;
-			}
-
-		}
+		
 		private class FindNearestElementsComputer : Computer
 		{
 			private Vector3 _sample;
@@ -245,7 +232,7 @@ namespace SBaier.Master
 				int root,
 				Vector3[] nodes,
 				int[] indexPermutation,
-				int[][] nodeToChildren) :
+				int[] nodeToChildren) :
 				base(nodes, indexPermutation, nodeToChildren)
 			{
 				_root = root;
@@ -303,8 +290,7 @@ namespace SBaier.Master
 
 			private void GetNearestInBranch(int compareValueIndex, int nodeIndex)
 			{
-				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeHasOneChild = HasOneChild(children);
+				bool nodeHasOneChild = HasOneChild(nodeIndex);
 
 				if (nodeHasOneChild)
 					GetNearestInChild(compareValueIndex, nodeIndex);
@@ -314,18 +300,16 @@ namespace SBaier.Master
 
 			private void GetNearestInChild(int compareValueIndex, int nodeIndex)
 			{
-				int[] children = GetChildrenOf(nodeIndex);
-				int nextNodeIndex = children[0];
+				int nextNodeIndex = _nodeToChildren[nodeIndex * 2];
 				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
 				GetNearestToWithinRecursive(nextNodeIndex, nextCompareValueIndex);
 			}
 
 			private void GetNearestInChildren(int compareValueIndex, int nodeIndex)
 			{
-				int[] children = GetChildrenOf(nodeIndex);
 				Vector3 node = GetNode(nodeIndex);
 				int nextChildIndex = GetNextChildIndexOf(node, compareValueIndex); 
-				int nextNodeIndex = children[nextChildIndex];
+				int nextNodeIndex = _nodeToChildren[nodeIndex * 2 + nextChildIndex];
 				int nextCompareValueIndex = GetNextCompareValueIndex(compareValueIndex);
 				GetNearestToWithinRecursive(nextNodeIndex, nextCompareValueIndex);
 				float compareValueDistance = CalculateCompareValueDistanceToSample(node, compareValueIndex);
@@ -333,7 +317,7 @@ namespace SBaier.Master
 				if (noOtherNodesCanBeInDistance)
 					return;
 				int otherChildIndex = GetOtherChildIndex(nextChildIndex);
-				GetNearestToWithinRecursive(children[otherChildIndex], nextCompareValueIndex);
+				GetNearestToWithinRecursive(_nodeToChildren[nodeIndex * 2 + otherChildIndex], nextCompareValueIndex);
 			}
 		}
 
@@ -343,13 +327,13 @@ namespace SBaier.Master
 			private int[] _indexPermutation;
 			private Vector3 _sample;
 			private int _indexToExclude;
-			private int[][] _nodeToChildren;
+			protected int[] _nodeToChildren;
 
 			private bool _hasIndexToExclude = false;
 
 			public Computer(Vector3[] nodes,
 				int[] indexPermutation,
-				int[][] nodeToChildren)
+				int[] nodeToChildren)
 			{
 				_nodes = nodes; 
 				_indexPermutation = indexPermutation;
@@ -405,16 +389,9 @@ namespace SBaier.Master
 				return _hasIndexToExclude && GetOriginalNodeIndexOf(nodeIndex) == _indexToExclude;
 			}
 
-			protected int[] GetChildrenOf(int nodeIndex)
-			{
-				return _nodeToChildren[nodeIndex];
-			}
-
 			protected bool IsNodeALeave(int nodeIndex)
 			{
-				int[] children = GetChildrenOf(nodeIndex);
-				bool nodeIsALeave = HasNoChild(children);
-				return nodeIsALeave;
+				return HasNoChild(nodeIndex);
 			}
 
 			protected float CalculateCompareValueDistanceToSample(Vector3 node, int compareValueIndex)
@@ -449,14 +426,19 @@ namespace SBaier.Master
 				return (nextChildIndex + 1) % 2;
 			}
 
-			protected bool HasOneChild(int[] children)
+			protected bool HasOneChild(int nodeIndex)
 			{
-				return children.Length == 1;
+				int child0 = _nodeToChildren[nodeIndex * 2];
+				int child1 = _nodeToChildren[nodeIndex * 2 + 1];
+				return child0 >= 0 && child1 < 0 ||
+					child1 >= 0 && child0 < 0;
 			}
 
-			protected bool HasNoChild(int[] children)
+			protected bool HasNoChild(int nodeIndex)
 			{
-				return children.Length == 0;
+				int child0 = _nodeToChildren[nodeIndex * 2];
+				int child1 = _nodeToChildren[nodeIndex * 2 + 1];
+				return child0 < 0 && child1 < 0;
 			}
 		}
 

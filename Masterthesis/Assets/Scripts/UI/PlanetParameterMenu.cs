@@ -38,11 +38,23 @@ namespace SBaier.Master
 		[SerializeField]
 		private SliderPanel _platesPanel;
 		[SerializeField]
+		private SliderPanel _platesMinForcePanel;
+		[SerializeField]
 		private SliderPanel _warpPanel;
 		[SerializeField]
 		private SliderPanel _blendPanel;
 		[SerializeField]
 		private SliderPanel _sampleEliminationPanel;
+
+		[Header("Shaping")]
+		[SerializeField]
+		private SliderPanel _mountainBreadthPanel;
+		[SerializeField]
+		private SliderPanel _mountainBlendFactorPanel;
+		[SerializeField]
+		private SliderPanel _canyonsBreadthPanel;
+		[SerializeField]
+		private SliderPanel _canyonBlendFactorPanel;
 
 		[Header("Temperature")]
 		[SerializeField]
@@ -58,6 +70,7 @@ namespace SBaier.Master
 			PlanetAxisData axis = CreateAxisData();
 			ContinentalPlatesParameter continentalPlatesParameter = CreateContinentalPlatesParameter();
 			TemperatureSpectrum temperatureSpectrum = CreateTemperatureSpecturm();
+			ShapingParameter shaping = CreateShapingParameter();
 
 			return new PlanetGenerator.Parameter
 			(
@@ -66,7 +79,8 @@ namespace SBaier.Master
 				dimensions: dimensions,
 				axisData: axis,
 				continentalPlatesParameter: continentalPlatesParameter,
-				temperatureSpectrum: temperatureSpectrum
+				temperatureSpectrum: temperatureSpectrum,
+				shaping: shaping
 			);
 		}
 
@@ -104,9 +118,25 @@ namespace SBaier.Master
 			float warpFactor = _warpPanel.Slider.value;
 			float blendFactor = _blendPanel.Slider.value;
 			float sampleEliminationFactor = _sampleEliminationPanel.Slider.value;
+			float platesMinFoce = _platesMinForcePanel.Slider.value;
 			ContinentalPlatesParameter continentalPlatesParameter =
-				new ContinentalPlatesParameter(plateSegments, contients, oceans, plates, warpFactor, blendFactor, sampleEliminationFactor);
+				new ContinentalPlatesParameter(plateSegments, contients, oceans, plates, warpFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
 			return continentalPlatesParameter;
+		}
+
+		private ShapingParameter CreateShapingParameter()
+		{
+			PlatesShapingParameter plates = CreatePlatesShapingParameter();
+			return new ShapingParameter(plates);
+		}
+
+		private PlatesShapingParameter CreatePlatesShapingParameter()
+		{
+			float mountainBreadthFactor = _mountainBreadthPanel.Slider.value;
+			float mountainBlendFactor = _mountainBlendFactorPanel.Slider.value;
+			float canyonBreadthFactor = _canyonsBreadthPanel.Slider.value;
+			float canyonBlendFactor = _canyonBlendFactorPanel.Slider.value;
+			return new PlatesShapingParameter(mountainBreadthFactor, mountainBlendFactor, canyonBreadthFactor, canyonBlendFactor);
 		}
 
 		private Seed CreateSeed()

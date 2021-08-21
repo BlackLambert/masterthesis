@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.Collections;
+
 using UnityEngine;
 using Zenject;
 
@@ -31,10 +27,10 @@ namespace SBaier.Master
         [SerializeField]
         private NoiseSettings _baseNoiseSettings;
 
-        [SerializeField]
+        /*[SerializeField]
         private DelaunayMesh _delaunay;
         [SerializeField]
-        private VoronoiMesh _voronoi;
+        private VoronoiMesh _voronoi;*/
 
         private BasicPlanetFactory _basicPlanetFactory;
         private ContinentalPlatesFactory _continentalPlatesFactory;
@@ -42,7 +38,9 @@ namespace SBaier.Master
         private NoiseFactory _noiseFactory;
         private PlanetLayerMaterializer _layerMaterializer;
 		private EvaluationPointDatasInitializer _evaluationPointDatasInitializer;
-		private Noise3D _continentalPlatesWarpingNoise;
+        private QuickSelector<Vector3> _selector;
+
+        private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
         private Noise3D _oceansNoise;
@@ -79,9 +77,9 @@ namespace SBaier.Master
 			Init(parameter);
 			CreatePlanet();
 			_planet.Data.ContinentalPlates = CreateContinentalPlates();
-			UpdateDebugView();
+			//UpdateDebugView();
             _evaluationPointDatasInitializer.Compute(CreateEvaluationPointDatasInitializerParameter());
-            _layerMaterializer.UpdateElevation(CreateMaterializerParameter(CreateShapingLayers()));
+            _layerMaterializer.UpdateElevation(CreateMaterializerParameter(CreateShapingLayers(parameter.Shaping)));
 			_planet.UpdateMesh();
 			SetVertexColors(parameter.ContinentalPlatesParameter, _biomes);
 		}
@@ -144,18 +142,19 @@ namespace SBaier.Master
                 _parameter.ContinentalPlatesParameter.WarpFactor);
         }
 
-        private void UpdateDebugView()
+         /*private void UpdateDebugView()
         {
             ContinentalPlates plates = _planet.Data.ContinentalPlates;
             _delaunay.UpdateView(plates.SegmentSites, plates.SegmentsDelaunayTriangles);
             _voronoi.UpdateView(plates.SegmentsVoronoi);
-        }
+        }*/
 
-        private ShapingLayer[] CreateShapingLayers()
+        private ShapingLayer[] CreateShapingLayers(ShapingParameter shaping)
 		{
             PlanetData data = _planet.Data;
 			ShapingFactory.Parameter parameter = new ShapingFactory.Parameter(
-                data, 
+                data,
+                shaping,
                 _mountainsNoise, 
                 _canyonsNoise, 
                 _oceansNoise, 
@@ -199,7 +198,8 @@ namespace SBaier.Master
                 PlanetDimensions dimensions,
                 PlanetAxisData axisData,
                 ContinentalPlatesParameter continentalPlatesParameter,
-                TemperatureSpectrum temperatureSpectrum)
+                TemperatureSpectrum temperatureSpectrum,
+                ShapingParameter shaping)
 			{
 				Seed = seed;
 				Subdivisions = subdivisions;
@@ -207,6 +207,7 @@ namespace SBaier.Master
 				AxisData = axisData;
 				ContinentalPlatesParameter = continentalPlatesParameter;
 				TemperatureSpectrum = temperatureSpectrum;
+				Shaping = shaping;
 			}
 
 			public Seed Seed { get; }
@@ -215,6 +216,7 @@ namespace SBaier.Master
 			public PlanetAxisData AxisData { get; }
 			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
 			public TemperatureSpectrum TemperatureSpectrum { get; }
+			public ShapingParameter Shaping { get; }
 		}
     }
 }

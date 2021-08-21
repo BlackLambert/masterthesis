@@ -14,7 +14,7 @@ namespace SBaier.Master
 		private BasicColorEvaluator _oceanColorEvaluator;
 		private ContinentalColorEvaluator _contientalColorEvaluator;
 
-        public PlanetColorizer(
+		public PlanetColorizer(
             Planet planet,
             ContinentalPlatesParameter continentalPlatesParameter,
             Biome[] biomes
