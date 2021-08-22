@@ -25,7 +25,7 @@ namespace SBaier.Master
 
 		public override Result Evaluate()
 		{
-			Color color = _biome.BaseColor;
+			Color color = new Color(0,0,0);
 			float weight = GetBlendWeight();
 			return new Result(weight, color);
 		}

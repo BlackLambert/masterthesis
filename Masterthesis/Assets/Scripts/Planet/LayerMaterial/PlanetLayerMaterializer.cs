@@ -1,12 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SBaier.Master
 {
     public class PlanetLayerMaterializer
     {
+        private const float _maxSolidTopLayerThickness = 0.02f;
+        private const float _maxSlopeAngle = 90;
+
         private Planet _planet;
         private Biome[] _biomes;
         private ShapingLayer[] _shapingLayers;
@@ -18,14 +22,35 @@ namespace SBaier.Master
 		{
         }
 
-        public void UpdateElevation(Parameter parameter)
+        public void UpdateRockElevation(Parameter parameter)
         {
             Init(parameter);
             for (int i = 0; i < _planet.Faces.Length; i++)
-                UpdateElevation(_planet.Faces[i]);
+                UpdateRockElevation(_planet.Faces[i]);
         }
 
-        private void Init(Parameter parameter)
+        public void UpdateTopSolidElevation(Parameter parameter)
+        {
+            Init(parameter);
+            for (int i = 0; i < _planet.Faces.Length; i++)
+                UpdateTopSolidElevation(_planet.Faces[i]);
+        }
+
+        public void UpdateLiquidElevation(Parameter parameter)
+        {
+            Init(parameter);
+            for (int i = 0; i < _planet.Faces.Length; i++)
+                UpdateLiquidElevation(_planet.Faces[i]);
+        }
+
+        public void UpdateAirElevation(Parameter parameter)
+        {
+            Init(parameter);
+            for (int i = 0; i < _planet.Faces.Length; i++)
+                UpdateAirElevation(_planet.Faces[i]);
+        }
+
+		private void Init(Parameter parameter)
 		{
 			_planet = parameter.Planet;
 			_biomes = parameter.Biomes;
@@ -33,50 +58,98 @@ namespace SBaier.Master
 			_maxHullThickness = _planet.Data.Dimensions.MaxHullThickness;
 			_relativeSeaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
 			_transformedSeaLevel = GetTransformedSeaLevel();
-		}
+        }
 
 		private float GetTransformedSeaLevel()
 		{
 			return (_relativeSeaLevel - 0.5f) * 2;
 		}
 
-		private void UpdateElevation(PlanetFace face)
+		private void UpdateRockElevation(PlanetFace face)
 		{
             PlanetShaper shaper = new PlanetShaper(_shapingLayers, _maxHullThickness);
             float[] shapeValues = shaper.Shape(face.Data.EvaluationPoints);
 
-            for (int j = 0; j < shapeValues.Length; j++)
-				UpdateElevation(face, shapeValues, j);
-		}
+            for (int i = 0; i < shapeValues.Length; i++)
+                UpdateRockElevation(face, shapeValues, i);
+        }
 
-		private void UpdateElevation(PlanetFace face, float[] shapeValues, int index)
+        private void UpdateTopSolidElevation(PlanetFace face)
         {
-            ContinentalPlates plates = _planet.Data.ContinentalPlates;
+            Vector3[] normals = face.Normals;
+            for (int i = 0; i < normals.Length; i++)
+                UpdateTopSolidElevation(face, i, normals[i]);
+        }
+
+        private void UpdateLiquidElevation(PlanetFace face)
+        {
+            int count = face.Data.EvaluationPoints.Length;
+            for (int i = 0; i < count; i++)
+                UpdateLiquidElevation(face, i);
+        }
+
+        private void UpdateAirElevation(PlanetFace face)
+        {
+            int count = face.Data.EvaluationPoints.Length;
+            for (int i = 0; i < count; i++)
+                UpdateAirElevation(face, i);
+        }
+
+        private void UpdateRockElevation(PlanetFace face, float[] shapeValues, int index)
+		{
             EvaluationPointData data = face.Data.EvaluationPoints[index];
-            int segmentIndex = data.ContinentalPlateSegmentIndex;
-            ContinentalPlateSegment segment = plates.Segments[segmentIndex];
-			Biome biome = _biomes[segment.BiomeID];
-			float delta = CalculateDelta(shapeValues[index], biome);
-			InitContinentPlate(face.Data.EvaluationPoints[index], delta);
-		}
-
-		private float CalculateDelta(float shapeValue, Biome biome)
-        {
-            //bool isOceanic = biome.RegionType == ContinentalRegion.Type.Oceanic;
-            //if (isOceanic)
-            //return CreateOceanDelta(planet, shapeValue);
-            //else
-            return CreateLandDelta(shapeValue);
+            Biome biome = _biomes[data.BiomeID];
+            float height = CalculateSolidHeight(shapeValues[index]);
+            AddLayer(data, height, biome.RockMaterial);
         }
 
-        private float CreateOceanDelta(float shapeValue)
+        private void UpdateTopSolidElevation(PlanetFace face, int index, Vector3 normal)
         {
-            if (shapeValue <= 0.5f)
-                return _relativeSeaLevel * _maxHullThickness;
-            return CreateLandDelta(shapeValue);
+            EvaluationPointData data = face.Data.EvaluationPoints[index];
+            Biome biome = _biomes[data.BiomeID];
+            float height = CalculateTopSolidHeight(data.WarpedPoint, normal, biome.TopSolidMaterial);
+            AddLayer(data, height, biome.TopSolidMaterial);
         }
 
-        private float CreateLandDelta(float shapeValue)
+        private void UpdateLiquidElevation(PlanetFace face, int index)
+        {
+            EvaluationPointData data = face.Data.EvaluationPoints[index];
+            Biome biome = _biomes[data.BiomeID];
+            float height = CalculateLiqidHeight(data);
+            AddLayer(data, height, biome.LiquidMaterial);
+        }
+
+        private void UpdateAirElevation(PlanetFace face, int index)
+        {
+            EvaluationPointData data = face.Data.EvaluationPoints[index];
+            Biome biome = _biomes[data.BiomeID];
+            float height = CalculateAirHeight(data);
+            AddLayer(data, height, biome.GasMaterial);
+        }
+
+        private float CalculateAirHeight(EvaluationPointData data)
+		{
+            float heightSum = data.Layers.Sum(l => l.Height);
+            return Mathf.Clamp01(1 - heightSum);
+        }
+
+		private float CalculateLiqidHeight(EvaluationPointData data)
+		{
+            float heightSum = data.Layers.Sum(l => l.Height);
+            return Mathf.Max(_planet.Data.Dimensions.RelativeSeaLevel - heightSum, 0);
+        }
+
+        private float CalculateTopSolidHeight(Vector3 warpedPosition, Vector3 normal, SolidPlanetLayerMaterialSettings topSolidMaterial)
+        {
+            float angle = Vector3.Angle(warpedPosition, normal);
+            float portion = angle / _maxSlopeAngle;
+            if (angle / _maxSlopeAngle > topSolidMaterial.Density)
+                return 0;
+            float heightPortion = (topSolidMaterial.Density - portion) * (1 - topSolidMaterial.Density);
+            return heightPortion * _maxSolidTopLayerThickness;
+        }
+
+        private float CalculateSolidHeight(float shapeValue)
         {
             float transformedShape = shapeValue - 0.5f;
             float factor;
@@ -90,18 +163,20 @@ namespace SBaier.Master
             return factor * _maxHullThickness;
         }
 
-        private void InitContinentPlate(EvaluationPointData data, float value)
+        private void AddLayer(EvaluationPointData data, float height, PlanetLayerMaterialSettings material)
         {
-            //float continentalPlateHeight = value * parameter.Dimensions.MaxHullThickness;
+            if (height <= 0)
+                return;
             List<PlanetLayerData> layers = data.Layers;
-            PlanetLayerData airLayer = layers[0];
-            airLayer.Height = airLayer.Height - value;
-            layers.Insert(0, new PlanetLayerData(1, value));
+            PlanetLayerData layer = new PlanetLayerData(material.ID, height);
+            layers.Add(layer);
         }
 
         public class Parameter
 		{
-            public Parameter(Planet planet, Biome[] biomes, ShapingLayer[] shapingLayers)
+            public Parameter(Planet planet,
+                Biome[] biomes,
+                ShapingLayer[] shapingLayers)
 			{
 				Planet = planet;
 				Biomes = biomes;

@@ -6,13 +6,23 @@ namespace SBaier.Master
 {
     public abstract class Biome 
     {
-        public Biome(Color baseColor, ContinentalRegion.Type regionType)
+        public Biome(ContinentalRegion.Type regionType,
+			SolidPlanetLayerMaterialSettings rockMaterial,
+			SolidPlanetLayerMaterialSettings topSolidMaterial,
+			LiquidPlanetLayerMaterialSettings liquidMaterial,
+			GasPlanetLayerMaterialSettings gasMaterial)
 		{
-			BaseColor = baseColor;
 			RegionType = regionType;
+			RockMaterial = rockMaterial;
+			TopSolidMaterial = topSolidMaterial;
+			LiquidMaterial = liquidMaterial;
+			GasMaterial = gasMaterial;
 		}
 
-		public Color BaseColor { get; }
 		public ContinentalRegion.Type RegionType { get; }
+		public SolidPlanetLayerMaterialSettings RockMaterial { get; }
+		public SolidPlanetLayerMaterialSettings TopSolidMaterial { get; }
+		public LiquidPlanetLayerMaterialSettings LiquidMaterial { get; }
+		public GasPlanetLayerMaterialSettings GasMaterial { get; }
 	}
 }

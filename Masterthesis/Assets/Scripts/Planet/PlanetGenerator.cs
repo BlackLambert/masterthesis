@@ -14,6 +14,7 @@ namespace SBaier.Master
         [SerializeField]
         private BiomeSettings[] _biomeSettings;
 
+        [Header("Shaping Noise")]
         [SerializeField]
         private NoiseSettings _continentalPlatesWarpingNoiseSettings;
         [SerializeField]
@@ -27,6 +28,12 @@ namespace SBaier.Master
         [SerializeField]
         private NoiseSettings _baseNoiseSettings;
 
+        [Header("Layer Material")]
+        [SerializeField]
+        private PlanetLayerMaterialSettings[] _materials;
+        [SerializeField]
+        private NoiseSettings _layerMaterialGradientNoiseSettings;
+
         /*[SerializeField]
         private DelaunayMesh _delaunay;
         [SerializeField]
@@ -38,7 +45,6 @@ namespace SBaier.Master
         private NoiseFactory _noiseFactory;
         private PlanetLayerMaterializer _layerMaterializer;
 		private EvaluationPointDatasInitializer _evaluationPointDatasInitializer;
-        private QuickSelector<Vector3> _selector;
 
         private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
@@ -46,6 +52,7 @@ namespace SBaier.Master
         private Noise3D _oceansNoise;
         private Noise3D _continentNoise;
         private Noise3D _baseNoise;
+        private Noise3D _layerMaterialGradientNoise;
 
         private Planet _planet;
         private Biome[] _biomes;
@@ -78,10 +85,20 @@ namespace SBaier.Master
 			CreatePlanet();
 			_planet.Data.ContinentalPlates = CreateContinentalPlates();
 			//UpdateDebugView();
-            _evaluationPointDatasInitializer.Compute(CreateEvaluationPointDatasInitializerParameter());
-            _layerMaterializer.UpdateElevation(CreateMaterializerParameter(CreateShapingLayers(parameter.Shaping)));
+			_evaluationPointDatasInitializer.Compute(CreateEvaluationPointDatasInitializerParameter());
+			Materialize(parameter);
 			_planet.UpdateMesh();
-			SetVertexColors(parameter.ContinentalPlatesParameter, _biomes);
+			SetVertexColors();
+		}
+
+		private void Materialize(Parameter parameter)
+		{
+			PlanetLayerMaterializer.Parameter materializerParameter = CreateMaterializerParameter(CreateShapingLayers(parameter.Shaping));
+			_layerMaterializer.UpdateRockElevation(materializerParameter);
+			_planet.UpdateMesh();
+			_layerMaterializer.UpdateTopSolidElevation(materializerParameter);
+			_layerMaterializer.UpdateLiquidElevation(materializerParameter);
+			_layerMaterializer.UpdateAirElevation(materializerParameter);
 		}
 
 		private void CleanPlanet()
@@ -107,6 +124,7 @@ namespace SBaier.Master
 			_oceansNoise = _noiseFactory.Create(_oceansNoiseSettings, parameter.Seed);
 			_continentNoise = _noiseFactory.Create(_continentNoiseSettings, parameter.Seed);
 			_baseNoise = _noiseFactory.Create(_baseNoiseSettings, parameter.Seed);
+            _layerMaterialGradientNoise = _noiseFactory.Create(_layerMaterialGradientNoiseSettings, parameter.Seed);
         }
 
         private void CreatePlanet()
@@ -181,12 +199,12 @@ namespace SBaier.Master
                 shapingLayers);
         }
 
-        private void SetVertexColors(ContinentalPlatesParameter continentalPlatesParameter, Biome[] biomes)
+        private void SetVertexColors()
         {
             PlanetColorizer colorizer = new PlanetColorizer(
-                _planet, 
-                continentalPlatesParameter, 
-                biomes);
+                _planet,
+                _materials,
+                _layerMaterialGradientNoise);
             colorizer.Compute();
         }
 

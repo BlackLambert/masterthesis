@@ -90,8 +90,8 @@ namespace SBaier.Master
 
         private EvaluationPointData CreateEvaluationPointData()
         {
-            List<PlanetLayerData> layerData = new List<PlanetLayerData>(1) { new PlanetLayerData(0, 1) };
-            return new EvaluationPointData(layerData, new float[1]);
+            List<PlanetLayerData> layerData = new List<PlanetLayerData>(5) { };
+            return new EvaluationPointData(layerData);
         }
 
         private Planet CreatePlanet(PlanetData data)

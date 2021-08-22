@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74135eb611258954093532c6e237c9a9, type: 3}
-  m_Name: 3_SandLayer
+  m_Script: {fileID: 11500000, guid: 3d164e1f8a7a1af4b9fa2dfee025b479, type: 3}
+  m_Name: Gradient_Octave
   m_EditorClassIdentifier: 
-  _density: 0.2
-  _name: Sand
+  _weight: 1
+  _frequencyFactor: 0.7
+  _octavesCount: 3
+  _baseNoise: {fileID: 11400000, guid: 438dfce73cc024947b3be91261232496, type: 2}

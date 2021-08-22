@@ -7,8 +7,17 @@ namespace SBaier.Master
     public abstract class BiomeSettings : ScriptableObject
     {
         [SerializeField]
-        private Color _baseColor = Color.white;
-        public Color BaseColor => _baseColor;
+        private SolidPlanetLayerMaterialSettings _rockMaterial;
+        public SolidPlanetLayerMaterialSettings RockMaterial => _rockMaterial;
+        [SerializeField]
+        private SolidPlanetLayerMaterialSettings _topSolidMaterial;
+        public SolidPlanetLayerMaterialSettings TopSolidMaterial => _topSolidMaterial;
+        [SerializeField]
+        private GasPlanetLayerMaterialSettings _airMaterial;
+        public GasPlanetLayerMaterialSettings AirMaterial => _airMaterial;
+        [SerializeField]
+        private LiquidPlanetLayerMaterialSettings _waterMaterial;
+        public LiquidPlanetLayerMaterialSettings WaterMaterial => _waterMaterial;
 
         [SerializeField]
         private int _frequency = 1;

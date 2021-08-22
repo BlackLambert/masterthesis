@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a77d7da78387884c9f7cb2ccd30aacf, type: 3}
   m_Name: DesertBiomeSettings
   m_EditorClassIdentifier: 
-  _baseColor: {r: 0.8962264, g: 0.85771513, b: 0.34383523, a: 1}
+  _rockMaterial: {fileID: 11400000, guid: 4bf4822742fa58f4bb7a67ac669dc7df, type: 2}
+  _topSolidMaterial: {fileID: 11400000, guid: 2a5925d5cc706a74a9dc120cb368310a, type: 2}
+  _airMaterial: {fileID: 11400000, guid: 5c71b14f2632f944b994dfc72d938450, type: 2}
+  _waterMaterial: {fileID: 11400000, guid: cf32c18627e1de74ebd66c9ac40aad11, type: 2}
   _frequency: 1
   _useTemeratureSpectrum: 1
   _temperatureSpecturm: {x: 35, y: 1000}
-  _mountainSlopeColor: {r: 0.8018868, g: 0.59173715, b: 0, a: 1}
-  _slopeThreshold: 0.4

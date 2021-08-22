@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Collections;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -8,24 +10,27 @@ namespace SBaier.Master
     public class PlanetColorizer
     {
         private Planet _planet;
-        private Biome[] _biomes;
-		private float _blendDistance;
+		private PlanetLayerMaterialSettings[] _materials;
+		private Noise3D _gradientNoise;
 
-		private BasicColorEvaluator _oceanColorEvaluator;
-		private ContinentalColorEvaluator _contientalColorEvaluator;
+		private Dictionary<int, PlanetLayerMaterialSettings> _idToMaterial = new Dictionary<int, PlanetLayerMaterialSettings>();
 
 		public PlanetColorizer(
-            Planet planet,
-            ContinentalPlatesParameter continentalPlatesParameter,
-            Biome[] biomes
+			Planet planet,
+			PlanetLayerMaterialSettings[] materials,
+			Noise3D gradientNoise
             )
 		{
             _planet = planet;
-            _biomes = biomes;
-			_blendDistance = CalculateBlendDistance(continentalPlatesParameter);
+			_materials = materials;
+			_gradientNoise = gradientNoise;
+			CreateIDToMaterial();
+		}
 
-			_oceanColorEvaluator = new BasicColorEvaluator(_blendDistance);
-			_contientalColorEvaluator = new ContinentalColorEvaluator(_blendDistance);
+		private void CreateIDToMaterial()
+		{
+			foreach (PlanetLayerMaterialSettings material in _materials)
+				_idToMaterial.Add(material.ID, material);
 		}
 
 		public void Compute()
@@ -39,89 +44,65 @@ namespace SBaier.Master
 			PlanetFace face = _planet.Faces[faceIndex];
 			PlanetFaceData faceData = face.Data;
 			Color[] vertexColors = new Color[face.MeshFilter.sharedMesh.vertexCount];
-			Vector3[] vertexNormals = face.MeshFilter.sharedMesh.normals;
-			float evaluationPointslength = faceData.EvaluationPoints.Length;
+			Vector3[] vertices = face.Data.EvaluationPoints.Select(p => p.WarpedPoint).ToArray();
+			float[] gradientNoiseEvaluation = EvaluateGradientNoise(vertices);
+			EvaluationPointData[] evalPoints = faceData.EvaluationPoints;
 
-			for (int i = 0; i < evaluationPointslength; i++)
-				vertexColors[i] = GetVertexColor(face, vertexNormals, i);
+			for (int i = 0; i < evalPoints.Length; i++)
+				vertexColors[i] = GetVertexColor(gradientNoiseEvaluation[i], evalPoints[i]);
 
 			face.MeshFilter.sharedMesh.colors = vertexColors;
 		}
 
-		private Color GetVertexColor(PlanetFace face, Vector3[] vertexNormals, int vertexIndex)
+		private Color GetVertexColor(float gradientValue, EvaluationPointData data)
 		{
-			ContinentalPlates plates = _planet.Data.ContinentalPlates;
-			Vector3 vertex = face.Data.EvaluationPoints[vertexIndex].WarpedPoint;
-			Vector3 vertexNormal = vertexNormals[vertexIndex];
-			_contientalColorEvaluator.InitVertexData(vertex, vertexNormal);
-
-			int segmentIndex = face.Data.EvaluationPoints[vertexIndex].ContinentalPlateSegmentIndex;
-			ContinentalPlateSegment segment = plates.Segments[segmentIndex];
-			Biome biome = _biomes[segment.BiomeID];
-			Vector3 pointOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
-			float distanceToInnerBorder = _planet.GetDistanceOnSurface(vertex, pointOnBorder);
-
-			List<PlanetColorEvaluator.Result> colors = new List<PlanetColorEvaluator.Result>();
-			AddColors(biome, -distanceToInnerBorder, colors);
-
-			if (distanceToInnerBorder < _blendDistance)
-				AddBlendColors(plates, vertex, segment, biome, colors);
-
-			return ComputeColor(colors);
-		}
-
-		private void AddBlendColors(ContinentalPlates plates, Vector3 vertex, ContinentalPlateSegment segment, Biome biome, List<PlanetColorEvaluator.Result> colors)
-		{
-			for (int i = 0; i < segment.Neighbors.Length; i++)
+			for(int i = data.Layers.Count - 1; i >= 0; i--)
 			{
-				int neighborSegmentIndex = segment.Neighbors[i];
-				ContinentalPlateSegment neighborSegment = plates.Segments[neighborSegmentIndex];
-				Biome neighborBiome = _biomes[neighborSegment.BiomeID];
-				if (neighborBiome.RegionType != biome.RegionType)
+				PlanetLayerData layerData = data.Layers[i];
+				PlanetLayerMaterialSettings material = _idToMaterial[layerData.MaterialIndex];
+				if (material.State == PlanetLayerMaterialState.Gas)
 					continue;
-				Vector3 pointNeighborOnBorder = plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, neighborSegmentIndex);
-				float distanceToSegment = _planet.GetDistanceOnSurface(vertex, pointNeighborOnBorder);
-				AddColors(neighborBiome, distanceToSegment, colors);
+				return GetVertexColor(layerData, material, gradientValue);
 			}
+			throw new InvalidOperationException();
 		}
 
-		private Color ComputeColor(List<PlanetColorEvaluator.Result> colors)
+		private Color GetVertexColor(PlanetLayerData layerData, PlanetLayerMaterialSettings material, float gradientValue)
 		{
-			float weightSum = 0;
-			Color color = Color.black;
-			foreach (PlanetColorEvaluator.Result c in colors)
+			switch(material.State)
 			{
-				weightSum += c.Weight;
-				color += c.Weight * c.Color;
+				case PlanetLayerMaterialState.Liquid:
+					return CalculateLiquidColor(material as LiquidPlanetLayerMaterialSettings, layerData.Height, gradientValue);
+				case PlanetLayerMaterialState.Solid:
+					return CalculateSolidColor(material as SolidPlanetLayerMaterialSettings, gradientValue);
+				default:
+					throw new NotImplementedException();
 			}
-
-			color /= weightSum;
-			return color;
 		}
 
-		private void AddColors(Biome biome, float distanceToBorder, List<PlanetColorEvaluator.Result> colors)
+		private Color CalculateSolidColor(SolidPlanetLayerMaterialSettings settings, float gradientNoiseValue)
 		{
-			if(biome is ContinentalBiome)
-				EvaluateContinentalColor(biome as ContinentalBiome, distanceToBorder, colors);
-			else
-				EvaluateOceanColor(biome, distanceToBorder, colors);
+			Color baseColor = settings.BaseGradient.Evaluate(gradientNoiseValue);
+			return baseColor;
 		}
 
-		private void EvaluateOceanColor(Biome biome, float distanceToInnerBorder, List<PlanetColorEvaluator.Result> colors)
+		private Color CalculateLiquidColor(LiquidPlanetLayerMaterialSettings settings, float height, float gradientNoiseValue)
 		{
-			_oceanColorEvaluator.Init(biome, distanceToInnerBorder);
-			colors.Add(_oceanColorEvaluator.Evaluate());
+			float depthEvalValue = height / _planet.Data.Dimensions.RelativeSeaLevel;
+			Color depthColor = settings.DepthGradient.Evaluate(depthEvalValue);
+			Color baseColor = settings.BaseGradient.Evaluate(gradientNoiseValue);
+			//return depthColor;
+			return (depthColor + baseColor) / 2;
 		}
 
-		private void EvaluateContinentalColor(ContinentalBiome biome, float distanceToBorder, List<PlanetColorEvaluator.Result> colors)
+		private float[] EvaluateGradientNoise(Vector3[] vertices)
 		{
-			_contientalColorEvaluator.Init(biome, distanceToBorder);
-			colors.Add(_contientalColorEvaluator.Evaluate());
-		}
-
-		private float CalculateBlendDistance(ContinentalPlatesParameter continentalPlatesParameter)
-		{
-			return continentalPlatesParameter.BlendFactor * _planet.AtmosphereRadius;
+			NativeArray<Vector3> verticesNative = new NativeArray<Vector3>(vertices, Allocator.TempJob);
+			NativeArray<float> resultNative = _gradientNoise.Evaluate3D(verticesNative);
+			float[] gradientNoiseEvaluation = resultNative.ToArray();
+			verticesNative.Dispose();
+			resultNative.Dispose();
+			return gradientNoiseEvaluation;
 		}
 	}
 }

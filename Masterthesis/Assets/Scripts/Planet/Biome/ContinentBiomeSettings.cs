@@ -8,13 +8,5 @@ namespace SBaier.Master
     public class ContinentBiomeSettings : BiomeSettings
     {
         public override ContinentalRegion.Type RegionType => ContinentalRegion.Type.ContinentalPlate;
-
-        [SerializeField]
-        private Color _mountainSlopeColor;
-        public Color MountainSlopeColor => _mountainSlopeColor;
-
-        [SerializeField]
-        private float _slopeThreshold = 0.5f;
-        public float SlopeThreshold => _slopeThreshold;
     }
 }

@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -26,12 +23,12 @@ namespace SBaier.Master
 
 		private Biome CreateContinentalBiome(ContinentBiomeSettings settings)
 		{
-			return new ContinentalBiome(settings.BaseColor, settings.RegionType, settings.MountainSlopeColor, settings.SlopeThreshold);
+			return new ContinentalBiome(settings.RegionType, settings.RockMaterial, settings.TopSolidMaterial, settings.WaterMaterial, settings.AirMaterial);
 		}
 
 		private Biome CreateOceanBiome(OceanBiomeSettings settings)
 		{
-			return new OceanBiome(settings.BaseColor, settings.RegionType);
+			return new OceanBiome(settings.RegionType, settings.RockMaterial, settings.TopSolidMaterial, settings.WaterMaterial, settings.AirMaterial);
 		}
 	}
 }

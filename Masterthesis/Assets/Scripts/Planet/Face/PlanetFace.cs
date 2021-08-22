@@ -10,9 +10,10 @@ namespace SBaier.Master
         private Mesh SharedMesh => _meshFilter.sharedMesh;
 		public int VertexCount => _meshFilter.sharedMesh.vertexCount;
 		public Vector3[] Vertices => _meshFilter.sharedMesh.vertices;
+		public Vector3[] Normals => _meshFilter.sharedMesh.normals;
 
 
-        public Transform Base => transform;
+		public Transform Base => transform;
 
         public PlanetFaceData Data { get; private set; }
         private PlanetData _planetData;

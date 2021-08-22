@@ -6,18 +6,13 @@ namespace SBaier.Master
 {
 	public class ContinentalBiome : Biome
 	{
-		public ContinentalBiome(
-			Color baseColor, 
-			ContinentalRegion.Type regionType,
-			Color slopeColor,
-			float slopeThreshold) : 
-			base(baseColor, regionType)
+		public ContinentalBiome(ContinentalRegion.Type regionType, 
+			SolidPlanetLayerMaterialSettings rockMaterial, 
+			SolidPlanetLayerMaterialSettings topSolidMaterial, 
+			LiquidPlanetLayerMaterialSettings liquidMaterial, 
+			GasPlanetLayerMaterialSettings gasMaterial) : 
+			base(regionType, rockMaterial, topSolidMaterial, liquidMaterial, gasMaterial)
 		{
-			SlopeColor = slopeColor;
-			SlopeThreshold = slopeThreshold;
 		}
-
-		public Color SlopeColor { get; }
-		public float SlopeThreshold { get; }
 	}
 }

@@ -38,8 +38,9 @@ namespace SBaier.Master
 			float blendWeight = GetBlendWeight();
 			float angle = Vector3.Angle(_vertex.normalized, _vertexNormal.normalized);
 			float weight = angle / 90;
-			weight = Mathf.Clamp01(weight / _biome.SlopeThreshold);
-			Color color = Color.Lerp(_biome.BaseColor, _biome.SlopeColor, weight);
+			//weight = Mathf.Clamp01(weight / _biome.SlopeThreshold);
+			//Color color = Color.Lerp(_biome.BaseColor, _biome.SlopeColor, weight);
+			Color color = new Color(1, 1, 1);
 			return new Result(blendWeight, color);
 		}
 	}
