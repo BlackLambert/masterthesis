@@ -75,6 +75,9 @@ namespace SBaier.Master
 		{
 			int[][] primitivesInRange = _kDTree.GetNearestToWithin(_vertices, _maxAreaOfEffect);
 			CalculateWeight(primitivesInRange);
+			//int[] nearestPrimitive = _kDTree.GetNearestTo(_vertices);
+			//for (int i = 0; i < nearestPrimitive.Length; i++)
+			//	CalculateWeight(i, _primitives[nearestPrimitive[i]]);
 		}
 
 		private void CalculateWeight(int[][] primitivesInRange)
@@ -115,7 +118,9 @@ namespace SBaier.Master
 		{
 			Blend = 0,
 			Add = 1,
-			Substract = 2
+			Substract = 2,
+			Min = 4,
+			Max = 8
 		}
 	}
 }

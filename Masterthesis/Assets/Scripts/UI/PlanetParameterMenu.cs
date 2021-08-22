@@ -52,9 +52,17 @@ namespace SBaier.Master
 		[SerializeField]
 		private SliderPanel _mountainBlendFactorPanel;
 		[SerializeField]
+		private SliderPanel _mountainMinPanel;
+		[SerializeField]
+		private SliderPanel _mountainMinBreadthPanel;
+		[SerializeField]
 		private SliderPanel _canyonsBreadthPanel;
 		[SerializeField]
 		private SliderPanel _canyonBlendFactorPanel;
+		[SerializeField]
+		private SliderPanel _canyonMinPanel;
+		[SerializeField]
+		private SliderPanel _canyonMinBreadthPanel;
 
 		[Header("Temperature")]
 		[SerializeField]
@@ -134,9 +142,21 @@ namespace SBaier.Master
 		{
 			float mountainBreadthFactor = _mountainBreadthPanel.Slider.value;
 			float mountainBlendFactor = _mountainBlendFactorPanel.Slider.value;
+			float mountainMin = _mountainMinPanel.Slider.value;
+			float mountainMinBreadth = _mountainMinBreadthPanel.Slider.value;
 			float canyonBreadthFactor = _canyonsBreadthPanel.Slider.value;
 			float canyonBlendFactor = _canyonBlendFactorPanel.Slider.value;
-			return new PlatesShapingParameter(mountainBreadthFactor, mountainBlendFactor, canyonBreadthFactor, canyonBlendFactor);
+			float canyonMin = _canyonMinPanel.Slider.value;
+			float canyonMinBreadth = _canyonMinBreadthPanel.Slider.value;
+			return new PlatesShapingParameter(
+				mountainBreadthFactor, 
+				mountainBlendFactor, 
+				mountainMin,
+				mountainMinBreadth,
+				canyonBreadthFactor, 
+				canyonBlendFactor, 
+				canyonMin,
+				canyonMinBreadth);
 		}
 
 		private Seed CreateSeed()

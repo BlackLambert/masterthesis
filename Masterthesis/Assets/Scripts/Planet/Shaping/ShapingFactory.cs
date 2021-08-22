@@ -4,7 +4,8 @@ namespace SBaier.Master
 {
     public class ShapingFactory
     {
-        private BaseShapingLayerFactory _baseLayerFactory;
+		private const ShapingLayer.Mode _baseShapingMode = ShapingLayer.Mode.Max;
+		private BaseShapingLayerFactory _baseLayerFactory;
         private SegmentShapingLayerFactory _segmentLayerFactory;
         private PlatesShapingLayerFactory _plateLayerFactory;
 
@@ -22,7 +23,7 @@ namespace SBaier.Master
         public ShapingLayer[] Create(Parameter parameter)
         {
             List<ShapingLayer> result = new List<ShapingLayer>();
-            ShapingLayer baseLayer = _baseLayerFactory.Create(parameter.SeaLevelNoise, ShapingLayer.Mode.Add);
+            ShapingLayer baseLayer = _baseLayerFactory.Create(parameter.SeaLevelNoise, _baseShapingMode);
             ShapingLayer[] segmentShapings = _segmentLayerFactory.Create(
                 new SegmentShapingLayerFactory.Parameter(parameter.Data, parameter.OceanNoise, parameter.ContinentNoise));
             ShapingLayer oceansShaping = segmentShapings[0];

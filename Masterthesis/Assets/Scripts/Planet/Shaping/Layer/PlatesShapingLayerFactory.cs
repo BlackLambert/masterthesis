@@ -7,6 +7,8 @@ namespace SBaier.Master
 	public class PlatesShapingLayerFactory : ShapingLayerFactory
 	{
 		private const float _lenthAdditionFactor = 0.05f;
+		private const ShapingLayer.Mode _mountainShapingMode = ShapingLayer.Mode.Add;
+		private const ShapingLayer.Mode _canyonShapingMode = ShapingLayer.Mode.Add;
 
 		private List<ShapingPrimitive> _mountainPrimitives;
 		private List<ShapingPrimitive> _canyonPrimitives;
@@ -41,7 +43,7 @@ namespace SBaier.Master
 		{
 			ShapingPrimitive[][] primitives = new ShapingPrimitive[][] { _mountainPrimitives.ToArray(), _canyonPrimitives.ToArray() };
 			Noise3D[] noise = new Noise3D[] { parameter.MountainNoise, parameter.CanyonsNoise };
-			ShapingLayer.Mode[] modes = new ShapingLayer.Mode[] { ShapingLayer.Mode.Blend, ShapingLayer.Mode.Blend };
+			ShapingLayer.Mode[] modes = new ShapingLayer.Mode[] { _mountainShapingMode, _canyonShapingMode };
 			return CreateLayers(primitives, noise, modes);
 		}
 
@@ -97,7 +99,9 @@ namespace SBaier.Master
 			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
 			float bledDistance = _data.Dimensions.AtmosphereRadius * parameter.CanyonsBlendDistanceFactor;
 			float length = distanceVector.magnitude + lengthAddition;
+			weight = parameter.CanyonMin + weight * (1 - parameter.CanyonMin);
 			float breadth = maxBreadth * weight;
+			breadth = parameter.CanyonMinBreadth + breadth * (1 - parameter.CanyonMinBreadth);
 			float blendValue = bledDistance * weight;
 			float max = Mathf.Max(length, breadth);
 			float min = Mathf.Min(length, breadth);
@@ -110,7 +114,9 @@ namespace SBaier.Master
 			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
 			float bledDistance = _data.Dimensions.AtmosphereRadius * parameter.MountainsBlendDistanceFactor;
 			float length = distanceVector.magnitude + lengthAddition;
+			weight = parameter.MountainMin + weight * (1 - parameter.MountainMin);
 			float breadth = maxBreadth * weight;
+			breadth = parameter.MountainMinBreadth + breadth * (1 - parameter.MountainMinBreadth);
 			float blendValue = bledDistance * weight;
 			float max = Mathf.Max(length, breadth);
 			float min = Mathf.Min(length, breadth);
