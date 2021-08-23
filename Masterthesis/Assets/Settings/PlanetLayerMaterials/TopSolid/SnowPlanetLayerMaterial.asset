@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab101f68e2f14984995a365ccba5b34a, type: 3}
   m_Name: SnowPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 2103
+  _iD: 23
   _name: Snow
   _density: 0.35
   _baseGradient:

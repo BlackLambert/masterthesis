@@ -8,22 +8,22 @@ using UnityEngine;
 namespace SBaier.Master
 {
     public class PlanetColorizer
-    {
-        private Planet _planet;
+	{
 		private PlanetLayerMaterialSettings[] _materials;
-		private Noise3D _gradientNoise;
+		private readonly PlanetLayerMaterialSerializer _serializer;
 
-		private Dictionary<int, PlanetLayerMaterialSettings> _idToMaterial = new Dictionary<int, PlanetLayerMaterialSettings>();
+		private Noise3D _gradientNoise;
+		private Planet _planet;
+
+		private Dictionary<byte, PlanetLayerMaterialSettings> _idToMaterial = new Dictionary<byte, PlanetLayerMaterialSettings>();
 
 		public PlanetColorizer(
-			Planet planet,
-			PlanetLayerMaterialSettings[] materials,
-			Noise3D gradientNoise
+			PlanetLayerMaterialSerializer serializer,
+			PlanetLayerMaterialSettings[] materials
             )
 		{
-            _planet = planet;
+			_serializer = serializer;
 			_materials = materials;
-			_gradientNoise = gradientNoise;
 			CreateIDToMaterial();
 		}
 
@@ -33,10 +33,17 @@ namespace SBaier.Master
 				_idToMaterial.Add(material.ID, material);
 		}
 
-		public void Compute()
+		public void Compute(Parameter parameter)
 		{
+			Init(parameter);
             for (int i = 0; i < _planet.Faces.Length; i++)
 				UpdateFaceVertexColors(i);
+		}
+
+		private void Init(Parameter parameter)
+		{
+			_planet = parameter.Planet;
+			_gradientNoise = parameter.GradientNoise;
 		}
 
 		private void UpdateFaceVertexColors(int faceIndex)
@@ -58,22 +65,41 @@ namespace SBaier.Master
 		{
 			for(int i = data.Layers.Count - 1; i >= 0; i--)
 			{
-				PlanetLayerData layerData = data.Layers[i];
-				PlanetLayerMaterialSettings material = _idToMaterial[layerData.MaterialIndex];
-				if (material.State == PlanetLayerMaterialState.Gas)
+				PlanetMaterialLayerData layerData = data.Layers[i];
+				if (layerData.State == PlanetMaterialState.Gas)
 					continue;
-				return GetVertexColor(layerData, material, gradientValue);
+				return GetVertexColor(layerData, gradientValue);
 			}
 			throw new InvalidOperationException();
 		}
 
-		private Color GetVertexColor(PlanetLayerData layerData, PlanetLayerMaterialSettings material, float gradientValue)
+		private Color GetVertexColor(PlanetMaterialLayerData layerData, float gradientValue)
+		{
+			int count = layerData.Materials.Count;
+			Color result = new Color(0,0,0,0);
+			float weightSum = 0;
+			for (int i = 0; i < count; i++)
+				GetVertexColor(layerData, gradientValue, ref result, ref weightSum, i);
+			return result / weightSum;
+		}
+
+		private void GetVertexColor(PlanetMaterialLayerData layerData, float gradientValue, ref Color result, ref float weightSum, int materialIndex)
+		{
+			PlanetLayerMaterial deserializedData = _serializer.Deserialize(layerData.Materials[materialIndex]);
+			PlanetLayerMaterialSettings material = _idToMaterial[deserializedData.MaterialID];
+			float weight = deserializedData.Portion;
+			Color col = GetVertexColor(layerData, material, gradientValue) * weight;
+			result += col;
+			weightSum += weight;
+		}
+
+		private Color GetVertexColor(PlanetMaterialLayerData layerData, PlanetLayerMaterialSettings material, float gradientValue)
 		{
 			switch(material.State)
 			{
-				case PlanetLayerMaterialState.Liquid:
+				case PlanetMaterialState.Liquid:
 					return CalculateLiquidColor(material as LiquidPlanetLayerMaterialSettings, layerData.Height, gradientValue);
-				case PlanetLayerMaterialState.Solid:
+				case PlanetMaterialState.Solid:
 					return CalculateSolidColor(material as SolidPlanetLayerMaterialSettings, gradientValue);
 				default:
 					throw new NotImplementedException();
@@ -103,6 +129,21 @@ namespace SBaier.Master
 			verticesNative.Dispose();
 			resultNative.Dispose();
 			return gradientNoiseEvaluation;
+		}
+
+		public class Parameter
+		{
+			public Parameter(
+				Planet planet,
+				Noise3D gradientNoise
+			)
+			{
+				Planet = planet;
+				GradientNoise = gradientNoise;
+			}
+
+			public Planet Planet { get; }
+			public Noise3D GradientNoise { get; }
 		}
 	}
 }

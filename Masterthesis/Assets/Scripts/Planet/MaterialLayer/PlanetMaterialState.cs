@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 { 
-    public enum PlanetLayerMaterialState
+    public enum PlanetMaterialState
     {
         Solid = 0,
         Liquid = 1,

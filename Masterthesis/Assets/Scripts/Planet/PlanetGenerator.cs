@@ -30,8 +30,6 @@ namespace SBaier.Master
 
         [Header("Layer Material")]
         [SerializeField]
-        private PlanetLayerMaterialSettings[] _materials;
-        [SerializeField]
         private NoiseSettings _layerMaterialGradientNoiseSettings;
 
         /*[SerializeField]
@@ -45,8 +43,8 @@ namespace SBaier.Master
         private NoiseFactory _noiseFactory;
         private PlanetLayerMaterializer _layerMaterializer;
 		private EvaluationPointDatasInitializer _evaluationPointDatasInitializer;
-
-        private Noise3D _continentalPlatesWarpingNoise;
+		private PlanetColorizer _colorizer;
+		private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
         private Noise3D _oceansNoise;
@@ -66,7 +64,8 @@ namespace SBaier.Master
             ShapingFactory shapingFactory,
             BiomeFactory biomeFactory,
             PlanetLayerMaterializer layerMaterializer,
-            EvaluationPointDatasInitializer evaluationPointDatasInitializer)
+            EvaluationPointDatasInitializer evaluationPointDatasInitializer,
+            PlanetColorizer colorizer)
 		{
             _basicPlanetFactory = basicPlanetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
@@ -74,6 +73,7 @@ namespace SBaier.Master
             _noiseFactory = noiseFactory;
             _layerMaterializer = layerMaterializer;
             _evaluationPointDatasInitializer = evaluationPointDatasInitializer;
+            _colorizer = colorizer;
 
             _biomes = biomeFactory.Create(_biomeSettings);
         }
@@ -196,16 +196,16 @@ namespace SBaier.Master
             return new PlanetLayerMaterializer.Parameter(
                 _planet, 
                 _biomes, 
-                shapingLayers);
+                shapingLayers,
+                _parameter.ContinentalPlatesParameter.BlendFactor);
         }
 
         private void SetVertexColors()
         {
-            PlanetColorizer colorizer = new PlanetColorizer(
+            _colorizer.Compute(new PlanetColorizer.Parameter(
                 _planet,
-                _materials,
-                _layerMaterialGradientNoise);
-            colorizer.Compute();
+                _layerMaterialGradientNoise
+            ));
         }
 
 

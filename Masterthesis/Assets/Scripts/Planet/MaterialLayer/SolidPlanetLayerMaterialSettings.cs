@@ -12,6 +12,6 @@ namespace SBaier.Master
         public Gradient BaseGradient => _baseGradient;
 
 
-        public override PlanetLayerMaterialState State => PlanetLayerMaterialState.Solid;
+        public override PlanetMaterialState State => PlanetMaterialState.Solid;
     }
 }

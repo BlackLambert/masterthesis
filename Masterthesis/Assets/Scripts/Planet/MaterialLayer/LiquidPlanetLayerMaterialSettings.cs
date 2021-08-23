@@ -15,6 +15,6 @@ namespace SBaier.Master
         private Gradient _depthGradient;
         public Gradient DepthGradient => _depthGradient;
 
-		public override PlanetLayerMaterialState State => PlanetLayerMaterialState.Liquid;
+		public override PlanetMaterialState State => PlanetMaterialState.Liquid;
 	}
 }

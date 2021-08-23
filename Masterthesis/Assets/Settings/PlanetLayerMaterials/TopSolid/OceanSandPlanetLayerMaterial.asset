@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab101f68e2f14984995a365ccba5b34a, type: 3}
   m_Name: OceanSandPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 2102
+  _iD: 22
   _name: OceanSand
   _density: 0.25
   _baseGradient:

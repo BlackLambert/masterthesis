@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63dfcca818b96ff45bc2dfa389332027, type: 3}
   m_Name: IcePlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 1001
+  _iD: 10
   _name: Ice
   _density: 1
   _baseGradient:

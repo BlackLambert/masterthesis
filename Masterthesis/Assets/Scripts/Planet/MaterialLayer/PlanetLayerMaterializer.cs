@@ -11,53 +11,59 @@ namespace SBaier.Master
         private const float _maxSolidTopLayerThickness = 0.02f;
         private const float _maxSlopeAngle = 90;
 
-        private Planet _planet;
-        private Biome[] _biomes;
+		private PlanetLayerMaterialSerializer _serializer;
+
+		private Planet _planet;
+		private ContinentalPlates _plates;
+		private Biome[] _biomes;
         private ShapingLayer[] _shapingLayers;
         private float _maxHullThickness;
         private float _relativeSeaLevel;
         private float _transformedSeaLevel;
+        private float _blendDistance;
 
-        public PlanetLayerMaterializer()
+        public PlanetLayerMaterializer(PlanetLayerMaterialSerializer serializer)
 		{
-        }
+			_serializer = serializer;
+		}
 
         public void UpdateRockElevation(Parameter parameter)
         {
-            Init(parameter);
-            for (int i = 0; i < _planet.Faces.Length; i++)
-                UpdateRockElevation(_planet.Faces[i]);
+            UpdateElevation(parameter, UpdateRockElevation);
         }
 
         public void UpdateTopSolidElevation(Parameter parameter)
         {
-            Init(parameter);
-            for (int i = 0; i < _planet.Faces.Length; i++)
-                UpdateTopSolidElevation(_planet.Faces[i]);
+            UpdateElevation(parameter, UpdateTopSolidElevation);
         }
 
         public void UpdateLiquidElevation(Parameter parameter)
         {
-            Init(parameter);
-            for (int i = 0; i < _planet.Faces.Length; i++)
-                UpdateLiquidElevation(_planet.Faces[i]);
+            UpdateElevation(parameter, UpdateLiquidElevation);
         }
 
         public void UpdateAirElevation(Parameter parameter)
         {
-            Init(parameter);
-            for (int i = 0; i < _planet.Faces.Length; i++)
-                UpdateAirElevation(_planet.Faces[i]);
+            UpdateElevation(parameter, UpdateAirElevation);
         }
 
-		private void Init(Parameter parameter)
+        private void UpdateElevation(Parameter parameter, Action<PlanetFace> updateMethod)
+        {
+            Init(parameter);
+            for (int i = 0; i < _planet.Faces.Length; i++)
+                updateMethod(_planet.Faces[i]);
+        }
+
+        private void Init(Parameter parameter)
 		{
 			_planet = parameter.Planet;
+            _plates = parameter.Planet.Data.ContinentalPlates;
 			_biomes = parameter.Biomes;
 			_shapingLayers = parameter.ShapingLayers;
 			_maxHullThickness = _planet.Data.Dimensions.MaxHullThickness;
 			_relativeSeaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
 			_transformedSeaLevel = GetTransformedSeaLevel();
+            _blendDistance = parameter.BlendFactor * _planet.AtmosphereRadius;
         }
 
 		private float GetTransformedSeaLevel()
@@ -71,60 +77,61 @@ namespace SBaier.Master
             float[] shapeValues = shaper.Shape(face.Data.EvaluationPoints);
 
             for (int i = 0; i < shapeValues.Length; i++)
-                UpdateRockElevation(face, shapeValues, i);
+                UpdateRockLayer(face, shapeValues, i);
         }
 
         private void UpdateTopSolidElevation(PlanetFace face)
         {
             Vector3[] normals = face.Normals;
             for (int i = 0; i < normals.Length; i++)
-                UpdateTopSolidElevation(face, i, normals[i]);
+                UpdateGroundLayer(face, i, normals[i]);
         }
 
         private void UpdateLiquidElevation(PlanetFace face)
         {
             int count = face.Data.EvaluationPoints.Length;
             for (int i = 0; i < count; i++)
-                UpdateLiquidElevation(face, i);
+                UpdateLiquidLayer(face, i);
         }
 
         private void UpdateAirElevation(PlanetFace face)
         {
             int count = face.Data.EvaluationPoints.Length;
             for (int i = 0; i < count; i++)
-                UpdateAirElevation(face, i);
+                UpdateAirLayer(face, i);
         }
 
-        private void UpdateRockElevation(PlanetFace face, float[] shapeValues, int index)
+        private void UpdateRockLayer(PlanetFace face, float[] shapeValues, int index)
 		{
             EvaluationPointData data = face.Data.EvaluationPoints[index];
-            Biome biome = _biomes[data.BiomeID];
             float height = CalculateSolidHeight(shapeValues[index]);
-            AddLayer(data, height, biome.RockMaterial);
+            List<short> materials = GetMaterials(data, 0);
+            AddLayer(data, PlanetMaterialState.Solid, height, materials);
         }
 
-        private void UpdateTopSolidElevation(PlanetFace face, int index, Vector3 normal)
+        private void UpdateGroundLayer(PlanetFace face, int index, Vector3 normal)
         {
             EvaluationPointData data = face.Data.EvaluationPoints[index];
             Biome biome = _biomes[data.BiomeID];
-            float height = CalculateTopSolidHeight(data.WarpedPoint, normal, biome.TopSolidMaterial);
-            AddLayer(data, height, biome.TopSolidMaterial);
+            float height = CalculateTopSolidHeight(data.WarpedPoint, normal, biome.GroundMaterial);
+            List<short> materials = GetMaterials(data, 1);
+            AddLayer(data, PlanetMaterialState.Solid, height, materials);
         }
 
-        private void UpdateLiquidElevation(PlanetFace face, int index)
+        private void UpdateLiquidLayer(PlanetFace face, int index)
         {
             EvaluationPointData data = face.Data.EvaluationPoints[index];
-            Biome biome = _biomes[data.BiomeID];
-            float height = CalculateLiqidHeight(data);
-            AddLayer(data, height, biome.LiquidMaterial);
+            float height = CalculateLiquidHeight(data);
+            List<short> materials = GetMaterials(data, 2);
+            AddLayer(data, PlanetMaterialState.Liquid, height, materials);
         }
 
-        private void UpdateAirElevation(PlanetFace face, int index)
+        private void UpdateAirLayer(PlanetFace face, int index)
         {
             EvaluationPointData data = face.Data.EvaluationPoints[index];
-            Biome biome = _biomes[data.BiomeID];
             float height = CalculateAirHeight(data);
-            AddLayer(data, height, biome.GasMaterial);
+            List<short> materials = GetMaterials(data, 3);
+            AddLayer(data, PlanetMaterialState.Gas, height, materials);
         }
 
         private float CalculateAirHeight(EvaluationPointData data)
@@ -133,7 +140,7 @@ namespace SBaier.Master
             return Mathf.Clamp01(1 - heightSum);
         }
 
-		private float CalculateLiqidHeight(EvaluationPointData data)
+		private float CalculateLiquidHeight(EvaluationPointData data)
 		{
             float heightSum = data.Layers.Sum(l => l.Height);
             return Mathf.Max(_planet.Data.Dimensions.RelativeSeaLevel - heightSum, 0);
@@ -163,29 +170,68 @@ namespace SBaier.Master
             return factor * _maxHullThickness;
         }
 
-        private void AddLayer(EvaluationPointData data, float height, PlanetLayerMaterialSettings material)
+        private void AddLayer(EvaluationPointData data, PlanetMaterialState state, float height, List<short> materials)
         {
             if (height <= 0)
                 return;
-            List<PlanetLayerData> layers = data.Layers;
-            PlanetLayerData layer = new PlanetLayerData(material.ID, height);
+            List<PlanetMaterialLayerData> layers = data.Layers;
+            PlanetMaterialLayerData layer = new PlanetMaterialLayerData(materials, state, height);
             layers.Add(layer);
+        }
+
+        private List<short> GetMaterials(EvaluationPointData data, int materialIndex)
+        {
+            List<short> result = new List<short>();
+            Biome biome = _biomes[data.BiomeID];
+            result.Add(_serializer.Serialize(new PlanetLayerMaterial(biome.GetMeterial(materialIndex).ID, 1f)));
+            result.AddRange(GetNeighborMaterials(data, biome, materialIndex));
+            return result;
+        }
+
+        private List<short> GetNeighborMaterials(EvaluationPointData data, Biome biome, int materialIndex)
+        {
+            ContinentalPlateSegment segment = _plates.Segments[data.ContinentalPlateSegmentIndex];
+            List<short> result = new List<short>();
+            for (int i = 0; i < segment.Neighbors.Length; i++)
+            {
+                short neighborMaterial = GetNeighborMaterial(data, segment.Neighbors[i], biome, materialIndex);
+                if (neighborMaterial >= 0)
+                    result.Add(neighborMaterial);
+            }
+            return result;
+        }
+
+        private short GetNeighborMaterial(EvaluationPointData data, int neighborIndx, Biome biome, int materialIndex)
+        {
+            ContinentalPlateSegment neighborSegment = _plates.Segments[neighborIndx];
+            Biome neighborBiome = _biomes[neighborSegment.BiomeID];
+            //if (neighborBiome.RegionType != biome.RegionType)
+            //    return -1;
+            Vector3 vertex = data.WarpedPoint;
+            Vector3 pointNeighborOnBorder = _plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, neighborIndx);
+            float distanceToSegment = _planet.GetDistanceOnSurface(vertex, pointNeighborOnBorder);
+            if (distanceToSegment > _blendDistance)
+                return -1;
+            return _serializer.Serialize(new PlanetLayerMaterial(neighborBiome.GetMeterial(materialIndex).ID, 1 - (distanceToSegment / _blendDistance)));
         }
 
         public class Parameter
 		{
             public Parameter(Planet planet,
                 Biome[] biomes,
-                ShapingLayer[] shapingLayers)
+                ShapingLayer[] shapingLayers,
+                float blendFactor)
 			{
 				Planet = planet;
 				Biomes = biomes;
 				ShapingLayers = shapingLayers;
+				BlendFactor = blendFactor;
 			}
 
 			public Planet Planet { get; }
 			public Biome[] Biomes { get; }
 			public ShapingLayer[] ShapingLayers { get; }
+			public float BlendFactor { get; }
 		}
     }
 }

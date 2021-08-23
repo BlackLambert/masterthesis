@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab101f68e2f14984995a365ccba5b34a, type: 3}
   m_Name: GranitePlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 2000
+  _iD: 30
   _name: Granite
   _density: 1
   _baseGradient:

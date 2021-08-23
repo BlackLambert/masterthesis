@@ -60,9 +60,9 @@ namespace SBaier.Master
 				AddLayerHeight(vertices, vertexIndex, data.Layers[i]);
 		}
 
-		private void AddLayerHeight(Vector3[] vertices, int vertexIndex, PlanetLayerData layer)
+		private void AddLayerHeight(Vector3[] vertices, int vertexIndex, PlanetMaterialLayerData layer)
 		{
-			bool layerIsAir = layer.MaterialIndex == 0;
+			bool layerIsAir = layer.State == PlanetMaterialState.Gas;
 			if (layerIsAir)
 				return;
 			float layerHeight = layer.Height * _planetData.Dimensions.MaxHullThickness;

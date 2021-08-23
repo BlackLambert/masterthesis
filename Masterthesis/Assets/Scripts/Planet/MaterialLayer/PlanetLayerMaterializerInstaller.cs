@@ -7,7 +7,7 @@ namespace SBaier.Master
     {
         public override void InstallBindings()
         {
-            Container.Bind<PlanetLayerMaterializer>().AsSingle();
+            Container.Bind<PlanetLayerMaterializer>().AsTransient();
         }
     }
 }

@@ -7,8 +7,8 @@ namespace SBaier.Master
     public abstract class PlanetLayerMaterialSettings : ScriptableObject
     {
         [SerializeField]
-        private int _iD = 0;
-        public int ID => _iD;
+        private byte _iD = 0;
+        public byte ID => _iD;
 
 
         [SerializeField]
@@ -20,6 +20,6 @@ namespace SBaier.Master
         private float _density = 1;
         public float Density => _density;
 
-        public abstract PlanetLayerMaterialState State { get; }
+        public abstract PlanetMaterialState State { get; }
     }
 }

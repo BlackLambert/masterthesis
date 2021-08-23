@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab101f68e2f14984995a365ccba5b34a, type: 3}
   m_Name: DesertSandPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 2101
+  _iD: 20
   _name: DesertSand
   _density: 0.25
   _baseGradient:

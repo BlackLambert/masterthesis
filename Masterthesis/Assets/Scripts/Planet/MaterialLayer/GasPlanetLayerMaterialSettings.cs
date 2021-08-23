@@ -7,6 +7,6 @@ namespace SBaier.Master
     [CreateAssetMenu(fileName = "GasPlanetLayerMaterial", menuName = "Planet/GasPlanetLayerMaterial")]
     public class GasPlanetLayerMaterialSettings : PlanetLayerMaterialSettings
     {
-        public override PlanetLayerMaterialState State => PlanetLayerMaterialState.Gas;
+        public override PlanetMaterialState State => PlanetMaterialState.Gas;
     }
 }
