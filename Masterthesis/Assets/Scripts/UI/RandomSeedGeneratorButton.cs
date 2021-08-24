@@ -12,10 +12,14 @@ namespace SBaier.Master
         private TextInputPanel _seedPanel;
         [SerializeField]
         private Button _button;
+        [SerializeField]
+        private bool _generateOnStart = true;
 
         protected virtual void Start()
 		{
             _button.onClick.AddListener(GenerateSeed);
+            if (_generateOnStart)
+                GenerateSeed();
         }
 
         protected virtual void OnDestroy()

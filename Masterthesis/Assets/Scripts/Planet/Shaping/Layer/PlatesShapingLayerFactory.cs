@@ -96,16 +96,23 @@ namespace SBaier.Master
 		private ShapingPrimitive CreateCanyonsPrimitive(PlatesShapingParameter parameter, Vector3 distanceVector, float weight, Vector3 pos)
 		{
 			return CreatePrimitive(distanceVector, weight, pos, parameter.CanyonsBreadthFactor,
-				parameter.CanyonsBlendDistanceFactor, parameter.CanyonMin, parameter.CanyonMinBreadth);
+				parameter.CanyonsBlendDistanceFactor, parameter.CanyonMin, parameter.CanyonMinBreadth, parameter.CanyonDepthFactor);
 		}
 
 		private ShapingPrimitive CreateMountainPrimitive(PlatesShapingParameter parameter, Vector3 distanceVector, float weight, Vector3 pos)
 		{
 			return CreatePrimitive(distanceVector, weight, pos, parameter.MountainsBreadthFactor, 
-				parameter.MountainsBlendDistanceFactor, parameter.MountainMin, parameter.MountainMinBreadth);
+				parameter.MountainsBlendDistanceFactor, parameter.MountainMin, parameter.MountainMinBreadth, parameter.MountainHeightFactor);
 		}
 
-		private ShapingPrimitive CreatePrimitive(Vector3 distanceVector, float weight, Vector3 pos, float breadthFactor, float blendDistanceFactor, float minWeight, float minBreadth)
+		private ShapingPrimitive CreatePrimitive(Vector3 distanceVector, 
+			float weight, 
+			Vector3 pos, 
+			float breadthFactor, 
+			float blendDistanceFactor, 
+			float minWeight, 
+			float minBreadth,
+			float weightFactor)
 		{
 			float maxBreadth = _data.Dimensions.AtmosphereRadius * breadthFactor;
 			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
@@ -116,7 +123,7 @@ namespace SBaier.Master
 			float blendValue = bledDistance * weight;
 			float max = Mathf.Max(length, breadth);
 			float min = Mathf.Min(length, breadth);
-			return new ElipsoidShapingPrimitive(pos, distanceVector, min, max, blendValue, weight);
+			return new ElipsoidShapingPrimitive(pos, distanceVector, min, max, blendValue, weight * weightFactor);
 		}
 
 		private float CalculateWeight(ContinentalPlates plates, Vector2Int neighbors)
