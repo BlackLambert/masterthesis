@@ -105,7 +105,7 @@ namespace SBaier.Master
 		{
             if (_planet == null)
                 return;
-			Destroy(_planet.gameObject);
+            _planet.Destruct();
 			_planet = null;
         }
 

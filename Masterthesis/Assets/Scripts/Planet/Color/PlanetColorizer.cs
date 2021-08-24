@@ -11,6 +11,7 @@ namespace SBaier.Master
 	{
 		private PlanetLayerMaterialSettings[] _materials;
 		private readonly PlanetLayerMaterialSerializer _serializer;
+		private const float _maxShineThrough = 0.01f;
 
 		private Noise3D _gradientNoise;
 		private Planet _planet;
@@ -68,18 +69,31 @@ namespace SBaier.Master
 				PlanetMaterialLayerData layerData = data.Layers[i];
 				if (layerData.State == PlanetMaterialState.Gas)
 					continue;
-				return GetVertexColor(layerData, gradientValue);
+				Color color = GetBaseColor(layerData, gradientValue);
+				if (i == 0)
+					return color;
+				return GetNextLayerShineThroughColor(color, layerData, data.Layers[i - 1], gradientValue);
 			}
 			throw new InvalidOperationException();
 		}
 
-		private Color GetVertexColor(PlanetMaterialLayerData layerData, float gradientValue)
+		private Color GetNextLayerShineThroughColor(Color color, PlanetMaterialLayerData layer, PlanetMaterialLayerData nextLayer, float gradientValue)
+		{
+			if (layer.Height >= _maxShineThrough)
+				return color;
+			Color shineThroughColor = GetBaseColor(nextLayer, gradientValue);
+			float t = layer.Height / _maxShineThrough;
+			return Color.Lerp(shineThroughColor, color, t);
+		}
+
+		private Color GetBaseColor(PlanetMaterialLayerData layerData, float gradientValue)
 		{
 			int count = layerData.Materials.Count;
 			Color result = new Color(0,0,0,0);
 			float weightSum = 0;
 			for (int i = 0; i < count; i++)
 				GetVertexColor(layerData, gradientValue, ref result, ref weightSum, i);
+			
 			return result / weightSum;
 		}
 

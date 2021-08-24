@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace SBaier.Master
@@ -32,6 +33,12 @@ namespace SBaier.Master
 			SharedMesh.vertices = vertices;
 			SharedMesh.triangles = faces;
 			UpdateNormalizedVertices();
+		}
+
+		internal void Destruct()
+		{
+			GameObject.Destroy(SharedMesh);
+			Destroy(gameObject);
 		}
 
 		private void UpdateNormalizedVertices()

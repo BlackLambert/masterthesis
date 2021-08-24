@@ -8,7 +8,7 @@ namespace SBaier.Master
 {
     public class PlanetLayerMaterializer
     {
-        private const float _maxSolidTopLayerThickness = 0.02f;
+        private const float _maxSolidTopLayerThickness = 0.01f;
         private const float _maxSlopeAngle = 90;
 
 		private PlanetLayerMaterialSerializer _serializer;
@@ -34,7 +34,7 @@ namespace SBaier.Master
 
         public void UpdateTopSolidElevation(Parameter parameter)
         {
-            UpdateElevation(parameter, UpdateTopSolidElevation);
+            UpdateElevation(parameter, UpdateGroundLayer);
         }
 
         public void UpdateLiquidElevation(Parameter parameter)
@@ -80,7 +80,7 @@ namespace SBaier.Master
                 UpdateRockLayer(face, shapeValues, i);
         }
 
-        private void UpdateTopSolidElevation(PlanetFace face)
+        private void UpdateGroundLayer(PlanetFace face)
         {
             Vector3[] normals = face.Normals;
             for (int i = 0; i < normals.Length; i++)
@@ -150,9 +150,13 @@ namespace SBaier.Master
         {
             float angle = Vector3.Angle(warpedPosition, normal);
             float portion = angle / _maxSlopeAngle;
-            if (angle / _maxSlopeAngle > topSolidMaterial.Density)
+            float density = topSolidMaterial.Density;
+            if (portion > density)
                 return 0;
-            float heightPortion = (topSolidMaterial.Density - portion) * (1 - topSolidMaterial.Density);
+            float halfDensity = density / 2;
+            if (portion < halfDensity)
+                return _maxSolidTopLayerThickness;
+            float heightPortion = 1 - (portion - halfDensity) / (topSolidMaterial.Density - halfDensity);
             return heightPortion * _maxSolidTopLayerThickness;
         }
 
@@ -167,7 +171,7 @@ namespace SBaier.Master
             else
                 factor = 0;
             factor += _relativeSeaLevel;
-            return factor * _maxHullThickness;
+            return factor;
         }
 
         private void AddLayer(EvaluationPointData data, PlanetMaterialState state, float height, List<short> materials)
@@ -184,35 +188,39 @@ namespace SBaier.Master
             List<short> result = new List<short>();
             Biome biome = _biomes[data.BiomeID];
             result.Add(_serializer.Serialize(new PlanetLayerMaterial(biome.GetMeterial(materialIndex).ID, 1f)));
-            result.AddRange(GetNeighborMaterials(data, biome, materialIndex));
+            float distanceToInnerBorder = GetDistance(data, data.ContinentalPlateSegmentIndex);
+            if (distanceToInnerBorder < _blendDistance)
+                result.AddRange(GetNeighborMaterials(data,  materialIndex));
             return result;
         }
 
-        private List<short> GetNeighborMaterials(EvaluationPointData data, Biome biome, int materialIndex)
+        private List<short> GetNeighborMaterials(EvaluationPointData data, int materialIndex)
         {
             ContinentalPlateSegment segment = _plates.Segments[data.ContinentalPlateSegmentIndex];
             List<short> result = new List<short>();
-            for (int i = 0; i < segment.Neighbors.Length; i++)
-            {
-                short neighborMaterial = GetNeighborMaterial(data, segment.Neighbors[i], biome, materialIndex);
-                if (neighborMaterial >= 0)
-                    result.Add(neighborMaterial);
-            }
+            int[] neighbors = segment.Neighbors;
+            for (int i = 0; i < neighbors.Length; i++)
+                AddNeighborMaterial(data, neighbors[i], materialIndex, result);
             return result;
         }
 
-        private short GetNeighborMaterial(EvaluationPointData data, int neighborIndx, Biome biome, int materialIndex)
+        private void AddNeighborMaterial(EvaluationPointData data, int neighborIndex, int materialIndex, List<short> result)
         {
-            ContinentalPlateSegment neighborSegment = _plates.Segments[neighborIndx];
+            ContinentalPlateSegment neighborSegment = _plates.Segments[neighborIndex];
             Biome neighborBiome = _biomes[neighborSegment.BiomeID];
-            //if (neighborBiome.RegionType != biome.RegionType)
-            //    return -1;
-            Vector3 vertex = data.WarpedPoint;
-            Vector3 pointNeighborOnBorder = _plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, neighborIndx);
-            float distanceToSegment = _planet.GetDistanceOnSurface(vertex, pointNeighborOnBorder);
+            float distanceToSegment = GetDistance(data, neighborIndex);
             if (distanceToSegment > _blendDistance)
-                return -1;
-            return _serializer.Serialize(new PlanetLayerMaterial(neighborBiome.GetMeterial(materialIndex).ID, 1 - (distanceToSegment / _blendDistance)));
+                return;
+            short value = _serializer.Serialize(new PlanetLayerMaterial(neighborBiome.GetMeterial(materialIndex).ID, 1 - (distanceToSegment / _blendDistance)));
+            result.Add(value);
+        }
+
+        private float GetDistance(EvaluationPointData data, int segmentIndex)
+		{
+            Vector3 vertex = data.WarpedPoint;
+            Vector3 pointNeighborOnBorder = _plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
+            float distanceToSegment = _planet.GetDistanceOnSurface(vertex, pointNeighborOnBorder);
+            return distanceToSegment;
         }
 
         public class Parameter

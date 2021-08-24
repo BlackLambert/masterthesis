@@ -28,9 +28,10 @@ namespace SBaier.Master
 			float minDistance = float.MaxValue;
 			Vector3 pointOnBorder = Vector3.zero;
 			int cornersAmount = polygon.VertexIndices.Length;
+			int[] indices = polygon.VertexIndices;
 			for (int i = 0; i < cornersAmount; i++)
 			{
-				Vector3 current = GetNearestBorderPointOf(point, polygon, i);
+				Vector3 current = GetNearestBorderPointOf(point, indices, i);
 				Vector3 distanceVector = point.FastSubstract(current);
 				float distance = distanceVector.sqrMagnitude;
 				if (distance < minDistance)
@@ -42,9 +43,8 @@ namespace SBaier.Master
 			return pointOnBorder;
 		}
 
-		private Vector3 GetNearestBorderPointOf(Vector3 point, Polygon polygon, int vertexIndex)
+		private Vector3 GetNearestBorderPointOf(Vector3 point, int[] indices, int vertexIndex)
 		{
-			int[] indices = polygon.VertexIndices;
 			int cornersAmount = indices.Length;
 			Vector3 corner0 = _vertices[indices[vertexIndex]];
 			Vector3 corner1 = _vertices[indices[(vertexIndex + 1) % cornersAmount]];

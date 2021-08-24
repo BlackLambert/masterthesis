@@ -6,7 +6,7 @@ namespace SBaier.Master
 {
 	public class PlatesShapingLayerFactory : ShapingLayerFactory
 	{
-		private const float _lenthAdditionFactor = 0.05f;
+		private const float _lenthAdditionFactor = 0.02f;
 		private const ShapingLayer.Mode _mountainShapingMode = ShapingLayer.Mode.Add;
 		private const ShapingLayer.Mode _canyonShapingMode = ShapingLayer.Mode.Add;
 
@@ -65,8 +65,8 @@ namespace SBaier.Master
 			bool borderLengthIsZero = borderVector.sqrMagnitude == 0;
 			if (borderLengthIsZero)
 				return;
-			Vector3 pos = CalculateSegmentPosition(border, borderVector);
-			CreatePrmitive(parameter, weight, borderVector, pos);
+			Vector3 pos = CalculatePrimitivePosition(border, borderVector);
+			CreatePrimitive(parameter, weight, borderVector, pos);
 			_handledBorders.Add(border);
 		}
 
@@ -78,14 +78,14 @@ namespace SBaier.Master
 			return corner1 - corner0;
 		}
 
-		private Vector3 CalculateSegmentPosition(Vector2Int border, Vector3 borderVector)
+		private Vector3 CalculatePrimitivePosition(Vector2Int border, Vector3 borderVector)
 		{
 			ContinentalPlates plates = _data.ContinentalPlates;
 			Vector3 corner0 = plates.SegmentCorners[border[0]];
 			return (corner0 + borderVector / 2).normalized * corner0.magnitude;
 		}
 
-		private void CreatePrmitive(PlatesShapingParameter parameter, float weight, Vector3 borderVector, Vector3 pos)
+		private void CreatePrimitive(PlatesShapingParameter parameter, float weight, Vector3 borderVector, Vector3 pos)
 		{
 			if (weight > 0)
 				_mountainPrimitives.Add(CreateMountainPrimitive(parameter, borderVector, weight, pos));
@@ -95,28 +95,24 @@ namespace SBaier.Master
 
 		private ShapingPrimitive CreateCanyonsPrimitive(PlatesShapingParameter parameter, Vector3 distanceVector, float weight, Vector3 pos)
 		{
-			float maxBreadth = _data.Dimensions.AtmosphereRadius * parameter.CanyonsBreadthFactor;
-			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
-			float bledDistance = _data.Dimensions.AtmosphereRadius * parameter.CanyonsBlendDistanceFactor;
-			float length = distanceVector.magnitude + lengthAddition;
-			weight = parameter.CanyonMin + weight * (1 - parameter.CanyonMin);
-			float breadth = maxBreadth * weight;
-			breadth = parameter.CanyonMinBreadth + breadth * (1 - parameter.CanyonMinBreadth);
-			float blendValue = bledDistance * weight;
-			float max = Mathf.Max(length, breadth);
-			float min = Mathf.Min(length, breadth);
-			return new ElipsoidShapingPrimitive(pos, distanceVector, min, max, blendValue, weight);
+			return CreatePrimitive(distanceVector, weight, pos, parameter.CanyonsBreadthFactor,
+				parameter.CanyonsBlendDistanceFactor, parameter.CanyonMin, parameter.CanyonMinBreadth);
 		}
 
 		private ShapingPrimitive CreateMountainPrimitive(PlatesShapingParameter parameter, Vector3 distanceVector, float weight, Vector3 pos)
 		{
-			float maxBreadth = _data.Dimensions.AtmosphereRadius * parameter.MountainsBreadthFactor;
+			return CreatePrimitive(distanceVector, weight, pos, parameter.MountainsBreadthFactor, 
+				parameter.MountainsBlendDistanceFactor, parameter.MountainMin, parameter.MountainMinBreadth);
+		}
+
+		private ShapingPrimitive CreatePrimitive(Vector3 distanceVector, float weight, Vector3 pos, float breadthFactor, float blendDistanceFactor, float minWeight, float minBreadth)
+		{
+			float maxBreadth = _data.Dimensions.AtmosphereRadius * breadthFactor;
 			float lengthAddition = _data.Dimensions.AtmosphereRadius * _lenthAdditionFactor;
-			float bledDistance = _data.Dimensions.AtmosphereRadius * parameter.MountainsBlendDistanceFactor;
+			float bledDistance = _data.Dimensions.AtmosphereRadius * blendDistanceFactor;
 			float length = distanceVector.magnitude + lengthAddition;
-			weight = parameter.MountainMin + weight * (1 - parameter.MountainMin);
-			float breadth = maxBreadth * weight;
-			breadth = parameter.MountainMinBreadth + breadth * (1 - parameter.MountainMinBreadth);
+			weight = Mathf.Max(minWeight, weight);
+			float breadth = maxBreadth * Mathf.Max(weight, minBreadth);
 			float blendValue = bledDistance * weight;
 			float max = Mathf.Max(length, breadth);
 			float min = Mathf.Min(length, breadth);

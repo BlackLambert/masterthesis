@@ -6,6 +6,7 @@ namespace SBaier.Master
 {
 	public class ElipsoidShapingPrimitive : ShapingPrimitive
 	{
+		private const int _blendAreaFactor = 3;
 		private Vector3 _kernelFocus0;
 		private Vector3 _kernelFocus1;
 		private float _kernelFocusDistance;
@@ -45,7 +46,7 @@ namespace SBaier.Master
 			_kernelFocus0 = foci[0];
 			_kernelFocus1 = foci[1];
 			_kernelFocusDistance = CalculateFocusDistance(_kernelFocus0, position, min);
-			_areaOfEffectFocusDistance = CalculateFocusDistance(_kernelFocus0, position, min + blendArea);
+			_areaOfEffectFocusDistance = CalculateFocusDistance(_kernelFocus0, position, min + blendArea * _blendAreaFactor);
 			_distanceDelta = _areaOfEffectFocusDistance - _kernelFocusDistance;
 			_normal = CreateNormal();
 		}
