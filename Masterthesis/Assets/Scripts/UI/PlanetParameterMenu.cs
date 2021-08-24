@@ -7,7 +7,8 @@ namespace SBaier.Master
 {
     public class PlanetParameterMenu : MonoBehaviour
     {
-        [SerializeField]
+		private const int _maximalSampleEliminationFactor = 3;
+		[SerializeField]
         private TextInputPanel _seedInput;
 
 		[Header("Dimensionen")]
@@ -130,6 +131,7 @@ namespace SBaier.Master
 			float warpFactor = _warpPanel.Slider.value;
 			float blendFactor = _blendPanel.Slider.value;
 			float sampleEliminationFactor = _sampleEliminationPanel.Slider.value;
+			sampleEliminationFactor = 1 + (1 - sampleEliminationFactor) * _maximalSampleEliminationFactor;
 			float platesMinFoce = _platesMinForcePanel.Slider.value;
 			ContinentalPlatesParameter continentalPlatesParameter =
 				new ContinentalPlatesParameter(plateSegments, contients, oceans, plates, warpFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
