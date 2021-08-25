@@ -20,6 +20,10 @@ namespace SBaier.Master
         private float _density = 1;
         public float Density => _density;
 
+        [SerializeField]
+        private int _frequency = 1;
+        public int Frequency => _frequency;
+
         public abstract PlanetMaterialState State { get; }
     }
 }

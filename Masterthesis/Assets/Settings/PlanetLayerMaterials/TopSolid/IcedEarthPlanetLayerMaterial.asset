@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab101f68e2f14984995a365ccba5b34a, type: 3}
-  m_Name: EarthPlanetLayerMaterial
+  m_Name: IcedEarthPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 21
-  _name: Earth
+  _iD: 24
+  _name: Iced Earth
   _density: 0.35
   _baseGradient:
     serializedVersion: 2
-    key0: {r: 0.4056604, g: 0.2584126, b: 0.14797673, a: 1}
-    key1: {r: 0.41509432, g: 0.3180777, b: 0.24148566, a: 1}
+    key0: {r: 0.4811321, g: 0.42733675, b: 0.38430047, a: 1}
+    key1: {r: 0.5, g: 0.3961006, b: 0.3144654, a: 1}
     key2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}

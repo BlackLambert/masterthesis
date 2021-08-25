@@ -10,8 +10,9 @@ namespace SBaier.Master
 			SolidPlanetLayerMaterialSettings rockMaterial,
 			SolidPlanetLayerMaterialSettings topSolidMaterial, 
 			LiquidPlanetLayerMaterialSettings liquidMaterial, 
-			GasPlanetLayerMaterialSettings gasMaterial) : 
-			base(regionType, rockMaterial, topSolidMaterial, liquidMaterial, gasMaterial)
+			GasPlanetLayerMaterialSettings gasMaterial,
+			VegetationPlanetLayerMaterialSettings vegetationSettings) : 
+			base(regionType, rockMaterial, topSolidMaterial, liquidMaterial, gasMaterial, vegetationSettings)
 		{
 		}
 	}

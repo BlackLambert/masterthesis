@@ -7,6 +7,11 @@ namespace SBaier.Master
     {
         public override void InstallBindings()
         {
+            Container.Bind<PlanetRockLayerAdder>().AsTransient();
+            Container.Bind<PlanetGroundLayerAdder>().AsTransient();
+            Container.Bind<PlanetGroundVegetationLayerAdder>().AsTransient();
+            Container.Bind<PlanetLiquidLayerAdder>().AsTransient();
+            Container.Bind<PlanetAirLayerAdder>().AsTransient();
             Container.Bind<PlanetLayerMaterializer>().AsTransient();
         }
     }

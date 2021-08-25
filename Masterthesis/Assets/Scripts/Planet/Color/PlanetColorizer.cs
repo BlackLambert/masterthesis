@@ -11,7 +11,7 @@ namespace SBaier.Master
 	{
 		private PlanetLayerMaterialSettings[] _materials;
 		private readonly PlanetLayerMaterialSerializer _serializer;
-		private const float _maxShineThrough = 0.01f;
+		private const float _maxShineThrough = 0.015f;
 
 		private Noise3D _gradientNoise;
 		private Planet _planet;

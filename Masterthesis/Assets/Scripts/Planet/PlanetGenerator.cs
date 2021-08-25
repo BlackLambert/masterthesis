@@ -94,11 +94,12 @@ namespace SBaier.Master
 		private void Materialize(Parameter parameter)
 		{
 			PlanetLayerMaterializer.Parameter materializerParameter = CreateMaterializerParameter(CreateShapingLayers(parameter.Shaping));
-			_layerMaterializer.UpdateRockElevation(materializerParameter);
+			_layerMaterializer.CreateRockLayer(materializerParameter);
 			_planet.UpdateMesh();
-			_layerMaterializer.UpdateTopSolidElevation(materializerParameter);
-			_layerMaterializer.UpdateLiquidElevation(materializerParameter);
-			_layerMaterializer.UpdateAirElevation(materializerParameter);
+			_layerMaterializer.CreateGroundLayer(materializerParameter);
+            _layerMaterializer.CreateLiquidLayer(materializerParameter);
+            _layerMaterializer.CreateGroundVegetationLayer(materializerParameter);
+            _layerMaterializer.CreateAirLayer(materializerParameter);
 		}
 
 		private void CleanPlanet()

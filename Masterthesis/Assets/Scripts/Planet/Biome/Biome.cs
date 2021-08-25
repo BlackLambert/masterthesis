@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -11,13 +8,15 @@ namespace SBaier.Master
 			SolidPlanetLayerMaterialSettings rockMaterial,
 			SolidPlanetLayerMaterialSettings groundMaterial,
 			LiquidPlanetLayerMaterialSettings liquidMaterial,
-			GasPlanetLayerMaterialSettings gasMaterial)
+			GasPlanetLayerMaterialSettings gasMaterial,
+			VegetationPlanetLayerMaterialSettings vegetation)
 		{
 			RegionType = regionType;
 			RockMaterial = rockMaterial;
 			GroundMaterial = groundMaterial;
 			LiquidMaterial = liquidMaterial;
 			GasMaterial = gasMaterial;
+			Vegetation = vegetation;
 		}
 
 		public ContinentalRegion.Type RegionType { get; }
@@ -25,6 +24,7 @@ namespace SBaier.Master
 		public SolidPlanetLayerMaterialSettings GroundMaterial { get; }
 		public LiquidPlanetLayerMaterialSettings LiquidMaterial { get; }
 		public GasPlanetLayerMaterialSettings GasMaterial { get; }
+		public VegetationPlanetLayerMaterialSettings Vegetation { get; }
 
 		public PlanetLayerMaterialSettings GetMeterial(int index)
 		{
@@ -38,6 +38,8 @@ namespace SBaier.Master
 					return LiquidMaterial;
 				case 3:
 					return GasMaterial;
+				case 4:
+					return Vegetation;
 				default:
 					throw new NotImplementedException();
 			}

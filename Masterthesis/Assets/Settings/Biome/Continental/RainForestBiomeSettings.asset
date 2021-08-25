@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a77d7da78387884c9f7cb2ccd30aacf, type: 3}
   m_Name: RainForestBiomeSettings
   m_EditorClassIdentifier: 
-  _rockMaterial: {fileID: 11400000, guid: 0cf8273db3008da4ba9ff351997d42f7, type: 2}
-  _topSolidMaterial: {fileID: 11400000, guid: c9e6dd6b31926ae4581d9cdc85d81558, type: 2}
+  _rockMaterial: {fileID: 11400000, guid: 0ee41f6e474b7b047906da27ae138501, type: 2}
+  _topSolidMaterial: {fileID: 11400000, guid: 961b548a49953b44887da26d05ed4edb, type: 2}
+  _waterMaterial: {fileID: 11400000, guid: a993c25ce6769524a99af7b2b316d259, type: 2}
   _airMaterial: {fileID: 11400000, guid: 5c71b14f2632f944b994dfc72d938450, type: 2}
-  _waterMaterial: {fileID: 11400000, guid: cf32c18627e1de74ebd66c9ac40aad11, type: 2}
-  _frequency: 1
+  _groundVegetation: {fileID: 11400000, guid: 5210d939d6acae7409a5f724cf426f9b, type: 2}
+  _frequency: 2
   _useTemeratureSpectrum: 1
   _temperatureSpecturm: {x: 20, y: 40}
