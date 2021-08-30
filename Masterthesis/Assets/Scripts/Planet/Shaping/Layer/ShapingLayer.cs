@@ -10,6 +10,7 @@ namespace SBaier.Master
     public class ShapingLayer
     {
 		private float _maxAreaOfEffect;
+		private float _squaredMaxAreaOfEffect;
 		private KDTree<Vector3> _kDTree;
 
 		public ShapingPrimitive[] _primitives;
@@ -29,6 +30,7 @@ namespace SBaier.Master
 			_kDTree = primitivesTree;
 			ShapingMode = mode;
 			_maxAreaOfEffect = GetMaxAreaOfEffect();
+			_squaredMaxAreaOfEffect = _maxAreaOfEffect * _maxAreaOfEffect;
 		}
 
 		private float GetMaxAreaOfEffect()
@@ -73,17 +75,22 @@ namespace SBaier.Master
 
 		private void CalculateWeight()
 		{
-			int[][] primitivesInRange = _kDTree.GetNearestToWithin(_vertices, _maxAreaOfEffect);
-			CalculateWeight(primitivesInRange);
+			int[] nearestPrimitive = _kDTree.GetNearestTo(_vertices);
+			for (int i = 0; i < nearestPrimitive.Length; i++)
+			{
+				Vector3 vertex = _vertices[i];
+				float sqrDistance = (_primitives[nearestPrimitive[i]].Position.FastSubstract(vertex)).sqrMagnitude;
+				if (sqrDistance > _squaredMaxAreaOfEffect)
+				{
+					_weights[i] = 0;
+					continue;
+				}
+				int[] primitivesInRange = _kDTree.GetNearestToWithin(vertex, _maxAreaOfEffect);
+				CalculateWeight(i, primitivesInRange);
+			}
 			//int[] nearestPrimitive = _kDTree.GetNearestTo(_vertices);
 			//for (int i = 0; i < nearestPrimitive.Length; i++)
 			//	CalculateWeight(i, _primitives[nearestPrimitive[i]]);
-		}
-
-		private void CalculateWeight(int[][] primitivesInRange)
-		{
-			for (int i = 0; i < primitivesInRange.Length; i++)
-				CalculateWeight(i, primitivesInRange[i]);
 		}
 
 		private void CalculateWeight(int vertexIndex, int[] primitivesInRange)

@@ -97,8 +97,8 @@ namespace SBaier.Master
 			_layerMaterializer.CreateRockLayer(materializerParameter);
 			_planet.UpdateMesh();
 			_layerMaterializer.CreateGroundLayer(materializerParameter);
-            _layerMaterializer.CreateLiquidLayer(materializerParameter);
             _layerMaterializer.CreateGroundVegetationLayer(materializerParameter);
+            _layerMaterializer.CreateLiquidLayer(materializerParameter);
             _layerMaterializer.CreateAirLayer(materializerParameter);
 		}
 
@@ -158,7 +158,9 @@ namespace SBaier.Master
             return new EvaluationPointDatasInitializer.Parameter(
                 _planet, 
                 _continentalPlatesWarpingNoise, 
-                _parameter.ContinentalPlatesParameter.WarpFactor);
+                _parameter.ContinentalPlatesParameter.WarpFactor,
+                _biomes,
+                _parameter.ContinentalPlatesParameter.BlendFactor * _planet.AtmosphereRadius);
         }
 
          /*private void UpdateDebugView()

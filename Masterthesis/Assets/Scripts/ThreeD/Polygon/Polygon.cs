@@ -22,10 +22,11 @@ namespace SBaier.Master
 
         public bool HasCorner(int vertexIndex)
         {
-            int count = VertexIndices.Length;;
+            int[] vertices = VertexIndices;
+            int count = vertices.Length;;
             for (int i = 0; i < count; i++)
             {
-                if (VertexIndices[i] == vertexIndex)
+                if (vertices[i] == vertexIndex)
                     return true;
             }
             return false;
@@ -33,10 +34,11 @@ namespace SBaier.Master
 
         private bool IsSameEdge(Vector2Int edge, int i0, int i1)
         {
+            int[] vertices = VertexIndices;
             int edge0 = edge.x;
             int edge1 = edge.y;
-            int vI0 = VertexIndices[i0];
-            int vI1 = VertexIndices[i1];
+            int vI0 = vertices[i0];
+            int vI1 = vertices[i1];
             return edge0 == vI0 && edge1 == vI1 ||
                 edge1 == vI0 && edge0 == vI1;
         }

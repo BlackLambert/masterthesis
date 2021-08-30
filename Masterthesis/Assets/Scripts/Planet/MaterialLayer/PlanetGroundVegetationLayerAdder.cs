@@ -12,15 +12,18 @@ namespace SBaier.Master
         private const float _maxVegetationLayerThickness = 0.02f;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
-		protected override int MaterialIndex => 4;
 
         private Biome[] _biomes;
-        private PlanetLayerMaterialSerializer _serializer;
+        private PlanetLayerMaterialSerializer _planetLayerMaterialSerializer;
         private SeaLevelValueTransformer _transformer;
+        private HashSet<PlanetLayerMaterialSettings> _handledGround;
 
-        public PlanetGroundVegetationLayerAdder(PlanetLayerMaterialSerializer serializer) : base(serializer)
+        public PlanetGroundVegetationLayerAdder(PlanetLayerMaterialSerializer planetLayerMaterialSerializer,
+            BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
+            base(planetLayerMaterialSerializer, biomeOccurrenceSerializer)
 		{
-            _serializer = serializer;
+            _planetLayerMaterialSerializer = planetLayerMaterialSerializer;
+            _handledGround = new HashSet<PlanetLayerMaterialSettings>();
         }
 
         protected override void InitConcrete(Parameter parameter)
@@ -38,27 +41,50 @@ namespace SBaier.Master
 
 		private float GetHeight(EvaluationPointData data)
 		{
+            BiomeOccurrence[] biomeOccurrences = GetBiomeOccurrences(data.Biomes);
+            float heightPortion = 0;
             List<PlanetMaterialLayerData> layers = data.Layers;
             float heightSum = layers.Sum(l => l.Height);
-            Biome biome = _biomes[data.BiomeID];
-            VegetationPlanetLayerMaterialSettings material = biome.GetMeterial(MaterialIndex) as VegetationPlanetLayerMaterialSettings;
-            if (material == null)
+            float heightEvalInput = _transformer.Revert(heightSum) * 2 - 1;
+            _handledGround.Clear();
+            foreach (BiomeOccurrence biomeOccurrence in biomeOccurrences)
+            {
+                Biome biome = _biomes[biomeOccurrence.ID];
+                VegetationPlanetLayerMaterialSettings material = biome.Vegetation;
+                if (material == null || _handledGround.Contains(material.GroundRequirements))
+                    continue;
+                _handledGround.Add(material.GroundRequirements);
+                heightPortion += GetHeightPortion(biomeOccurrence, data, heightEvalInput);
+            }
+            return heightPortion * _maxVegetationLayerThickness;
+        }
+
+		private float GetHeightPortion(BiomeOccurrence biomeOccurrence, EvaluationPointData data, float heightEvaluationInput)
+		{
+            List<PlanetMaterialLayerData> layers = data.Layers;
+            Biome biome = _biomes[biomeOccurrence.ID];
+            VegetationPlanetLayerMaterialSettings material = biome.Vegetation;
+            float heightGrowth = material.HeightRequirements.Evaluate(heightEvaluationInput);
+            if (heightGrowth <= 0)
                 return 0;
-            float heightGrowth = material.HeightRequirements.Evaluate(_transformer.Revert(heightSum) * 2 - 1);
 
             PlanetMaterialLayerData topLayer = layers[layers.Count - 1];
-            float portion = 0;
+            float groundRequirementPortion = 0;
             float portionSum = 0;
-			foreach(short s in topLayer.Materials)
-			{
-                PlanetLayerMaterial m = _serializer.Deserialize(s);
+            foreach (short s in topLayer.Materials)
+            {
+                PlanetLayerMaterial m = _planetLayerMaterialSerializer.Deserialize(s);
                 portionSum += m.Portion;
                 if (m.MaterialID == material.GroundRequirements.ID)
-                    portion += m.Portion;
+                    groundRequirementPortion += m.Portion;
             }
-            portion /= portionSum;
-
-            return Mathf.Min(heightGrowth, portion) * _maxVegetationLayerThickness;
+            groundRequirementPortion /= portionSum;
+            return heightGrowth * groundRequirementPortion;
         }
+
+		protected override PlanetLayerMaterialSettings GetMaterial(Biome biome)
+		{
+            return biome.Vegetation;
+		}
 	}
 }

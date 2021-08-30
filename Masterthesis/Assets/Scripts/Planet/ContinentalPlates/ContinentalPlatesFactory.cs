@@ -34,7 +34,7 @@ namespace SBaier.Master
 			ContinentalRegion[] regions = CreateRegions(parameters, plateSegmentSites, segments, segmentsVoronoi);
 			ContinentalPlate[] plates = CreatePlates(parameters, regions);
 			ConnectingBordersFinder connectingBordersFinder = new ConnectingBordersFinder(plates);
-			connectingBordersFinder.Calcualte();
+			connectingBordersFinder.Calculate();
 			Vector2Int[] neighbors = connectingBordersFinder.Neighbors;
 			Dictionary<Vector2Int, Vector2Int[]> plateBorders = connectingBordersFinder.NeighborsToBorders;
 			ContinentalPlates result = new ContinentalPlates(segments, regions, plates, plateBorders, segmentsVoronoi, segmentsTriangles, neighbors);

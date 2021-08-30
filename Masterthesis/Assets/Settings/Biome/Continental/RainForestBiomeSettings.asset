@@ -16,7 +16,7 @@ MonoBehaviour:
   _topSolidMaterial: {fileID: 11400000, guid: 961b548a49953b44887da26d05ed4edb, type: 2}
   _waterMaterial: {fileID: 11400000, guid: a993c25ce6769524a99af7b2b316d259, type: 2}
   _airMaterial: {fileID: 11400000, guid: 5c71b14f2632f944b994dfc72d938450, type: 2}
-  _groundVegetation: {fileID: 11400000, guid: 5210d939d6acae7409a5f724cf426f9b, type: 2}
+  _groundVegetation: {fileID: 11400000, guid: 00184da99c873f94993ba4639280ab12, type: 2}
   _frequency: 2
   _useTemeratureSpectrum: 1
   _temperatureSpecturm: {x: 20, y: 40}

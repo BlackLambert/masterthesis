@@ -26,23 +26,5 @@ namespace SBaier.Master
 		public GasPlanetLayerMaterialSettings GasMaterial { get; }
 		public VegetationPlanetLayerMaterialSettings Vegetation { get; }
 
-		public PlanetLayerMaterialSettings GetMeterial(int index)
-		{
-			switch(index)
-			{
-				case 0:
-					return RockMaterial;
-				case 1:
-					return GroundMaterial;
-				case 2:
-					return LiquidMaterial;
-				case 3:
-					return GasMaterial;
-				case 4:
-					return Vegetation;
-				default:
-					throw new NotImplementedException();
-			}
-		}
 	}
 }

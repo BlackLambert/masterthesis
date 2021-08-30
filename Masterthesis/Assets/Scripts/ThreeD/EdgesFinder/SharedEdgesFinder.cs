@@ -25,8 +25,9 @@ namespace SBaier.Master
 		private void FindSharedEdges(int polygonIndex, int edgeIndex)
 		{
 			Polygon polygon = _polygons[polygonIndex];
-			int corner0 = polygon.VertexIndices[edgeIndex];
-			int corner1 = polygon.VertexIndices[(edgeIndex + 1) % polygon.VertexIndices.Length];
+			int[] vertexIndices = polygon.VertexIndices;
+			int corner0 = vertexIndices[edgeIndex];
+			int corner1 = vertexIndices[(edgeIndex + 1) % vertexIndices.Length];
 			Vector2Int edge = new Vector2Int(corner0, corner1);
 			if (IsSharedEdge(polygonIndex, edge))
 				_edges.Add(edge);

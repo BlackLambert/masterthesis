@@ -7,7 +7,7 @@ namespace SBaier.Master
     public class EvaluationPointData
     {
         public List<PlanetMaterialLayerData> Layers { get; }
-        public int BiomeID { get; set; } = -1;
+        public short[] Biomes { get; set; } = new short[0];
         public int ContinentalPlateSegmentIndex { get; set; } = -1;
         public Vector3 WarpedPoint { get; set; }
 

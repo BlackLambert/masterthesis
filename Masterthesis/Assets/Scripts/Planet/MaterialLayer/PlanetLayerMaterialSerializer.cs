@@ -4,24 +4,17 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class PlanetLayerMaterialSerializer
+    public class PlanetLayerMaterialSerializer : IDToPortionSerializer
     {
         public short Serialize(PlanetLayerMaterial data)
 		{
-			byte materialId = data.MaterialID;
-			byte portion = (byte) (data.Portion * 100);
-			int result = portion;
-			result = (result << 8);
-			result |= materialId;
-			return (short)result;
+			return Serialize(data.MaterialID, data.Portion);
 		}
 
-		public PlanetLayerMaterial Deserialize(short serializedData)
+		public new PlanetLayerMaterial Deserialize(short serializedData)
 		{
-			byte materialId = (byte) (serializedData & 0b_1111_1111);
-			int portionInt = serializedData >> 8;
-			float portion = portionInt / 100f;
-			return new PlanetLayerMaterial(materialId, portion);
+			Result r = base.Deserialize(serializedData);
+			return new PlanetLayerMaterial(r.ID, r.Portion);
 		}
     }
 }

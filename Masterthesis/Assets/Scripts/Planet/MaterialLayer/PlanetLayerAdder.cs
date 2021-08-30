@@ -9,17 +9,17 @@ namespace SBaier.Master
     {
 		private Planet _planet;
 		private Biome[] _biomes;
-		private ContinentalPlates _plates;
-		private float _blendDistance;
-		private PlanetLayerMaterialSerializer _serializer;
+		private PlanetLayerMaterialSerializer _planetLayerMaterialSerializer;
+        private BiomeOccurrenceSerializer _biomeOccurrenceSerializer;
         protected abstract PlanetMaterialState LayerState { get; }
-        protected abstract int MaterialIndex { get; }
 
-        public PlanetLayerAdder(PlanetLayerMaterialSerializer serializer)
+        public PlanetLayerAdder(PlanetLayerMaterialSerializer serializer,
+            BiomeOccurrenceSerializer biomeOccurrenceSerializer)
 		{
-            _serializer = serializer;
-
+            _planetLayerMaterialSerializer = serializer;
+            _biomeOccurrenceSerializer = biomeOccurrenceSerializer;
         }
+
         public void AddLayer(Parameter parameter)
         {
             Init(parameter);
@@ -31,13 +31,12 @@ namespace SBaier.Master
         {
             _planet = parameter.Planet;
             _biomes = parameter.Biomes;
-            _plates = parameter.Planet.Data.ContinentalPlates;
-            _blendDistance = parameter.BlendFactor * _planet.AtmosphereRadius;
             InitConcrete(parameter);
         }
 
 		protected abstract void InitConcrete(Parameter parameter);
 		protected abstract void AddLayer(PlanetFace face);
+        protected abstract PlanetLayerMaterialSettings GetMaterial(Biome biome);
 
         protected void AddLayer(PlanetFace face, int index, float height)
         {
@@ -57,48 +56,30 @@ namespace SBaier.Master
 
         protected List<short> GetMaterials(EvaluationPointData data)
         {
-            List<short> result = new List<short>();
-            Biome biome = _biomes[data.BiomeID];
-            PlanetLayerMaterialSettings material = biome.GetMeterial(MaterialIndex);
-            if(material != null)
-                result.Add(_serializer.Serialize(new PlanetLayerMaterial(material.ID, 1f)));
-            float distanceToInnerBorder = GetDistance(data, data.ContinentalPlateSegmentIndex);
-            if (distanceToInnerBorder < _blendDistance)
-                result.AddRange(GetNeighborMaterials(data));
+            List<short> result = new List<short>(data.Biomes.Length);
+            BiomeOccurrence[] biomeOccurrences = GetBiomeOccurrences(data.Biomes);
+            foreach (BiomeOccurrence biomeOccurrence in biomeOccurrences)
+                AddMaterial(biomeOccurrence, result);
             return result;
         }
 
-        private List<short> GetNeighborMaterials(EvaluationPointData data)
-        {
-            ContinentalPlateSegment segment = _plates.Segments[data.ContinentalPlateSegmentIndex];
-            List<short> result = new List<short>();
-            int[] neighbors = segment.Neighbors;
-            for (int i = 0; i < neighbors.Length; i++)
-                AddNeighborMaterial(data, neighbors[i], result);
-            return result;
-        }
-
-        private void AddNeighborMaterial(EvaluationPointData data, int neighborIndex, List<short> result)
-        {
-            ContinentalPlateSegment neighborSegment = _plates.Segments[neighborIndex];
-            Biome neighborBiome = _biomes[neighborSegment.BiomeID];
-            float distanceToSegment = GetDistance(data, neighborIndex);
-            if (distanceToSegment > _blendDistance)
+		private void AddMaterial(BiomeOccurrence biomeOccurrence, List<short> result)
+		{
+            Biome biome = _biomes[biomeOccurrence.ID];
+            float portion = biomeOccurrence.Portion;
+            PlanetLayerMaterialSettings material = GetMaterial(biome);
+            if (material == null)
                 return;
-            PlanetLayerMaterialSettings neighborMaterial = neighborBiome.GetMeterial(MaterialIndex);
-            if (neighborMaterial == null)
-                return;
-            float weight = 1 - (distanceToSegment / _blendDistance);
-            short value = _serializer.Serialize(new PlanetLayerMaterial(neighborMaterial.ID, weight));
+            short value = _planetLayerMaterialSerializer.Serialize(new PlanetLayerMaterial(material.ID, portion));
             result.Add(value);
         }
 
-        private float GetDistance(EvaluationPointData data, int segmentIndex)
-        {
-            Vector3 vertex = data.WarpedPoint;
-            Vector3 pointNeighborOnBorder = _plates.SegmentsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
-            float distanceToSegment = _planet.GetDistanceOnSurface(vertex, pointNeighborOnBorder);
-            return distanceToSegment;
+		protected BiomeOccurrence[] GetBiomeOccurrences(short[] biomes)
+		{
+            BiomeOccurrence[] result = new BiomeOccurrence[biomes.Length];
+            for (int i = 0; i < biomes.Length; i++)
+                result[i] = _biomeOccurrenceSerializer.Deserialize(biomes[i]);
+            return result;
         }
 
         public class Parameter

@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2d0922f8ddfc8e4caedc990505d39e4, type: 3}
   m_Name: JungleGrasPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 40
-  _name: Gras
+  _iD: 41
+  _name: JungleGras
   _density: 1
   _frequency: 1
   _baseGradient:
     serializedVersion: 2
-    key0: {r: 0.480874, g: 0.8018868, b: 0.20173247, a: 1}
-    key1: {r: 0.31148252, g: 0.6792453, b: 0.22855106, a: 1}
+    key0: {r: 0.039575126, g: 0.5471698, b: 0.056167938, a: 1}
+    key1: {r: 0.068233036, g: 0.4339623, b: 0.12990251, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -45,7 +45,7 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  _groundRequirements: {fileID: 11400000, guid: c9e6dd6b31926ae4581d9cdc85d81558, type: 2}
+  _groundRequirements: {fileID: 11400000, guid: 961b548a49953b44887da26d05ed4edb, type: 2}
   _heightRequirements:
     serializedVersion: 2
     m_Curve:
@@ -77,19 +77,19 @@ MonoBehaviour:
       inWeight: 1
       outWeight: 0.3818937
     - serializedVersion: 3
-      time: 0.25
+      time: 0.35
       value: 0
-      inSlope: 0.045668103
-      outSlope: 0.045668103
+      inSlope: 0.0017117695
+      outSlope: 0.0017117695
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.86602694
+      inWeight: 1
+      outWeight: 0.8155781
     - serializedVersion: 3
       time: 0.97021484
       value: 0.002029419
-      inSlope: 0.0028177965
-      outSlope: 0.0028177965
+      inSlope: 0.0032721227
+      outSlope: 0.0032721227
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334

@@ -8,9 +8,10 @@ namespace SBaier.Master
     public class PlanetAirLayerAdder : PlanetLayerAdder
     {
         protected override PlanetMaterialState LayerState => PlanetMaterialState.Gas;
-        protected override int MaterialIndex => 3;
 
-        public PlanetAirLayerAdder(PlanetLayerMaterialSerializer serializer) : base(serializer)
+        public PlanetAirLayerAdder(PlanetLayerMaterialSerializer serializer,
+            BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
+            base(serializer, biomeOccurrenceSerializer)
 		{
         }
 
@@ -31,5 +32,10 @@ namespace SBaier.Master
             float heightSum = data.Layers.Sum(l => l.Height);
             return Mathf.Clamp01(1 - heightSum);
         }
+
+		protected override PlanetLayerMaterialSettings GetMaterial(Biome biome)
+		{
+            return biome.GasMaterial;
+		}
 	}
 }

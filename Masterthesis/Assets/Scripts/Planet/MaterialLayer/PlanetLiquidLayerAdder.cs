@@ -10,9 +10,10 @@ namespace SBaier.Master
         private Planet _planet;
 
         protected override PlanetMaterialState LayerState => PlanetMaterialState.Liquid;
-        protected override int MaterialIndex => 2;
 
-        public PlanetLiquidLayerAdder(PlanetLayerMaterialSerializer serializer) : base(serializer)
+        public PlanetLiquidLayerAdder(PlanetLayerMaterialSerializer serializer,
+            BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
+            base(serializer, biomeOccurrenceSerializer)
 		{
         }
 
@@ -33,5 +34,10 @@ namespace SBaier.Master
             float heightSum = data.Layers.Sum(l => l.Height);
             return Mathf.Max(_planet.Data.Dimensions.RelativeSeaLevel - heightSum, 0);
         }
-	}
+
+        protected override PlanetLayerMaterialSettings GetMaterial(Biome biome)
+        {
+            return biome.LiquidMaterial;
+        }
+    }
 }

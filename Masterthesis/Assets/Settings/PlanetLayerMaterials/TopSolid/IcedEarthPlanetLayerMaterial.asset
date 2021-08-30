@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iD: 24
   _name: Iced Earth
-  _density: 0.35
+  _density: 0.4
+  _frequency: 1
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.4811321, g: 0.42733675, b: 0.38430047, a: 1}

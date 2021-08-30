@@ -5,7 +5,7 @@ namespace SBaier.Master
 {
 	public class ConvexPolygonShapingPrimitive : ShapingPrimitive
 	{
-		private float _epsilon = 0.01f;
+		private float _epsilon = 5f;
 		private readonly float _angleSumMax = 360f;
 
 		public override float MaxAreaOfEffect { get; }

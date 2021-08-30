@@ -110,7 +110,7 @@ namespace SBaier.Master
 		private void SetNeighbors(VoronoiRegion[] regions)
 		{
 			ConnectingBordersFinder finder = new ConnectingBordersFinder(regions);
-			finder.Calcualte();
+			finder.Calculate();
 			Vector2Int[] allNeighbors = finder.Neighbors;
 			for (int i = 0; i < regions.Length; i++)
 			{

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iD: 21
   _name: Earth
-  _density: 0.35
+  _density: 0.3
+  _frequency: 1
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.4056604, g: 0.2584126, b: 0.14797673, a: 1}
