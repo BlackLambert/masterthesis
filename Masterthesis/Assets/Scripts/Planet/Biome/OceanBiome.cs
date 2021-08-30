@@ -6,9 +6,9 @@ namespace SBaier.Master
 {
 	public class OceanBiome : Biome
 	{
-		public OceanBiome(ContinentalRegion.Type regionType, 
+		public OceanBiome(ContinentalRegion.Type regionType,
 			SolidPlanetLayerMaterialSettings rockMaterial,
-			SolidPlanetLayerMaterialSettings topSolidMaterial, 
+			SolidPlanetLayerMaterialSettings topSolidMaterial,
 			LiquidPlanetLayerMaterialSettings liquidMaterial, 
 			GasPlanetLayerMaterialSettings gasMaterial,
 			VegetationPlanetLayerMaterialSettings vegetationSettings) : 

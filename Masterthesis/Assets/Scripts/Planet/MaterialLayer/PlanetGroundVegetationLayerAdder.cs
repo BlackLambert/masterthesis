@@ -16,6 +16,7 @@ namespace SBaier.Master
 
         private Biome[] _biomes;
         private PlanetLayerMaterialSerializer _serializer;
+        private SeaLevelValueTransformer _transformer;
 
         public PlanetGroundVegetationLayerAdder(PlanetLayerMaterialSerializer serializer) : base(serializer)
 		{
@@ -25,6 +26,7 @@ namespace SBaier.Master
         protected override void InitConcrete(Parameter parameter)
         {
             _biomes = parameter.Biomes;
+            _transformer = new SeaLevelValueTransformer(parameter.Planet.Data.Dimensions.RelativeSeaLevel);
         }
 
         protected override void AddLayer(PlanetFace face)
@@ -42,7 +44,7 @@ namespace SBaier.Master
             VegetationPlanetLayerMaterialSettings material = biome.GetMeterial(MaterialIndex) as VegetationPlanetLayerMaterialSettings;
             if (material == null)
                 return 0;
-            float heightGrowth = material.HeightRequirements.Evaluate(heightSum);
+            float heightGrowth = material.HeightRequirements.Evaluate(_transformer.Revert(heightSum) * 2 - 1);
 
             PlanetMaterialLayerData topLayer = layers[layers.Count - 1];
             float portion = 0;
@@ -56,7 +58,7 @@ namespace SBaier.Master
             }
             portion /= portionSum;
 
-            return heightGrowth * portion * _maxVegetationLayerThickness;
+            return Mathf.Min(heightGrowth, portion) * _maxVegetationLayerThickness;
         }
 	}
 }

@@ -9,17 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fee03868d0472b045821865ef49e103b, type: 3}
+  m_Script: {fileID: 11500000, guid: b2d0922f8ddfc8e4caedc990505d39e4, type: 3}
   m_Name: JungleGrasPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 41
-  _name: Jungle Gras
+  _iD: 40
+  _name: Gras
   _density: 1
   _frequency: 1
   _baseGradient:
     serializedVersion: 2
-    key0: {r: 0.120031275, g: 0.6784314, b: 0, a: 1}
-    key1: {r: 0.09297639, g: 0.5188679, b: 0, a: 1}
+    key0: {r: 0.480874, g: 0.8018868, b: 0.20173247, a: 1}
+    key1: {r: 0.31148252, g: 0.6792453, b: 0.22855106, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -45,45 +45,54 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  _groundRequirements: {fileID: 11400000, guid: 961b548a49953b44887da26d05ed4edb, type: 2}
+  _groundRequirements: {fileID: 11400000, guid: c9e6dd6b31926ae4581d9cdc85d81558, type: 2}
   _heightRequirements:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
+      time: -1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.5
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.75
       value: 0
-      inSlope: -0.01554053
-      outSlope: -0.01554053
+      inSlope: 0.008054935
+      outSlope: 0.008054935
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.93531704
-      outWeight: 0
+      inWeight: 0.52590054
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      time: 0.05
+      value: 1
+      inSlope: -0.005441053
+      outSlope: -0.005441053
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 1
+      outWeight: 0.3818937
+    - serializedVersion: 3
+      time: 0.25
+      value: 0
+      inSlope: 0.045668103
+      outSlope: 0.045668103
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.86602694
+    - serializedVersion: 3
+      time: 0.97021484
+      value: 0.002029419
+      inSlope: 0.0028177965
+      outSlope: 0.0028177965
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

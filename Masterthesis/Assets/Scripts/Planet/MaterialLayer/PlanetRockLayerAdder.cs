@@ -14,6 +14,7 @@ namespace SBaier.Master
 		private float _maxHullThickness;
 		private float _relativeSeaLevel;
         private float _transformedSeaLevel;
+        private SeaLevelValueTransformer _transformer;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
 		protected override int MaterialIndex => _rockMaterialIndex;
@@ -30,6 +31,7 @@ namespace SBaier.Master
             _maxHullThickness = _planet.Data.Dimensions.MaxHullThickness;
             _relativeSeaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
             _transformedSeaLevel = GetTransformedSeaLevel();
+            _transformer = new SeaLevelValueTransformer(_relativeSeaLevel);
         }
 
 
@@ -49,16 +51,7 @@ namespace SBaier.Master
 
         private float CalculateHeight(float shapeValue)
         {
-            float transformedShape = shapeValue - 0.5f;
-            float factor;
-            if (transformedShape > 0)
-                factor = (1 - _transformedSeaLevel) * transformedShape;
-            else if (transformedShape < 0)
-                factor = (1 + _transformedSeaLevel) * transformedShape;
-            else
-                factor = 0;
-            factor += _relativeSeaLevel;
-            return factor;
+            return _transformer.Transform(shapeValue);
         }
 
 		public new class Parameter : PlanetLayerAdder.Parameter

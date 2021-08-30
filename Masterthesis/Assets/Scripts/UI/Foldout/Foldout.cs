@@ -14,6 +14,7 @@ namespace SBaier.Master
         [SerializeField]
         private bool _foldOutOnStart = true;
         private bool _foldOut = true;
+        public bool FoldOut => _foldOut;
         
         protected virtual void Start()
 		{

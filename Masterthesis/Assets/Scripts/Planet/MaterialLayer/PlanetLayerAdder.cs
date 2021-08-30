@@ -42,17 +42,13 @@ namespace SBaier.Master
         protected void AddLayer(PlanetFace face, int index, float height)
         {
             EvaluationPointData data = face.Data.EvaluationPoints[index];
-            Biome biome = _biomes[data.BiomeID];
-            PlanetLayerMaterialSettings material = biome.GetMeterial(MaterialIndex);
-            if (material == null)
-                return;
             List<short> materials = GetMaterials(data);
             AddLayer(data, LayerState, height, materials);
         }
 
         protected void AddLayer(EvaluationPointData data, PlanetMaterialState state, float height, List<short> materials)
         {
-            if (height <= 0)
+            if (height <= 0 || materials.Count == 0)
                 return;
             List<PlanetMaterialLayerData> layers = data.Layers;
             PlanetMaterialLayerData layer = new PlanetMaterialLayerData(materials, state, height);
@@ -64,7 +60,8 @@ namespace SBaier.Master
             List<short> result = new List<short>();
             Biome biome = _biomes[data.BiomeID];
             PlanetLayerMaterialSettings material = biome.GetMeterial(MaterialIndex);
-            result.Add(_serializer.Serialize(new PlanetLayerMaterial(material.ID, 1f)));
+            if(material != null)
+                result.Add(_serializer.Serialize(new PlanetLayerMaterial(material.ID, 1f)));
             float distanceToInnerBorder = GetDistance(data, data.ContinentalPlateSegmentIndex);
             if (distanceToInnerBorder < _blendDistance)
                 result.AddRange(GetNeighborMaterials(data));
