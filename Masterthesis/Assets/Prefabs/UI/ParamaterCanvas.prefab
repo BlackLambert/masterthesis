@@ -293,6 +293,7 @@ GameObject:
   - component: {fileID: 532847538810212694}
   - component: {fileID: 1495464173853712589}
   - component: {fileID: 3883593300003664897}
+  - component: {fileID: 2630609395108899350}
   m_Layer: 5
   m_Name: RandomizeSeedButton
   m_TagString: Untagged
@@ -437,6 +438,19 @@ MonoBehaviour:
   _seedPanel: {fileID: 1390252867412161969}
   _button: {fileID: 532847538810212694}
   _generateOnStart: 1
+--- !u!114 &2630609395108899350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445216388025272916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07d01146087b1e4fb6b97bedf908255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _textToDisplay: "Erzeugt einen neuen zuf\xE4lligen Seed"
 --- !u!1 &1740302968927484008
 GameObject:
   m_ObjectHideFlags: 0
@@ -2572,6 +2586,7 @@ GameObject:
   - component: {fileID: 5210853994603214029}
   - component: {fileID: 1232373205121732936}
   - component: {fileID: 8877007061337085404}
+  - component: {fileID: 7785631501471626854}
   m_Layer: 5
   m_Name: GenerateButton
   m_TagString: Untagged
@@ -2696,6 +2711,20 @@ MonoBehaviour:
   _planetGenerator: {fileID: 0}
   _parameterMenu: {fileID: 0}
   _button: {fileID: 1232373205121732936}
+--- !u!114 &7785631501471626854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8497998904036941520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07d01146087b1e4fb6b97bedf908255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _textToDisplay: "Generiert einen Planeten in Abh\xE4ngigkeit der gew\xE4hlten Parameter.
+    Dies kann mehrere Sekunde dauern."
 --- !u!114 &1696790296039430841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3185,6 +3214,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: SeedInputFieldPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 4472614025627187735, guid: 19a8ea1a9a914714a9680705bc43b122, type: 3}
+      propertyPath: _textToDisplay
+      value: "Der Seed bestimmt das Aussehen des Planeten. Der gleiche Seed mit den
+        gleichen restlichen Parametern f\xFChrt zum gleichen Planeten. "
+      objectReference: {fileID: 0}
     - target: {fileID: 8015181763868857774, guid: 19a8ea1a9a914714a9680705bc43b122, type: 3}
       propertyPath: m_text
       value: Seed
@@ -3458,6 +3492,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die minimale Bewegungsst\xE4rke der Kontinentalplatten. Sie
+        beeinflusst die Breite und H\xF6he/Tiefe der Gebirge/Schluchten"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
 --- !u!224 &3915988819789082524 stripped
@@ -3605,7 +3644,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900224, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_text
-      value: Berg Breite
+      value: Berg Maximalbreite
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900231, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3727,13 +3766,13 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die maximale Breite von Gebirgsz\xFCgen in Abh\xE4ngigkeit
+        des Atmosph\xE4renradius."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!224 &4022725821537338096 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 507338804124812047}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &242742888495272936 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -3745,6 +3784,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &4022725821537338096 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 507338804124812047}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &538438527389166257
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3995,6 +4039,11 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Breite der \xDCbergangsregion der Schluchten zur Umgebung
+        in Abh\xE4ngigkeit des Atmosph\xE4renradius."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -4265,8 +4314,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die relative H\xF6he des Meerespiegels. Der Meeresspiegel
+        liegt \xFCber dem Erdkern und unter dem Radius der maximalen H\xFClle."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &4254679865480752981 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 851834459733585578}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1118680819040894541 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -4278,11 +4337,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &4254679865480752981 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 851834459733585578}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &970201981714480273
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4534,13 +4588,12 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Bestimmt die Anzahl an Ozeanen auf dem Planeten. Ozeane sind Planetenregionen.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!224 &4444810570111090030 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 970201981714480273}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &658318453607394422 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -4552,6 +4605,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &4444810570111090030 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 970201981714480273}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4444810570111090031 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -4744,16 +4802,15 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Die maximale Temperatur des Planeten. Diese treten am \xC4quator auf."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
 --- !u!1 &2369179831384164056 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 1168964096642221862}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &2369179831384164057 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
   m_PrefabInstance: {fileID: 1168964096642221862}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &1471821716885428161 stripped
@@ -4767,6 +4824,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &2369179831384164057 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 1168964096642221862}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1227441659607858947
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5017,6 +5079,11 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt den Radius der Atmosphere. Dieser liegt immer \xFCber dem
+        maximalen Radius der Planetenh\xFClle."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -5292,8 +5359,17 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Mindesttiefe von Gebirgsz\xFCgen."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &2598307590759884202 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 1501652348380275797}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1189786413536949426 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -5305,11 +5381,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &2598307590759884202 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 1501652348380275797}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1975584935540572388
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5561,8 +5632,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die maximale Breite von Schluchten in Abh\xE4ngigkeit des
+        Atmosph\xE4renradius."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &3148942126824653083 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 1975584935540572388}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2251439871981817859 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -5574,11 +5655,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &3148942126824653083 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 1975584935540572388}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2061822691187856555
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6000,6 +6076,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Mindestbreite von Gebirgsz\xFCgen anteilig vom Maximalwert."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
 --- !u!224 &3391094079651134242 stripped
@@ -6268,6 +6348,10 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Staucht die H\xF6he der Gebirge."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -6538,8 +6622,17 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Bestimmt die Mindestbreite von Schluchten anteilig vom Maximalwert.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &1641472469141248033 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 2746725892848392670}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2470888566045690169 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -6551,11 +6644,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &1641472469141248033 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 2746725892848392670}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3379517891695857181
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6807,8 +6895,19 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Bestimmt die Anzahl der Kontinentalplatten des Planeten. Eine Platte
+        besteht aus mehreren Regionen. An den Kanten der Platten entstehen Gebirge
+        und Schluchten.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &2179618781813018594 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 3379517891695857181}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2179618781813018595 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -6825,11 +6924,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &2179618781813018594 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 3379517891695857181}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3462822305214079509
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7081,13 +7175,12 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Bestimmt die Dauer einer Planetenrotation (ein Tag) in Sekunden.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!224 &60676189403112426 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 3462822305214079509}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &3772435529714856690 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -7099,6 +7192,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &60676189403112426 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 3462822305214079509}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3633557760003423999
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7286,18 +7384,13 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Die minimale Temperatur auf diesem Planeten. Diese treten an den Polen
+        auf.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!1 &195070603151671041 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 3633557760003423999}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &195070603151671040 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 3633557760003423999}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &3907142206007078424 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -7309,6 +7402,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &195070603151671040 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 3633557760003423999}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &195070603151671041 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 3633557760003423999}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3677139417195015306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7438,7 +7541,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900224, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_text
-      value: Blend Faktor
+      value: "\xDCberblendungs Faktor"
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900231, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7559,6 +7662,11 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt wie stark sich Biome \xFCberblenden und somit die Breite des
+        \xDCbergangsstreifens."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -7829,8 +7937,19 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt den Chaos Faktor bei der Verteilung von Segmenten. Ein niedriger
+        Wert f\xFChrt zu einer gleichm\xE4\xDFigern Verteilung und \xE4hnlich gro\xDFen
+        Segmenten."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &270270881186594309 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 3682198235296169978}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &3985056077531524893 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -7842,11 +7961,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &270270881186594309 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 3682198235296169978}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3708388963434226645
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8134,7 +8248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900224, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_text
-      value: Berg Minimalwert
+      value: "Berg Mindesth\xF6he"
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900231, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchorMax.y
@@ -8255,6 +8369,10 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Mindesth\xF6he von Gebirgsz\xFCgen."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -8403,7 +8521,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900224, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_text
-      value: Warp Faktor
+      value: "Unregelm\xE4\xDFigkeits Faktor"
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900231, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchorMax.y
@@ -8524,6 +8642,11 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Beeinflusst die Regelm\xE4\xDFigkeit bzw. Unregelm\xE4\xDFigkeit der
+        Segmentkanten, Gebirge, Schluchten, K\xFCsten usw.."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -8794,8 +8917,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt den Radius des unver\xE4nderlichen Planetenkerns."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!1 &8565623275274428535 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 5045947870086898057}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &8565623275274428534 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 5045947870086898057}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4779100342279860590 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -8807,16 +8944,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &8565623275274428534 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 5045947870086898057}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &8565623275274428535 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 5045947870086898057}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5601460129420081958
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9226,6 +9353,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Bestimmt die Neigung der Planetenachse in Grad.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
 --- !u!224 &7311819805100970492 stripped
@@ -9495,18 +9626,13 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt den maximalen Radius der Planetenh\xFClle. Dieser liegt immer
+        \xFCber dem Planetenkern."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!1 &7590890362643603634 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 6449639238016770380}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &7590890362643603635 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 6449639238016770380}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6761504057242415531 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -9518,6 +9644,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &7590890362643603635 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 6449639238016770380}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7590890362643603634 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 6449639238016770380}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7005961647397637002
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9769,13 +9905,12 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: Staucht die Tiefe der Schluchten.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!224 &5900796167805094517 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 7005961647397637002}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &7308819194622466925 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -9787,6 +9922,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &5900796167805094517 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 7005961647397637002}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8027631633290825734
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10208,11 +10348,16 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Anzahl der Kontinente. Ein Kontinent ist ein zusammenh\xE4ngende
+        Landmasse. Kontinente sind Planetenregionen."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!224 &4694336323774794406 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!1 &4694336323774794407 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
   m_PrefabInstance: {fileID: 8213536740110535513}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8478114875645254590 stripped
@@ -10226,9 +10371,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &4694336323774794407 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381630, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+--- !u!224 &4694336323774794406 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
   m_PrefabInstance: {fileID: 8213536740110535513}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8266037232379112342
@@ -10481,6 +10626,12 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Anzahl der Planetensegmente. Jedem Segment wird ein Biome
+        und eine Planetenregion zugeordnet. Die Position der Segmente wird zuf\xE4llig
+        gew\xE4hlt."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -10787,7 +10938,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900224, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_text
-      value: Berg Blendfaktor
+      value: "Berg \xDCbergangsfaktor"
       objectReference: {fileID: 0}
     - target: {fileID: 3520119625531900231, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchorMax.y
@@ -10909,13 +11060,13 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Breite der \xDCbergangsregion des Gebirgszugs zur Umgebung
+        in Abh\xE4ngigkeit des Atmosph\xE4renradius."
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
---- !u!224 &5033541054572417636 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
-  m_PrefabInstance: {fileID: 8431654178946126747}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &8167076057101845372 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 311883803253723367, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
@@ -10927,6 +11078,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c08e36f95e4ae643ac7d81cff71eb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &5033541054572417636 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3520119625237381631, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+  m_PrefabInstance: {fileID: 8431654178946126747}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8956968428732336100
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11173,6 +11329,11 @@ PrefabInstance:
     - target: {fileID: 8247862336955835562, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9094444136560413940, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
+      propertyPath: _textToDisplay
+      value: "Bestimmt die Anzahl der Unterteilungen der Planetenoberfl\xE4che. H\xF6here
+        Werte f\xFChren zu einer feineren Oberfl\xE4che."
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5531b5a8ead62442932a0c047a1232a, type: 3}
