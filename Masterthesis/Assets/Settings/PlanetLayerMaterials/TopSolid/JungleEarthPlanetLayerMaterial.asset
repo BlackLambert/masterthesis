@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: JungleEarthPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 25
-  _name: Jungle Earth
+  _name: Dschungelerde
   _density: 0.3
   _frequency: 1
   _imageColor: {r: 0.34901962, g: 0.19215687, b: 0.07450981, a: 1}

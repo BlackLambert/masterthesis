@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AirPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 0
-  _name: Air
+  _name: Luft
   _density: 0
   _frequency: 1
   _imageColor: {r: 0.65723264, g: 0.96992266, b: 1, a: 1}

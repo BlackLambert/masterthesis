@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: IcedEarthPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 24
-  _name: Iced Earth
+  _name: Gefrorene Erde
   _density: 0.4
   _frequency: 1
   _imageColor: {r: 0.48235294, g: 0.42745098, b: 0.38431373, a: 1}

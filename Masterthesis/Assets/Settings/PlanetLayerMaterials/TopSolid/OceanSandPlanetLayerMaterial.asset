@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OceanSandPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 22
-  _name: OceanSand
+  _name: Meeressand
   _density: 0.15
   _frequency: 1
   _imageColor: {r: 1, g: 0.96862745, b: 0.8666667, a: 1}

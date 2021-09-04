@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: JungleGrasPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 41
-  _name: JungleGras
+  _name: Dschungelgras
   _density: 1
   _frequency: 1
   _imageColor: {r: 0.06666667, g: 0.43529412, b: 0.12941177, a: 1}

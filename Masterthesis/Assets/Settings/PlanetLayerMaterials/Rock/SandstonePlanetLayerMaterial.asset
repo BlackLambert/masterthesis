@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SandstonePlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 31
-  _name: Sandstone
+  _name: Sandstein
   _density: 1
   _frequency: 1
   _imageColor: {r: 0.8784314, g: 0.6862745, b: 0.36862746, a: 1}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GranitePlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 30
-  _name: Granite
+  _name: Granit
   _density: 1
   _frequency: 1
   _imageColor: {r: 0.36862746, g: 0.36862746, b: 0.36862746, a: 1}

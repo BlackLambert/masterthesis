@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: SnowPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 23
-  _name: Snow
+  _name: Schnee
   _density: 0.22
   _frequency: 1
+  _imageColor: {r: 1, g: 1, b: 1, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WaterPlanetLayerMaterial
   m_EditorClassIdentifier: 
   _iD: 11
-  _name: Water
+  _name: Wasser
   _density: 0
   _frequency: 1
   _imageColor: {r: 0.28627452, g: 0.6431373, b: 0.99215686, a: 1}
