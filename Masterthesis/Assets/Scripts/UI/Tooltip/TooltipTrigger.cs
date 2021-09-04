@@ -55,7 +55,6 @@ namespace SBaier.Master
 		{
             _shown = true;
 			_tooltip.Show(_textToDisplay, Input.mousePosition);
-			Debug.Log("Show");
 		}
 
 		private void ResetValues()

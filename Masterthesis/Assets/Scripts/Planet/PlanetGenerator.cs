@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 using Zenject;
 
@@ -6,7 +7,8 @@ namespace SBaier.Master
 {
     public class PlanetGenerator : MonoBehaviour
     {
-        [Header("Planet Body")]
+		private const float _minimalCameraDistance = 1f;
+		[Header("Planet Body")]
         [SerializeField]
         private IcosahedronGeneratorSettings _meshGeneratorSettings;
 
@@ -44,6 +46,8 @@ namespace SBaier.Master
         private PlanetLayerMaterializer _layerMaterializer;
 		private EvaluationPointDatasInitializer _evaluationPointDatasInitializer;
 		private PlanetColorizer _colorizer;
+		private CameraFocalDistanceController _focalDistanceController;
+
 		private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
@@ -65,7 +69,8 @@ namespace SBaier.Master
             BiomeFactory biomeFactory,
             PlanetLayerMaterializer layerMaterializer,
             EvaluationPointDatasInitializer evaluationPointDatasInitializer,
-            PlanetColorizer colorizer)
+            PlanetColorizer colorizer,
+            CameraFocalDistanceController focalDistanceController)
 		{
             _basicPlanetFactory = basicPlanetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
@@ -74,6 +79,7 @@ namespace SBaier.Master
             _layerMaterializer = layerMaterializer;
             _evaluationPointDatasInitializer = evaluationPointDatasInitializer;
             _colorizer = colorizer;
+            _focalDistanceController = focalDistanceController;
 
             _biomes = biomeFactory.Create(_biomeSettings);
         }
@@ -89,6 +95,7 @@ namespace SBaier.Master
 			Materialize(parameter);
 			_planet.UpdateMesh();
 			SetVertexColors();
+            UpdateCamera();
 		}
 
 		private void Materialize(Parameter parameter)
@@ -210,6 +217,12 @@ namespace SBaier.Master
                 _layerMaterialGradientNoise
             ));
         }
+
+        private void UpdateCamera()
+        {
+            _focalDistanceController.SetMinDistance(_parameter.Dimensions.HullMaxRadius + _minimalCameraDistance);
+
+		}
 
 
         public class Parameter
