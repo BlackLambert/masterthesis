@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8299501556703996723}
   - component: {fileID: 3263581387963589451}
   - component: {fileID: 3463274806638300692}
-  - component: {fileID: 1729609313010964977}
   m_Layer: 0
   m_Name: AtmoSphere
   m_TagString: Untagged
@@ -83,19 +82,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1729609313010964977
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1615098812109389841}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4787082702149312272
 GameObject:
   m_ObjectHideFlags: 0

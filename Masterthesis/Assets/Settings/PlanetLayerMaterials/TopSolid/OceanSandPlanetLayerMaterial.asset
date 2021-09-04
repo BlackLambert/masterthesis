@@ -16,6 +16,7 @@ MonoBehaviour:
   _name: OceanSand
   _density: 0.15
   _frequency: 1
+  _imageColor: {r: 1, g: 0.96862745, b: 0.8666667, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0.96728545, b: 0.86477983, a: 1}

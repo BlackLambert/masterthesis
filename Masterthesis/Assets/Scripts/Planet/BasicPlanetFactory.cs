@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,8 @@ namespace SBaier.Master
             MeshFaceSeparator faceSeparator,
             SphereMeshFormer meshFormer,
             MeshSubdivider subdivider,
-            Planet.Factory planetFactory)
+            Planet.Factory planetFactory
+            )
 		{
             _faceSeparator = faceSeparator;
             _meshFormer = meshFormer;
@@ -103,23 +105,33 @@ namespace SBaier.Master
 
         private PlanetData CreatePlanetData(Parameter parameter)
         {
-            return new PlanetData(parameter.Dimensions, parameter.TemperatureSpectrum, parameter.AxisData, parameter.Seed);
+            return new PlanetData(parameter.Dimensions, parameter.TemperatureSpectrum, parameter.AxisData, parameter.Seed, CreateIDToMaterial(parameter.Materials));
         }
 
-        public class Parameter
+		private Dictionary<short, PlanetLayerMaterialSettings> CreateIDToMaterial(PlanetLayerMaterialSettings[] materials)
+		{
+            Dictionary<short, PlanetLayerMaterialSettings> result = new Dictionary<short, PlanetLayerMaterialSettings>();
+            foreach (PlanetLayerMaterialSettings material in materials)
+                result.Add(material.ID, material);
+            return result;
+        }
+
+		public class Parameter
         {
 
             public Parameter(PlanetDimensions dimensions,
                 TemperatureSpectrum temperatureSpectrum,
                 PlanetAxisData axisData,
                 int subdivisions, 
-                Seed seed)
+                Seed seed,
+                PlanetLayerMaterialSettings[] materials)
 			{
 				Dimensions = dimensions;
 				TemperatureSpectrum = temperatureSpectrum;
 				AxisData = axisData;
 				Subdivisions = subdivisions;
 				Seed = seed;
+				Materials = materials;
 			}
 
 			public PlanetDimensions Dimensions { get; }
@@ -127,6 +139,7 @@ namespace SBaier.Master
 			public PlanetAxisData AxisData { get; }
 			public int Subdivisions { get; }
 			public Seed Seed { get; }
+			public PlanetLayerMaterialSettings[] Materials { get; }
 		}
     }
 }

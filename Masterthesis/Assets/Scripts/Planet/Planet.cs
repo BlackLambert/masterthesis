@@ -15,14 +15,13 @@ namespace SBaier.Master
 
         public PlanetFace[] Faces { get; private set; }
         public PlanetData Data { get; private set; }
-        public float AtmosphereRadius => _atmosphereRadius;
-        private float _atmosphereRadius;
+        public float AtmosphereRadius { get; private set; }
 
         [Inject]
         public void Construct(PlanetData data)
 		{
             Data = data;
-            _atmosphereRadius = data.Dimensions.AtmosphereRadius;
+            AtmosphereRadius = data.Dimensions.AtmosphereRadius;
             UpdateAtmosphere();
         }
 
@@ -50,7 +49,7 @@ namespace SBaier.Master
 
         private void UpdateAtmosphere()
         {
-            _atmoSphere.localScale = Vector3.one.FastMultiply(_atmosphereRadius * 2);
+            _atmoSphere.localScale = Vector3.one.FastMultiply(AtmosphereRadius * 2);
         }
 
         private void AttatchFaces()
@@ -73,8 +72,8 @@ namespace SBaier.Master
 
         public float GetDistanceOnSurface(Vector3 p0, Vector3 p1)
 		{
-            p0 = p0.normalized.FastMultiply(_atmosphereRadius);
-            p1 = p1.normalized.FastMultiply(_atmosphereRadius);
+            p0 = p0.normalized.FastMultiply(AtmosphereRadius);
+            p1 = p1.normalized.FastMultiply(AtmosphereRadius);
             return p0.FastSubstract(p1).magnitude;
         }
 

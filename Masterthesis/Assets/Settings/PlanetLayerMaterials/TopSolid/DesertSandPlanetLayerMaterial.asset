@@ -16,6 +16,7 @@ MonoBehaviour:
   _name: DesertSand
   _density: 0.15
   _frequency: 1
+  _imageColor: {r: 0.81960785, g: 0.7607843, b: 0.5764706, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.8207547, g: 0.75949967, b: 0.5781416, a: 1}

@@ -16,6 +16,7 @@ MonoBehaviour:
   _name: Earth
   _density: 0.3
   _frequency: 1
+  _imageColor: {r: 0.40392157, g: 0.25882354, b: 0.14901961, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.4056604, g: 0.2584126, b: 0.14797673, a: 1}

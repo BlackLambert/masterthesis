@@ -24,6 +24,10 @@ namespace SBaier.Master
         private int _frequency = 1;
         public int Frequency => _frequency;
 
+        [SerializeField]
+        private Color _imageColor = Color.white;
+        public Color ImageColor => _imageColor;
+
         public abstract PlanetMaterialState State { get; }
     }
 }

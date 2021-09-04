@@ -16,6 +16,7 @@ MonoBehaviour:
   _name: Gras
   _density: 1
   _frequency: 1
+  _imageColor: {r: 0.30980393, g: 0.6784314, b: 0.22745098, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.480874, g: 0.8018868, b: 0.20173247, a: 1}

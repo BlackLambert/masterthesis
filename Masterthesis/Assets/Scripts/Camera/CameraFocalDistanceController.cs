@@ -8,7 +8,8 @@ namespace SBaier.Master
 {
     public class CameraFocalDistanceController : MonoBehaviour
     {
-        [SerializeField]
+		private const int _uILayer = 5;
+		[SerializeField]
         private Transform _cameraTransform;
         [SerializeField]
         private float _maxDistance = 30f;
@@ -26,8 +27,7 @@ namespace SBaier.Master
 
         protected virtual void Update()
 		{
-            if (Input.mouseScrollDelta.sqrMagnitude == 0 ||
-                EventSystem.current.IsPointerOverGameObject())
+            if (Input.mouseScrollDelta.sqrMagnitude == 0)
                 return;
             UpdatePosition(Input.mouseScrollDelta.y);
 		}
@@ -40,7 +40,7 @@ namespace SBaier.Master
             _cameraTransform.localPosition = new Vector3(formerPos.x, formerPos.y, valueZ);
         }
 
-		internal void SetMinDistance(float value)
+		public void SetMinDistance(float value)
 		{
             if (_minDistance > _maxDistance)
                 throw new ArgumentException();

@@ -15,6 +15,8 @@ MonoBehaviour:
   _iD: 10
   _name: Ice
   _density: 1
+  _frequency: 1
+  _imageColor: {r: 0.86477983, g: 0.93161285, b: 1, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}

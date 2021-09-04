@@ -15,6 +15,8 @@ MonoBehaviour:
   _iD: 32
   _name: Granite
   _density: 1
+  _frequency: 1
+  _imageColor: {r: 0.7254902, g: 0.7254902, b: 0.7254902, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.7264151, g: 0.7264151, b: 0.7264151, a: 1}

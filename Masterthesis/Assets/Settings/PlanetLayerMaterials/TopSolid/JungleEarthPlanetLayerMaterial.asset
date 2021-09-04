@@ -16,6 +16,7 @@ MonoBehaviour:
   _name: Jungle Earth
   _density: 0.3
   _frequency: 1
+  _imageColor: {r: 0.34901962, g: 0.19215687, b: 0.07450981, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.3490566, g: 0.19224769, b: 0.074641, a: 1}

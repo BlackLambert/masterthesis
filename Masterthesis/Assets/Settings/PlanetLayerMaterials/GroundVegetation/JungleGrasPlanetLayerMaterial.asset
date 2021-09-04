@@ -16,6 +16,7 @@ MonoBehaviour:
   _name: JungleGras
   _density: 1
   _frequency: 1
+  _imageColor: {r: 0.06666667, g: 0.43529412, b: 0.12941177, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.039575126, g: 0.5471698, b: 0.056167938, a: 1}

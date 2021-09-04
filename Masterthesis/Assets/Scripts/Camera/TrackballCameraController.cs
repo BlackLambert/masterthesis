@@ -8,7 +8,8 @@ namespace SBaier.Master
 {
     public class TrackballCameraController : MonoBehaviour
     {
-        [SerializeField]
+		private const int _uILayer = 5;
+		[SerializeField]
         private Transform _cameraTransform;
         [SerializeField]
         private float _movementFactor = 1;
@@ -25,16 +26,15 @@ namespace SBaier.Master
 
         private void InitFormerPosition()
 		{
-            if (!Input.GetMouseButtonDown(0) ||
-                EventSystem.current.IsPointerOverGameObject())
+           
+            if (!Input.GetMouseButtonDown(0))
                 return;
             _formerPositition = Input.mousePosition;
         }
 
         private void RotateCamera()
 		{
-            if (!Input.GetMouseButton(0) ||
-                EventSystem.current.IsPointerOverGameObject())
+            if (!Input.GetMouseButton(0))
                 return;
             UpdateCameraRotation();
             _formerPositition = Input.mousePosition;
@@ -50,5 +50,5 @@ namespace SBaier.Master
             if (newYAngle <= 180 - _yBorder && newYAngle >= _yBorder)
                 _cameraTransform.Rotate(_cameraTransform.right, yAngle, Space.World);
         }
-	}
+    }
 }

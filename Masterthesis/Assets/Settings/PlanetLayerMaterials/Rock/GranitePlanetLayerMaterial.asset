@@ -15,11 +15,13 @@ MonoBehaviour:
   _iD: 30
   _name: Granite
   _density: 1
+  _frequency: 1
+  _imageColor: {r: 0.36862746, g: 0.36862746, b: 0.36862746, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 1}
     key1: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
-    key2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 0}
+    key2: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}

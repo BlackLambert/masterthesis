@@ -47,8 +47,9 @@ namespace SBaier.Master
 		private EvaluationPointDatasInitializer _evaluationPointDatasInitializer;
 		private PlanetColorizer _colorizer;
 		private CameraFocalDistanceController _focalDistanceController;
+        private PlanetLayerMaterialSettings[] _materials;
 
-		private Noise3D _continentalPlatesWarpingNoise;
+        private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
         private Noise3D _oceansNoise;
@@ -70,7 +71,8 @@ namespace SBaier.Master
             PlanetLayerMaterializer layerMaterializer,
             EvaluationPointDatasInitializer evaluationPointDatasInitializer,
             PlanetColorizer colorizer,
-            CameraFocalDistanceController focalDistanceController)
+            CameraFocalDistanceController focalDistanceController,
+            PlanetLayerMaterialSettings[] materials)
 		{
             _basicPlanetFactory = basicPlanetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
@@ -80,6 +82,7 @@ namespace SBaier.Master
             _evaluationPointDatasInitializer = evaluationPointDatasInitializer;
             _colorizer = colorizer;
             _focalDistanceController = focalDistanceController;
+            _materials = materials;
 
             _biomes = biomeFactory.Create(_biomeSettings);
         }
@@ -150,7 +153,8 @@ namespace SBaier.Master
                 temperature, 
                 axis, 
                 _parameter.Subdivisions, 
-                _parameter.Seed);
+                _parameter.Seed,
+                _materials);
 		}
 
 		private ContinentalPlates CreateContinentalPlates()

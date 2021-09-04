@@ -15,6 +15,8 @@ MonoBehaviour:
   _iD: 11
   _name: Water
   _density: 0
+  _frequency: 1
+  _imageColor: {r: 0.28627452, g: 0.6431373, b: 0.99215686, a: 1}
   _baseGradient:
     serializedVersion: 2
     key0: {r: 0.2865788, g: 0.64153016, b: 0.990566, a: 1}

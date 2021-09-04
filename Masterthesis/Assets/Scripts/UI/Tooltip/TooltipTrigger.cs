@@ -7,7 +7,6 @@ using Zenject;
 
 namespace SBaier.Master
 {
-    [RequireComponent(typeof(RectTransform))]
     public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private const float _secondsTillShow = 1f;

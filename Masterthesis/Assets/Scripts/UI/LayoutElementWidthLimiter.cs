@@ -11,8 +11,6 @@ namespace SBaier.Master
         [SerializeField]
         private int _maxCharacterPerLine = 50;
         [SerializeField]
-        private float _maxWidth = 300;
-        [SerializeField]
         private TextMeshProUGUI _text;
         [SerializeField]
         private LayoutElement _layoutElement;

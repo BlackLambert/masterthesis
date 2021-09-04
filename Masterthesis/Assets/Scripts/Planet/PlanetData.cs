@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace SBaier.Master
 {
@@ -9,17 +10,20 @@ namespace SBaier.Master
 		public PlanetAxisData PlanetAxis { get; }
         public ContinentalPlates ContinentalPlates { get; set; }
 		public Seed Seed { get; }
+        public Dictionary<short, PlanetLayerMaterialSettings> Materials { get; }
 
         public PlanetData(
             PlanetDimensions dimensions,
             TemperatureSpectrum temperatureSpectrum,
             PlanetAxisData planetAxis,
-            Seed seed)
+            Seed seed,
+            Dictionary<short, PlanetLayerMaterialSettings> materials)
 		{
             Dimensions = dimensions;
 			TemperatureSpectrum = temperatureSpectrum;
 			PlanetAxis = planetAxis;
 			Seed = seed;
+            Materials = materials;
         }
 	}
 }

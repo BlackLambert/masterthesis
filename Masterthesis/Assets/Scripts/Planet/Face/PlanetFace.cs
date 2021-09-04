@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Zenject;
 
 namespace SBaier.Master
 {
@@ -17,10 +18,20 @@ namespace SBaier.Master
 		public Transform Base => transform;
 
         public PlanetFaceData Data { get; private set; }
-        private PlanetData _planetData;
-		private Vector3[] _vertexNormalized;
+		public PlanetData PlanetData => _planetData;
 
-        public void Init(PlanetFaceData data, PlanetData planetData)
+		private PlanetData _planetData;
+		private Vector3[] _vertexNormalized;
+		private KDTree<Vector3> _vertexTree;
+		private Vector3BinaryKDTreeFactory _treeFactory;
+
+		[Inject]
+		public void Construct(Vector3BinaryKDTreeFactory treeFactory)
+		{
+			_treeFactory = treeFactory;
+		}
+
+		public void Init(PlanetFaceData data, PlanetData planetData)
 		{
             Data = data;
             _planetData = planetData;
@@ -28,10 +39,11 @@ namespace SBaier.Master
 
 		}
 
-		public void UpdateMesh(Vector3[] vertices, int[] faces)
+		public void UpdateMesh(Vector3[] vertices, int[] faces, KDTree<Vector3> vertexTree)
 		{
 			SharedMesh.vertices = vertices;
 			SharedMesh.triangles = faces;
+			_vertexTree = vertexTree;
 			UpdateNormalizedVertices();
 		}
 
@@ -55,7 +67,8 @@ namespace SBaier.Master
             for (int i = 0; i < vertices.Length; i++)
 				UpdatePosition(vertices, i);
 			SharedMesh.vertices = vertices;
-        }
+			_vertexTree = _treeFactory.Create(vertices);
+		}
 
 		private void UpdatePosition(Vector3[] vertices, int vertexIndex)
 		{
@@ -74,6 +87,11 @@ namespace SBaier.Master
 				return;
 			float layerHeight = layer.Height * _planetData.Dimensions.MaxHullThickness;
 			vertices[vertexIndex] = vertices[vertexIndex].FastAdd(_vertexNormalized[vertexIndex].FastMultiply(layerHeight));
+		}
+
+		public int GetNearestTo(Vector3 point)
+		{
+			return _vertexTree.GetNearestTo(point);
 		}
 	}
 }
