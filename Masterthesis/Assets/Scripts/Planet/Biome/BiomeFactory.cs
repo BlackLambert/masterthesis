@@ -23,12 +23,12 @@ namespace SBaier.Master
 
 		private Biome CreateContinentalBiome(ContinentBiomeSettings settings)
 		{
-			return new ContinentalBiome(settings.RegionType, settings.RockMaterial, settings.TopSolidMaterial, settings.WaterMaterial, settings.AirMaterial, settings.GroundVegetation);
+			return new ContinentalBiome(settings.RegionType, settings.RockMaterial, settings.GroundMaterial, settings.WaterMaterial, settings.AirMaterial, settings.GroundVegetation);
 		}
 
 		private Biome CreateOceanBiome(OceanBiomeSettings settings)
 		{
-			return new OceanBiome(settings.RegionType, settings.RockMaterial, settings.TopSolidMaterial, settings.WaterMaterial, settings.AirMaterial, settings.GroundVegetation);
+			return new OceanBiome(settings.RegionType, settings.RockMaterial, settings.GroundMaterial, settings.WaterMaterial, settings.AirMaterial, settings.GroundVegetation);
 		}
 	}
 }

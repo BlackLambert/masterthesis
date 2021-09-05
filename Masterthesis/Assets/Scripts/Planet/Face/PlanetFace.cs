@@ -85,8 +85,16 @@ namespace SBaier.Master
 			bool layerIsAir = layer.State == PlanetMaterialState.Gas;
 			if (layerIsAir)
 				return;
+			if (!IsLayerActive(layer.MaterialType))
+				return;
 			float layerHeight = layer.Height * _planetData.Dimensions.MaxHullThickness;
 			vertices[vertexIndex] = vertices[vertexIndex].FastAdd(_vertexNormalized[vertexIndex].FastMultiply(layerHeight));
+		}
+
+		private bool IsLayerActive(PlanetMaterialType materialType)
+		{
+			uint maskValue = (uint)materialType;
+			return (PlanetData.LayerBitMask & maskValue) > 0;
 		}
 
 		public int GetNearestTo(Vector3 point)

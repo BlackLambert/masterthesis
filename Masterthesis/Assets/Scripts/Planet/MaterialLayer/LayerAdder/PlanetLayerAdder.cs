@@ -12,6 +12,7 @@ namespace SBaier.Master
 		private PlanetLayerMaterialSerializer _planetLayerMaterialSerializer;
         private BiomeOccurrenceSerializer _biomeOccurrenceSerializer;
         protected abstract PlanetMaterialState LayerState { get; }
+        protected abstract PlanetMaterialType MaterialType { get; }
 
         public PlanetLayerAdder(PlanetLayerMaterialSerializer serializer,
             BiomeOccurrenceSerializer biomeOccurrenceSerializer)
@@ -42,15 +43,15 @@ namespace SBaier.Master
         {
             EvaluationPointData data = face.Data.EvaluationPoints[index];
             List<short> materials = GetMaterials(data);
-            AddLayer(data, LayerState, height, materials);
+            AddLayer(data, height, materials);
         }
 
-        protected void AddLayer(EvaluationPointData data, PlanetMaterialState state, float height, List<short> materials)
+        protected void AddLayer(EvaluationPointData data, float height, List<short> materials)
         {
             if (height <= 0 || materials.Count == 0)
                 return;
             List<PlanetMaterialLayerData> layers = data.Layers;
-            PlanetMaterialLayerData layer = new PlanetMaterialLayerData(materials, state, height);
+            PlanetMaterialLayerData layer = new PlanetMaterialLayerData(materials, LayerState, MaterialType, height);
             layers.Add(layer);
         }
 

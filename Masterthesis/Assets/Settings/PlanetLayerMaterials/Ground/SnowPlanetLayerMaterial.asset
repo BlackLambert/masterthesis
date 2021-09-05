@@ -9,19 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab101f68e2f14984995a365ccba5b34a, type: 3}
-  m_Name: IcedEarthPlanetLayerMaterial
+  m_Script: {fileID: 11500000, guid: ed984943c9a0ae443a667b221d13df64, type: 3}
+  m_Name: SnowPlanetLayerMaterial
   m_EditorClassIdentifier: 
-  _iD: 24
-  _name: Gefrorene Erde
-  _density: 0.4
+  _iD: 35
+  _name: Schnee
+  _density: 0.15
   _frequency: 1
-  _imageColor: {r: 0.48235294, g: 0.42745098, b: 0.38431373, a: 1}
+  _imageColor: {r: 1, g: 1, b: 1, a: 1}
   _baseGradient:
     serializedVersion: 2
-    key0: {r: 0.4811321, g: 0.42733675, b: 0.38430047, a: 1}
-    key1: {r: 0.5, g: 0.3961006, b: 0.3144654, a: 1}
-    key2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 0}
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}
@@ -29,7 +29,7 @@ MonoBehaviour:
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
     ctime1: 65535
-    ctime2: 65535
+    ctime2: 0
     ctime3: 0
     ctime4: 0
     ctime5: 0

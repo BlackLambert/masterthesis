@@ -8,6 +8,7 @@ namespace SBaier.Master
     public class PlanetAirLayerAdder : PlanetLayerAdder
     {
         protected override PlanetMaterialState LayerState => PlanetMaterialState.Gas;
+        protected override PlanetMaterialType MaterialType => PlanetMaterialType.Gas;
 
         public PlanetAirLayerAdder(PlanetLayerMaterialSerializer serializer,
             BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlainBiomeSettings
   m_EditorClassIdentifier: 
   _rockMaterial: {fileID: 11400000, guid: 0cf8273db3008da4ba9ff351997d42f7, type: 2}
-  _topSolidMaterial: {fileID: 11400000, guid: c9e6dd6b31926ae4581d9cdc85d81558, type: 2}
+  _groundMaterial: {fileID: 11400000, guid: c9e6dd6b31926ae4581d9cdc85d81558, type: 2}
   _waterMaterial: {fileID: 11400000, guid: cf32c18627e1de74ebd66c9ac40aad11, type: 2}
   _airMaterial: {fileID: 11400000, guid: 5c71b14f2632f944b994dfc72d938450, type: 2}
   _groundVegetation: {fileID: 11400000, guid: c46995279085e964db616917a02fdf04, type: 2}

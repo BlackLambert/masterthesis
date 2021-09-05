@@ -105,7 +105,23 @@ namespace SBaier.Master
 
         private PlanetData CreatePlanetData(Parameter parameter)
         {
-            return new PlanetData(parameter.Dimensions, parameter.TemperatureSpectrum, parameter.AxisData, parameter.Seed, CreateIDToMaterial(parameter.Materials));
+            PlanetData result = new PlanetData(
+                parameter.Dimensions,
+                parameter.TemperatureSpectrum,
+                parameter.AxisData, 
+                parameter.Seed, 
+                CreateIDToMaterial(parameter.Materials), 
+                parameter.GradientNoise);
+            result.LayerBitMask = CreateLayerBitMask();
+            return result;
+        }
+
+		private uint CreateLayerBitMask()
+		{
+            uint result = 0;
+            foreach (PlanetMaterialType type in Enum.GetValues(typeof(PlanetMaterialType)))
+                result |= (uint)type;
+            return result;
         }
 
 		private Dictionary<short, PlanetLayerMaterialSettings> CreateIDToMaterial(PlanetLayerMaterialSettings[] materials)
@@ -124,7 +140,8 @@ namespace SBaier.Master
                 PlanetAxisData axisData,
                 int subdivisions, 
                 Seed seed,
-                PlanetLayerMaterialSettings[] materials)
+                PlanetLayerMaterialSettings[] materials,
+                Noise3D gradientNoise)
 			{
 				Dimensions = dimensions;
 				TemperatureSpectrum = temperatureSpectrum;
@@ -132,6 +149,7 @@ namespace SBaier.Master
 				Subdivisions = subdivisions;
 				Seed = seed;
 				Materials = materials;
+				GradientNoise = gradientNoise;
 			}
 
 			public PlanetDimensions Dimensions { get; }
@@ -140,6 +158,7 @@ namespace SBaier.Master
 			public int Subdivisions { get; }
 			public Seed Seed { get; }
 			public PlanetLayerMaterialSettings[] Materials { get; }
+			public Noise3D GradientNoise { get; }
 		}
     }
 }

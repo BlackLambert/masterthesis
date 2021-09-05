@@ -14,5 +14,7 @@ namespace SBaier.Master
         [SerializeField]
         private AnimationCurve _heightRequirements;
         public AnimationCurve HeightRequirements => _heightRequirements;
-    }
+
+		public override PlanetMaterialType Type => PlanetMaterialType.Vegetation;
+	}
 }

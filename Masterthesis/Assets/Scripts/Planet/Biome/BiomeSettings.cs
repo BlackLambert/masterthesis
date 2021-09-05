@@ -7,11 +7,11 @@ namespace SBaier.Master
     public abstract class BiomeSettings : ScriptableObject
     {
         [SerializeField]
-        private SolidPlanetLayerMaterialSettings _rockMaterial;
-        public SolidPlanetLayerMaterialSettings RockMaterial => _rockMaterial;
+        private RockPlanetLayerMaterialSettings _rockMaterial;
+        public RockPlanetLayerMaterialSettings RockMaterial => _rockMaterial;
         [SerializeField]
-        private SolidPlanetLayerMaterialSettings _topSolidMaterial;
-        public SolidPlanetLayerMaterialSettings TopSolidMaterial => _topSolidMaterial;
+        private GroundPlanetLayerMaterialSettings _groundMaterial;
+        public GroundPlanetLayerMaterialSettings GroundMaterial => _groundMaterial;
         [SerializeField]
         private LiquidPlanetLayerMaterialSettings _waterMaterial;
         public LiquidPlanetLayerMaterialSettings WaterMaterial => _waterMaterial;

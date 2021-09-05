@@ -29,5 +29,6 @@ namespace SBaier.Master
         public Color ImageColor => _imageColor;
 
         public abstract PlanetMaterialState State { get; }
+        public abstract PlanetMaterialType Type { get; }
     }
 }

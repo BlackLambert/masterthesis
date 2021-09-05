@@ -44,7 +44,7 @@ namespace SBaier.Master
 		private void Init(Parameter parameter)
 		{
 			_planet = parameter.Planet;
-			_gradientNoise = parameter.GradientNoise;
+			_gradientNoise = _planet.Data.GradientNoise;
 		}
 
 		private void UpdateFaceVertexColors(int faceIndex)
@@ -69,12 +69,20 @@ namespace SBaier.Master
 				PlanetMaterialLayerData layerData = data.Layers[i];
 				if (layerData.State == PlanetMaterialState.Gas)
 					continue;
+				if (!IsLayerActive(layerData))
+					continue;
 				Color color = GetBaseColor(layerData, gradientValue);
 				if (i == 0)
 					return color;
 				return GetNextLayerShineThroughColor(color, layerData, data.Layers[i - 1], gradientValue);
 			}
 			throw new InvalidOperationException();
+		}
+
+		private bool IsLayerActive(PlanetMaterialLayerData layerData)
+		{
+			uint maskValue = (uint) layerData.MaterialType;
+			return (_planet.Data.LayerBitMask & maskValue) > 0;
 		}
 
 		private Color GetNextLayerShineThroughColor(Color color, PlanetMaterialLayerData layer, PlanetMaterialLayerData nextLayer, float gradientValue)
@@ -93,7 +101,6 @@ namespace SBaier.Master
 			float weightSum = 0;
 			for (int i = 0; i < count; i++)
 				GetVertexColor(layerData, gradientValue, ref result, ref weightSum, i);
-			
 			return result / weightSum;
 		}
 
@@ -148,16 +155,13 @@ namespace SBaier.Master
 		public class Parameter
 		{
 			public Parameter(
-				Planet planet,
-				Noise3D gradientNoise
+				Planet planet
 			)
 			{
 				Planet = planet;
-				GradientNoise = gradientNoise;
 			}
 
 			public Planet Planet { get; }
-			public Noise3D GradientNoise { get; }
 		}
 	}
 }

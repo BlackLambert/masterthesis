@@ -8,5 +8,6 @@ namespace SBaier.Master
     public class GasPlanetLayerMaterialSettings : PlanetLayerMaterialSettings
     {
         public override PlanetMaterialState State => PlanetMaterialState.Gas;
-    }
+		public override PlanetMaterialType Type => PlanetMaterialType.Gas;
+	}
 }

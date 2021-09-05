@@ -14,8 +14,9 @@ namespace SBaier.Master
         private SeaLevelValueTransformer _transformer;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
+        protected override PlanetMaterialType MaterialType => PlanetMaterialType.Rock;
 
-		public PlanetRockLayerAdder(PlanetLayerMaterialSerializer serializer,
+        public PlanetRockLayerAdder(PlanetLayerMaterialSerializer serializer,
             BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
             base(serializer, biomeOccurrenceSerializer)
 		{

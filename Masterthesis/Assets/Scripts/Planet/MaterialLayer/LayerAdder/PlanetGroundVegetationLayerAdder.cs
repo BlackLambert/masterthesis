@@ -12,8 +12,9 @@ namespace SBaier.Master
         private const float _maxVegetationLayerThickness = 0.02f;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
+		protected override PlanetMaterialType MaterialType => PlanetMaterialType.Vegetation;
 
-        private Biome[] _biomes;
+		private Biome[] _biomes;
         private PlanetLayerMaterialSerializer _planetLayerMaterialSerializer;
         private SeaLevelValueTransformer _transformer;
         private HashSet<PlanetLayerMaterialSettings> _handledGround;

@@ -4,8 +4,7 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    [CreateAssetMenu(fileName = "SolidPlanetLayerMaterial", menuName = "Planet/SolidPlanetLayerMaterial")]
-    public class SolidPlanetLayerMaterialSettings : PlanetLayerMaterialSettings
+    public abstract class SolidPlanetLayerMaterialSettings : PlanetLayerMaterialSettings
     {
         [SerializeField]
         private Gradient _baseGradient = new Gradient();

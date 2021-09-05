@@ -14,8 +14,9 @@ namespace SBaier.Master
         private Biome[] _biomes;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
+        protected override PlanetMaterialType MaterialType => PlanetMaterialType.Ground;
 
-		public PlanetGroundLayerAdder(PlanetLayerMaterialSerializer serializer,
+        public PlanetGroundLayerAdder(PlanetLayerMaterialSerializer serializer,
             BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
             base(serializer, biomeOccurrenceSerializer)
 		{

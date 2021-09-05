@@ -48,6 +48,7 @@ namespace SBaier.Master
 		private PlanetColorizer _colorizer;
 		private CameraFocalDistanceController _focalDistanceController;
         private PlanetLayerMaterialSettings[] _materials;
+        private PlanetLayerTogglePanel _layerTogglePanel;
 
         private Noise3D _continentalPlatesWarpingNoise;
         private Noise3D _mountainsNoise;
@@ -72,7 +73,8 @@ namespace SBaier.Master
             EvaluationPointDatasInitializer evaluationPointDatasInitializer,
             PlanetColorizer colorizer,
             CameraFocalDistanceController focalDistanceController,
-            PlanetLayerMaterialSettings[] materials)
+            PlanetLayerMaterialSettings[] materials,
+            PlanetLayerTogglePanel layerTogglePanel)
 		{
             _basicPlanetFactory = basicPlanetFactory;
             _continentalPlatesFactory = continentalPlatesFactory;
@@ -83,6 +85,7 @@ namespace SBaier.Master
             _colorizer = colorizer;
             _focalDistanceController = focalDistanceController;
             _materials = materials;
+            _layerTogglePanel = layerTogglePanel;
 
             _biomes = biomeFactory.Create(_biomeSettings);
         }
@@ -99,7 +102,9 @@ namespace SBaier.Master
 			_planet.UpdateMesh();
 			SetVertexColors();
             UpdateCamera();
-		}
+            _layerTogglePanel.ResetView();
+            _layerTogglePanel.Show();
+        }
 
 		private void Materialize(Parameter parameter)
 		{
@@ -154,7 +159,8 @@ namespace SBaier.Master
                 axis, 
                 _parameter.Subdivisions, 
                 _parameter.Seed,
-                _materials);
+                _materials,
+                _layerMaterialGradientNoise);
 		}
 
 		private ContinentalPlates CreateContinentalPlates()
@@ -217,8 +223,7 @@ namespace SBaier.Master
         private void SetVertexColors()
         {
             _colorizer.Compute(new PlanetColorizer.Parameter(
-                _planet,
-                _layerMaterialGradientNoise
+                _planet
             ));
         }
 

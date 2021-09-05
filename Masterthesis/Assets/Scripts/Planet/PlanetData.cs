@@ -11,19 +11,23 @@ namespace SBaier.Master
         public ContinentalPlates ContinentalPlates { get; set; }
 		public Seed Seed { get; }
         public Dictionary<short, PlanetLayerMaterialSettings> Materials { get; }
+        public uint LayerBitMask { get; set; }
+        public Noise3D GradientNoise { get; }
 
         public PlanetData(
             PlanetDimensions dimensions,
             TemperatureSpectrum temperatureSpectrum,
             PlanetAxisData planetAxis,
             Seed seed,
-            Dictionary<short, PlanetLayerMaterialSettings> materials)
+            Dictionary<short, PlanetLayerMaterialSettings> materials,
+            Noise3D gradientNoise)
 		{
             Dimensions = dimensions;
 			TemperatureSpectrum = temperatureSpectrum;
 			PlanetAxis = planetAxis;
 			Seed = seed;
             Materials = materials;
+            GradientNoise = gradientNoise;
         }
 	}
 }

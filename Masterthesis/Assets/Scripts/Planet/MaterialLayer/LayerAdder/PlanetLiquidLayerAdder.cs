@@ -10,6 +10,7 @@ namespace SBaier.Master
         private Planet _planet;
 
         protected override PlanetMaterialState LayerState => PlanetMaterialState.Liquid;
+        protected override PlanetMaterialType MaterialType => PlanetMaterialType.Liquid;
 
         public PlanetLiquidLayerAdder(PlanetLayerMaterialSerializer serializer,
             BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
