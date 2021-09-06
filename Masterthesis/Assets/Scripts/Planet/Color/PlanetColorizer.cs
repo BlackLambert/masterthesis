@@ -66,14 +66,15 @@ namespace SBaier.Master
 		{
 			for(int i = data.Layers.Count - 1; i >= 0; i--)
 			{
+				
 				PlanetMaterialLayerData layerData = data.Layers[i];
 				if (layerData.State == PlanetMaterialState.Gas)
-					continue;
-				if (!IsLayerActive(layerData))
 					continue;
 				Color color = GetBaseColor(layerData, gradientValue);
 				if (i == 0)
 					return color;
+				if (!IsLayerActive(layerData))
+					continue;
 				return GetNextLayerShineThroughColor(color, layerData, data.Layers[i - 1], gradientValue);
 			}
 			throw new InvalidOperationException();

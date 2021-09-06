@@ -364,7 +364,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -580,7 +580,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1050308899
 Transform:
   m_ObjectHideFlags: 0
@@ -1132,7 +1132,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.7
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1624,7 +1624,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5401745615139937874, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _amount
-      value: 100
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _delay
@@ -1632,7 +1632,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _maxHeight
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseFactor
@@ -1641,7 +1641,7 @@ PrefabInstance:
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _noiseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: cb437cc63b85af648994e4f29a56e4de, type: 2}
+      objectReference: {fileID: 11400000, guid: 7ea703f4b15ef6d4d98154b9f9bed855, type: 2}
     - target: {fileID: 5656840103399120055, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _startPositionDelta.x
       value: 0.3
@@ -1698,6 +1698,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Noise2DTerrainPlain
       objectReference: {fileID: 0}
+    - target: {fileID: 7041713397155677520, guid: a80340043b233b048a64984c4daeafe2, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e554b7831bf004644b055a8ab4116ef2, type: 2}
     - target: {fileID: 7041713397155677521, guid: a80340043b233b048a64984c4daeafe2, type: 3}
       propertyPath: _size
       value: 2

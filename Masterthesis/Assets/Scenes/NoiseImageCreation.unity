@@ -202,6 +202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _seed: 1234
+  _useRandomSeed: 0
 --- !u!114 &160979198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,12 +244,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: 87a1147bf29b49c4891974f334294bc5, type: 2}
+  _noiseSettings: {fileID: 11400000, guid: a70f9997021653e489864469960e542c, type: 2}
   _bottomLeft: {x: 0, y: 0}
-  _delta: {x: 0.02, y: 0.02}
-  _imageSize: {x: 1024, y: 1024}
-  _fileName: PerlinNoise2D
-  _filePath: Noise
+  _delta: {x: 0.01, y: 0.01}
+  _imageSize: {x: 512, y: 512}
+  _fileName: LayeredNoise2D
+  _filePath: Noise/Thesis
 --- !u!4 &1051682709
 Transform:
   m_ObjectHideFlags: 0

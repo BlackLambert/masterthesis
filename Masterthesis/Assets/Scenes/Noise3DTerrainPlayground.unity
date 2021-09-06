@@ -547,6 +547,8 @@ GameObject:
   - component: {fileID: 2088114922}
   - component: {fileID: 2088114924}
   - component: {fileID: 2088114925}
+  - component: {fileID: 2088114926}
+  - component: {fileID: 2088114927}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -600,6 +602,8 @@ MonoBehaviour:
   - {fileID: 2088114923}
   - {fileID: 2088114924}
   - {fileID: 2088114925}
+  - {fileID: 2088114926}
+  - {fileID: 2088114927}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -679,6 +683,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 430632df4112028498f23e6d8886f2f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2088114926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088114917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72bb7b314570aae4c941c73d9e048490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2088114927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088114917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77138606812f09949858296ed9a6c8e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5120874627457753911
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -693,7 +721,7 @@ PrefabInstance:
     - target: {fileID: 5120874629129263057, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: _noise
       value: 
-      objectReference: {fileID: 11400000, guid: 10ec1d252904f784bb8aca6023025134, type: 2}
+      objectReference: {fileID: 11400000, guid: 0b44136e0ed39924f8634cd7b7eee824, type: 2}
     - target: {fileID: 5120874629129263059, guid: 51b2141b685275f4fa3d587cec225690, type: 3}
       propertyPath: m_Name
       value: MultiMesh3DNoiseTestPlanet
