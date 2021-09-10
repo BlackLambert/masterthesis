@@ -15,7 +15,7 @@ namespace SBaier.Master
 		private HashSet<Vector2Int> _handledBorders;
 		private PlanetData _data;
 
-		public PlatesShapingLayerFactory(Vector3BinaryKDTreeFactory kdTreeFactory) : base(kdTreeFactory)
+		public PlatesShapingLayerFactory() : base()
 		{
 			_mountainPrimitives = new List<ShapingPrimitive>();
 			_canyonPrimitives = new List<ShapingPrimitive>();

@@ -6,10 +6,6 @@ namespace SBaier.Master
 {
     public class BaseShapingLayerFactory : ShapingLayerFactory
     {
-		public BaseShapingLayerFactory(Vector3BinaryKDTreeFactory kdTreeFactory) : base(kdTreeFactory)
-		{
-		}
-
 		public ShapingLayer Create(Noise3D noise, ShapingLayer.Mode mode)
 		{
             ShapingPrimitive[] primitive = new ShapingPrimitive[] { new AllOverShapingPrimitive(Vector3.zero, 0, 1) };

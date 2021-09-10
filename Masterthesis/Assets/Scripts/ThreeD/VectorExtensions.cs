@@ -42,6 +42,14 @@ namespace SBaier.Master
             return result;
         }
 
+        public static Vector2 FastSubstract(this Vector2 v1, Vector2 v2)
+		{
+            Vector2 result;
+            result.x = v1.x - v2.x;
+            result.y = v1.y - v2.y;
+            return result;
+        }
+
         public static Vector2 FastMultiply(this Vector2 v1, int s)
 		{
             Vector2 result;

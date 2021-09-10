@@ -12,6 +12,7 @@ namespace SBaier.Master
 		public float BlendArea { get; }
 		public float Weight { get; }
 		public abstract float MaxAreaOfEffect { get; }
+		public abstract float MaxAreaOfEffectSqr { get; }
 
 		public ShapingPrimitive(Vector3 position, float blendArea, float weight)
 		{

@@ -16,7 +16,7 @@ namespace SBaier.Master
         List<ShapingPrimitive> _oceanPrimitives;
         List<ShapingPrimitive> _continentPrimitives;
 
-        public SegmentShapingLayerFactory(Vector3BinaryKDTreeFactory kdTreeFactory) : base(kdTreeFactory)
+        public SegmentShapingLayerFactory() : base()
 		{
             _oceanPrimitives = new List<ShapingPrimitive>();
             _continentPrimitives = new List<ShapingPrimitive>();

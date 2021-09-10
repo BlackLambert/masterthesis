@@ -43,6 +43,8 @@ namespace SBaier.Master
 		[SerializeField]
 		private SliderPanel _warpPanel;
 		[SerializeField]
+		private SliderPanel _warpChaosPanel;
+		[SerializeField]
 		private SliderPanel _blendPanel;
 		[SerializeField]
 		private SliderPanel _sampleEliminationPanel;
@@ -129,12 +131,13 @@ namespace SBaier.Master
 			int oceans = (int)_oceansPanel.Slider.value;
 			int plates = (int)_platesPanel.Slider.value;
 			float warpFactor = _warpPanel.Slider.value;
+			float warpChaosFactor = _warpChaosPanel.Slider.value;
 			float blendFactor = _blendPanel.Slider.value;
 			float sampleEliminationFactor = _sampleEliminationPanel.Slider.value;
 			sampleEliminationFactor = 1 + (1 - sampleEliminationFactor) * _maximalSampleEliminationFactor;
 			float platesMinFoce = _platesMinForcePanel.Slider.value;
 			ContinentalPlatesParameter continentalPlatesParameter =
-				new ContinentalPlatesParameter(plateSegments, contients, oceans, plates, warpFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
+				new ContinentalPlatesParameter(plateSegments, contients, oceans, plates, warpFactor, warpChaosFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
 			return continentalPlatesParameter;
 		}
 

@@ -13,44 +13,38 @@ namespace SBaier.Master
 		public int VertexCount => _meshFilter.sharedMesh.vertexCount;
 		public Vector3[] Vertices => _meshFilter.sharedMesh.vertices;
 		public Vector3[] Normals => _meshFilter.sharedMesh.normals;
+		public Vector3[] WarpedVertices { get; private set; }
+		public KDTree<Vector3> WarpedVertexTree { get; private set; }
 
 
 		public Transform Base => transform;
 
         public PlanetFaceData Data { get; private set; }
-		public PlanetData PlanetData => _planetData;
+		public PlanetData PlanetData { get; private set; }
 
-		private PlanetData _planetData;
 		private Vector3[] _vertexNormalized;
 		private KDTree<Vector3> _vertexTree;
-		private Vector3BinaryKDTreeFactory _treeFactory;
 
-		[Inject]
-		public void Construct(Vector3BinaryKDTreeFactory treeFactory)
-		{
-			_treeFactory = treeFactory;
-		}
-
-		public void Init(PlanetFaceData data, PlanetData planetData)
+		public void Init(PlanetFaceData data, PlanetData planetData, KDTree<Vector3> vertexTree)
 		{
             Data = data;
-            _planetData = planetData;
-			UpdateNormalizedVertices();
-
-		}
-
-		public void UpdateMesh(Vector3[] vertices, int[] faces, KDTree<Vector3> vertexTree)
-		{
-			SharedMesh.vertices = vertices;
-			SharedMesh.triangles = faces;
+            PlanetData = planetData;
 			_vertexTree = vertexTree;
 			UpdateNormalizedVertices();
 		}
 
-		internal void Destruct()
+		public void Destruct()
 		{
 			GameObject.Destroy(SharedMesh);
 			Destroy(gameObject);
+		}
+
+		public void SetWarpedVertices(Vector3[] vertices, KDTree<Vector3> warpedVertexTree)
+		{
+			if (vertices.Length != VertexCount)
+				throw new ArgumentException();
+			WarpedVertices = vertices;
+			WarpedVertexTree = warpedVertexTree;
 		}
 
 		private void UpdateNormalizedVertices()
@@ -67,34 +61,28 @@ namespace SBaier.Master
             for (int i = 0; i < vertices.Length; i++)
 				UpdatePosition(vertices, i);
 			SharedMesh.vertices = vertices;
-			_vertexTree = _treeFactory.Create(vertices);
 		}
 
 		private void UpdatePosition(Vector3[] vertices, int vertexIndex)
 		{
-			Vector3 evaluationPoint = _vertexNormalized[vertexIndex].FastMultiply(_planetData.Dimensions.KernelRadius);
-			vertices[vertexIndex] = evaluationPoint;
 			EvaluationPointData data = Data.EvaluationPoints[vertexIndex];
 			int layersCount = data.Layers.Count;
+			float relativeHeight = 0;
 			for (int i = 0; i < layersCount; i++)
-				AddLayerHeight(vertices, vertexIndex, data.Layers[i]);
+				relativeHeight += GetLayerHeight(data.Layers[i]);
+			PlanetDimensions dimensions = PlanetData.Dimensions;
+			float height = dimensions.KernelRadius + dimensions.MaxHullThickness * relativeHeight;
+			vertices[vertexIndex] = _vertexNormalized[vertexIndex].FastMultiply(height);
 		}
 
-		private void AddLayerHeight(Vector3[] vertices, int vertexIndex, PlanetMaterialLayerData layer)
+		private float GetLayerHeight(PlanetMaterialLayerData layer)
 		{
+			if (!PlanetData.IsLayerActive(layer.MaterialType))
+				return 0;
 			bool layerIsAir = layer.State == PlanetMaterialState.Gas;
 			if (layerIsAir)
-				return;
-			if (!IsLayerActive(layer.MaterialType))
-				return;
-			float layerHeight = layer.Height * _planetData.Dimensions.MaxHullThickness;
-			vertices[vertexIndex] = vertices[vertexIndex].FastAdd(_vertexNormalized[vertexIndex].FastMultiply(layerHeight));
-		}
-
-		private bool IsLayerActive(PlanetMaterialType materialType)
-		{
-			uint maskValue = (uint)materialType;
-			return (PlanetData.LayerBitMask & maskValue) > 0;
+				return 0;
+			return layer.Height;
 		}
 
 		public int GetNearestTo(Vector3 point)

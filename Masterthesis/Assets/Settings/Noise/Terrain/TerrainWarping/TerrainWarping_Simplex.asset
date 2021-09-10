@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: TerrainWarping_Simplex
   m_EditorClassIdentifier: 
   _weight: 1
-  _frequencyFactor: 0.33
+  _frequencyFactor: 0.5

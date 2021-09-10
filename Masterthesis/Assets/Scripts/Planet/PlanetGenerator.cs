@@ -176,6 +176,7 @@ namespace SBaier.Master
                 _planet, 
                 _continentalPlatesWarpingNoise, 
                 _parameter.ContinentalPlatesParameter.WarpFactor,
+                _parameter.ContinentalPlatesParameter.WarpChaosFactor,
                 _biomes,
                 _parameter.ContinentalPlatesParameter.BlendFactor * _planet.AtmosphereRadius);
         }

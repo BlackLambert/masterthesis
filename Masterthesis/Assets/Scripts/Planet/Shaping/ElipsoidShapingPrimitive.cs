@@ -16,7 +16,10 @@ namespace SBaier.Master
 
 		private float _focusDistance;
 
-		public override float MaxAreaOfEffect { get; }
+		public override float MaxAreaOfEffect => _maxAreaOfEffect;
+		private float _maxAreaOfEffect;
+		public override float MaxAreaOfEffectSqr => _maxAreaOfEffectSqr;
+		private float _maxAreaOfEffectSqr;
 
 		public ElipsoidShapingPrimitive(Vector3 position, Vector3 stretchDirection, float min, float max, float blendArea, float weight) : 
 			base(position, blendArea, weight)
@@ -24,7 +27,7 @@ namespace SBaier.Master
 			ValidateMinMax(min, max);
 			ValidateStretchDirection(stretchDirection);
 			Init(position, stretchDirection, min, max, blendArea);
-			MaxAreaOfEffect = max / 2;
+			
 			
 		}
 
@@ -46,9 +49,12 @@ namespace SBaier.Master
 			_kernelFocus0 = foci[0];
 			_kernelFocus1 = foci[1];
 			_kernelFocusDistance = CalculateFocusDistance(_kernelFocus0, position, min);
-			_areaOfEffectFocusDistance = CalculateFocusDistance(_kernelFocus0, position, min + blendArea * _blendAreaFactor);
+			float blendValue = blendArea * _blendAreaFactor;
+			_areaOfEffectFocusDistance = CalculateFocusDistance(_kernelFocus0, position, min + blendValue);
 			_distanceDelta = _areaOfEffectFocusDistance - _kernelFocusDistance;
 			_normal = CreateNormal();
+			_maxAreaOfEffect = max / 2 + blendValue;
+			_maxAreaOfEffectSqr = _maxAreaOfEffect * _maxAreaOfEffect;
 		}
 
 		private Vector3 CreateNormal()

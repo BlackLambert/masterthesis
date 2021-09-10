@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _weight: 0.65
   _frequencyFactor: 1
-  _octavesCount: 5
+  _octavesCount: 3
   _baseNoise: {fileID: 11400000, guid: ffd638f786bd7ea4c87fcb988838e7c4, type: 2}

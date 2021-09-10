@@ -13,30 +13,24 @@ namespace SBaier.Master
 
 		private int ShapingLayersAmount => _shapingLayers.Length;
 
-		public PlanetShaper(ShapingLayer[] shapingLayers, float oceanLevel)
+		public PlanetShaper(ShapingLayer[] shapingLayers)
 		{
 			_shapingLayers = shapingLayers;
 		}
 
-		public float[] Shape(EvaluationPointData[] pointsData)
+		public float[] Shape(PlanetFace face)
 		{
-			_pointsAmount = pointsData.Length;
-			EvaluatePoints(pointsData);
+			_pointsAmount = face.Data.EvaluationPoints.Length;
+			EvaluatePoints(face);
 			CalculateResult();
 			return _result;
 		}
 
-		private void EvaluatePoints(EvaluationPointData[] pointsData)
+		private void EvaluatePoints(PlanetFace face)
 		{
 			_evaluationResults = new ShapingLayer.Result[ShapingLayersAmount];
 			for (int i = 0; i < ShapingLayersAmount; i++)
-				_evaluationResults[i] = EvaluatePoints(pointsData, _shapingLayers[i]);
-		}
-
-		private ShapingLayer.Result EvaluatePoints(EvaluationPointData[] pointsData, ShapingLayer layer)
-		{
-			Vector3[] warpedVertices = pointsData.Select(d => d.WarpedPoint).ToArray();
-			return layer.Evaluate(warpedVertices);
+				_evaluationResults[i] = _shapingLayers[i].Evaluate(face.WarpedVertices, face.WarpedVertexTree);
 		}
 
 		private void CalculateResult()

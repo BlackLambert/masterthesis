@@ -14,6 +14,8 @@ namespace SBaier.Master
 
 		public override float MaxAreaOfEffect => float.MaxValue;
 
+		public override float MaxAreaOfEffectSqr => float.MaxValue;
+
 		protected override float GetBlendedValue(Vector3 point)
 		{
 			return 1;

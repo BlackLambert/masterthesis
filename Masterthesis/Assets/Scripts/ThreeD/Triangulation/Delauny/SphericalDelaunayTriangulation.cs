@@ -38,9 +38,10 @@ namespace SBaier.Master
 			HashSet<int> result = new HashSet<int>();
 			foreach (Triangle triangle in Result)
 			{
-				result.Add(triangle.VertexIndices[0]);
-				result.Add(triangle.VertexIndices[1]);
-				result.Add(triangle.VertexIndices[2]);
+				int[] corners = triangle.VertexIndices;
+				result.Add(corners[0]);
+				result.Add(corners[1]);
+				result.Add(corners[2]);
 			}
 			return result;
 		}

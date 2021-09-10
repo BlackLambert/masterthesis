@@ -12,12 +12,14 @@ namespace SBaier.Master
         private SphereMeshFormer _meshFormer;
         private MeshSubdivider _subdivider;
         private Planet.Factory _planetFactory;
+        private Vector3BinaryKDTreeFactory _treeFactory;
 
         public BasicPlanetFactory(IcosahedronGenerator meshGenerator,
             MeshFaceSeparator faceSeparator,
             SphereMeshFormer meshFormer,
             MeshSubdivider subdivider,
-            Planet.Factory planetFactory
+            Planet.Factory planetFactory,
+            Vector3BinaryKDTreeFactory treeFactory
             )
 		{
             _faceSeparator = faceSeparator;
@@ -25,6 +27,7 @@ namespace SBaier.Master
             _subdivider = subdivider;
             _planetFactory = planetFactory;
             _icosahedronGenerator = meshGenerator;
+            _treeFactory = treeFactory;
         }
 
         public Planet Create(Parameter parameter)
@@ -72,7 +75,8 @@ namespace SBaier.Master
         {
             EvaluationPointData[] evaluationPointsData = CreateEvaluationPointsData(face);
             PlanetFaceData data = new PlanetFaceData(evaluationPointsData);
-            face.Init(data, planetData);
+            KDTree<Vector3> tree = _treeFactory.Create(face.Vertices);
+            face.Init(data, planetData, tree);
         }
 
         private EvaluationPointData[] CreateEvaluationPointsData(PlanetFace face)
@@ -112,7 +116,7 @@ namespace SBaier.Master
                 parameter.Seed, 
                 CreateIDToMaterial(parameter.Materials), 
                 parameter.GradientNoise);
-            result.LayerBitMask = CreateLayerBitMask();
+            result.SetLayerBitMask(CreateLayerBitMask());
             return result;
         }
 

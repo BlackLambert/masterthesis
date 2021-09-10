@@ -12,11 +12,13 @@ namespace SBaier.Master
 		private PlanetLayerMaterialSettings[] _materials;
 		private readonly PlanetLayerMaterialSerializer _serializer;
 		private const float _maxShineThrough = 0.015f;
-
+		private const float _liquidDepthMax = 0.5f;
 		private Noise3D _gradientNoise;
 		private Planet _planet;
+		private PlanetData _planetData;
+		private float _relativeSeaLevel;
 
-		private Dictionary<byte, PlanetLayerMaterialSettings> _idToMaterial = new Dictionary<byte, PlanetLayerMaterialSettings>();
+		private PlanetLayerMaterialSettings[] _idToMaterial = new PlanetLayerMaterialSettings[byte.MaxValue];
 
 		public PlanetColorizer(
 			PlanetLayerMaterialSerializer serializer,
@@ -31,7 +33,7 @@ namespace SBaier.Master
 		private void CreateIDToMaterial()
 		{
 			foreach (PlanetLayerMaterialSettings material in _materials)
-				_idToMaterial.Add(material.ID, material);
+				_idToMaterial[material.ID] = material;
 		}
 
 		public void Compute(Parameter parameter)
@@ -44,15 +46,17 @@ namespace SBaier.Master
 		private void Init(Parameter parameter)
 		{
 			_planet = parameter.Planet;
+			_planetData = _planet.Data;
 			_gradientNoise = _planet.Data.GradientNoise;
+			_relativeSeaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
 		}
 
 		private void UpdateFaceVertexColors(int faceIndex)
 		{
 			PlanetFace face = _planet.Faces[faceIndex];
 			PlanetFaceData faceData = face.Data;
-			Color[] vertexColors = new Color[face.MeshFilter.sharedMesh.vertexCount];
-			Vector3[] vertices = face.Data.EvaluationPoints.Select(p => p.WarpedPoint).ToArray();
+			Color[] vertexColors = new Color[face.VertexCount];
+			Vector3[] vertices = face.WarpedVertices;
 			float[] gradientNoiseEvaluation = EvaluateGradientNoise(vertices);
 			EvaluationPointData[] evalPoints = faceData.EvaluationPoints;
 
@@ -64,26 +68,20 @@ namespace SBaier.Master
 
 		private Color GetVertexColor(float gradientValue, EvaluationPointData data)
 		{
-			for(int i = data.Layers.Count - 1; i >= 0; i--)
+			List<PlanetMaterialLayerData> layers = data.Layers;
+			int count = layers.Count;
+			for (int i = count - 1; i >= 0; i--)
 			{
-				
-				PlanetMaterialLayerData layerData = data.Layers[i];
+				PlanetMaterialLayerData layerData = layers[i];
+				if (i == 0)
+					return GetBaseColor(layerData, gradientValue);
 				if (layerData.State == PlanetMaterialState.Gas)
 					continue;
-				Color color = GetBaseColor(layerData, gradientValue);
-				if (i == 0)
-					return color;
-				if (!IsLayerActive(layerData))
+				if (!_planetData.IsLayerActive(layerData.MaterialType))
 					continue;
-				return GetNextLayerShineThroughColor(color, layerData, data.Layers[i - 1], gradientValue);
+				return GetNextLayerShineThroughColor(GetBaseColor(layerData, gradientValue), layerData, layers[i - 1], gradientValue);
 			}
 			throw new InvalidOperationException();
-		}
-
-		private bool IsLayerActive(PlanetMaterialLayerData layerData)
-		{
-			uint maskValue = (uint) layerData.MaterialType;
-			return (_planet.Data.LayerBitMask & maskValue) > 0;
 		}
 
 		private Color GetNextLayerShineThroughColor(Color color, PlanetMaterialLayerData layer, PlanetMaterialLayerData nextLayer, float gradientValue)
@@ -111,7 +109,7 @@ namespace SBaier.Master
 			PlanetLayerMaterialSettings material = _idToMaterial[deserializedData.MaterialID];
 			float weight = deserializedData.Portion;
 			Color col = GetVertexColor(layerData, material, gradientValue) * weight;
-			result += col;
+			result = result + col;
 			weightSum += weight;
 		}
 
@@ -136,11 +134,10 @@ namespace SBaier.Master
 
 		private Color CalculateLiquidColor(LiquidPlanetLayerMaterialSettings settings, float height, float gradientNoiseValue)
 		{
-			float depthEvalValue = height / _planet.Data.Dimensions.RelativeSeaLevel;
-			Color depthColor = settings.DepthGradient.Evaluate(depthEvalValue);
+			float depthEvalValue = Mathf.Clamp01( height / _relativeSeaLevel + _liquidDepthMax);
+			Color depthColor = settings.DepthColor;
 			Color baseColor = settings.BaseGradient.Evaluate(gradientNoiseValue);
-			//return depthColor;
-			return (depthColor + baseColor) / 2;
+			return Color.Lerp(baseColor, depthColor, depthEvalValue);
 		}
 
 		private float[] EvaluateGradientNoise(Vector3[] vertices)

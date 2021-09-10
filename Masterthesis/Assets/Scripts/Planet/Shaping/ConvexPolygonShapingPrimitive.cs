@@ -7,8 +7,12 @@ namespace SBaier.Master
 	{
 		private float _epsilon = 5f;
 		private readonly float _angleSumMax = 360f;
+		private float _maxInsideAngle;
 
 		public override float MaxAreaOfEffect { get; }
+
+		public override float MaxAreaOfEffectSqr { get; }
+
 		private PolygonBody _body;
 		private int _polygonIndex;
 		private Vector3 _normal;
@@ -20,6 +24,7 @@ namespace SBaier.Master
 		private bool _inside;
 		private Vector3[] _corners;
 		private Vector3[] _projectedCorners;
+		private Vector3[] _edges;
 
 		public ConvexPolygonShapingPrimitive(PolygonBody body, int polygonIndex, Vector3 position, float blendArea, float weight) : 
 			base(position, blendArea, weight)
@@ -29,9 +34,12 @@ namespace SBaier.Master
 			_corners = _body.GetVertices(_polygonIndex);
 			_center = CalculateCenter(_corners);
 			MaxAreaOfEffect = CalculateMaxAreaOfEffect(_corners, blendArea);
+			MaxAreaOfEffectSqr = MaxAreaOfEffect * MaxAreaOfEffect;
 			_corner0 = _body.GetVertex(_body.GetPolygon( _polygonIndex).VertexIndices[0]); 
 			_normal = _body.GetNormal(_polygonIndex);
 			_projectedCorners = GetProjectedCorners(_corners);
+			_edges = GetEdges(_projectedCorners);
+			_maxInsideAngle = _angleSumMax - _epsilon;
 		}
 
 		private Vector3[] GetProjectedCorners(Vector3[] corners)
@@ -40,6 +48,19 @@ namespace SBaier.Master
 			for (int i = 0; i < corners.Length; i++)
 				result[i] = GetProjectionOnPolygonPlane(corners[i]);
 			return result;
+		}
+
+		private Vector3[] GetEdges(Vector3[] projectedCorners)
+		{
+			Vector3[] edges = new Vector3[projectedCorners.Length];
+			for (int i = 0; i < projectedCorners.Length; i++)
+			{
+				Vector3 c0 = _projectedCorners[i];
+				Vector3 c1 = _projectedCorners[(i + 1) % _projectedCorners.Length];
+				Vector3 edge = c1.FastSubstract(c0);
+				edges[i] = edge;
+			}
+			return edges;
 		}
 
 		protected override void InitEvaluation(Vector3 point)
@@ -109,7 +130,7 @@ namespace SBaier.Master
 				angleSum += angle;
 			}
 
-			return angleSum >= _angleSumMax - _epsilon;
+			return angleSum >= _maxInsideAngle;
 		}
 	}
 }

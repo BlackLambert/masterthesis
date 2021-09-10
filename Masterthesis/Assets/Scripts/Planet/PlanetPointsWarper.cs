@@ -5,11 +5,13 @@ namespace SBaier.Master
 {
     public class PlanetPointsWarper
     {
-        public Noise3D _warpNoise;
+		private const float _maxWarpAngle = 360;
+		public Noise3D _warpNoise;
 
         private Vector3[] _vertices;
         private float _warpFactor;
-        private float _evalRadius;
+		private float _warpChaosFactor;
+		private float _evalRadius;
 
 
         public PlanetPointsWarper(Noise3D warpNoise)
@@ -17,17 +19,18 @@ namespace SBaier.Master
             _warpNoise = warpNoise;
 		}
 
-        public Vector3[] Warp(Vector3[] vertices, float warpFactor, float evalRadius)
+        public Vector3[] Warp(Vector3[] vertices, float warpFactor, float warpChaosFactor, float evalRadius)
 		{
-            Init(vertices, warpFactor, evalRadius);
+            Init(vertices, warpFactor, warpChaosFactor, evalRadius);
             float[] warpValues = WarpContientenalPlateEvaluationPoint();
             return WarpSpherePoints(warpValues);
         }
 
-		private void Init(Vector3[] vertices, float warpFactor, float evalRadius)
+		private void Init(Vector3[] vertices, float warpFactor, float warpChaosFactor, float evalRadius)
 		{
             _vertices = vertices;
             _warpFactor = warpFactor;
+            _warpChaosFactor = warpChaosFactor;
             _evalRadius = evalRadius;
         }
 
@@ -51,14 +54,16 @@ namespace SBaier.Master
 
         private Vector3 WarpSpherePoint(Vector3 vertex, float warpValue)
         {
-            vertex = vertex.normalized * _evalRadius;
-            float dot = Vector3.Dot(vertex.normalized, Vector3.forward);
-            Vector3 crossVector = dot > Mathf.PI / 2 ? Vector3.right : Vector3.forward;
-            Vector3 tangential = Vector3.Cross(vertex, crossVector);
-            Vector3 deltaVector = tangential.normalized * warpValue * _evalRadius * _warpFactor;
-            Quaternion rot = Quaternion.AngleAxis(warpValue * 360, vertex);
-            vertex += rot * deltaVector;
-            return vertex;
+            Vector3 normalized = vertex.normalized;
+            float dot = Vector3.Dot(normalized, Vector3.forward);
+            Vector3 crossVector = dot > 0.5f ? Vector3.right : Vector3.forward;
+            Vector3 tangential = Vector3.Cross(normalized, crossVector);
+            float deltaLength = warpValue * _warpFactor * _evalRadius;
+            Vector3 deltaVector = tangential.FastMultiply(deltaLength);
+            Vector3 result = normalized.FastMultiply(_evalRadius);
+            Quaternion rot = Quaternion.AngleAxis(warpValue * _maxWarpAngle * _warpChaosFactor, result);
+            result = result.FastAdd(rot * deltaVector);
+            return result;
         }
     }
 }

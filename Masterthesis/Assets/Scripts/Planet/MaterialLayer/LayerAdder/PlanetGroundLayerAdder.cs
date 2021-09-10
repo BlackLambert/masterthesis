@@ -30,10 +30,11 @@ namespace SBaier.Master
         protected override void AddLayer(PlanetFace face)
         {
             Vector3[] normals = face.Normals;
+            Vector3[] vertices = face.WarpedVertices;
             for (int i = 0; i < normals.Length; i++)
             {
                 EvaluationPointData data = face.Data.EvaluationPoints[i];
-                AddLayer(face, i, CalculateHeight(data.WarpedPoint, normals[i], GetBiomeOccurrences(data.Biomes)));
+                AddLayer(face, i, CalculateHeight(vertices[i], normals[i], GetBiomeOccurrences(data.Biomes)));
             }
         }
 

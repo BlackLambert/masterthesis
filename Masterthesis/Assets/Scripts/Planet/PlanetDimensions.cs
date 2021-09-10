@@ -15,14 +15,14 @@ namespace SBaier.Master
 			HullMaxRadius = maxHullRadius;
 			RelativeSeaLevel = relativeSeaLevel;
 			AtmosphereRadius = atmosphereRadius;
+			MaxHullThickness = maxHullRadius - kernelRadius;
 		}
 
 		public float KernelRadius { get; }
 		public float HullMaxRadius { get; }
 		public float AtmosphereRadius { get; }
 		public float RelativeSeaLevel { get; }
-		public float MaxHullThickness => HullMaxRadius - KernelRadius;
-		public float SeaLevel => MaxHullThickness * RelativeSeaLevel + KernelRadius;
+		public float MaxHullThickness { get; }
 
 
 		private static void ValidateKernalThickness(float kernelRadius)

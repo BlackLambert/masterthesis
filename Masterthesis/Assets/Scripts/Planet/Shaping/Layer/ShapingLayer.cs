@@ -11,7 +11,6 @@ namespace SBaier.Master
     {
 		private float _maxAreaOfEffect;
 		private float _squaredMaxAreaOfEffect;
-		private KDTree<Vector3> _kDTree;
 
 		public ShapingPrimitive[] _primitives;
 		private bool _hasPrimitves;
@@ -21,28 +20,22 @@ namespace SBaier.Master
 		private float[] _weights;
 		private float[] _evaluatedValues;
 		private Vector3[] _vertices;
+		private KDTree<Vector3> _verticesTree;
 
-		public ShapingLayer(ShapingPrimitive[] primitives, KDTree<Vector3> primitivesTree, Noise3D noise, Mode mode)
+		public ShapingLayer(ShapingPrimitive[] primitives, Noise3D noise, Mode mode)
 		{
 			_primitives = primitives;
 			_hasPrimitves = _primitives.Length > 0;
 			_noise = noise;
-			_kDTree = primitivesTree;
 			ShapingMode = mode;
-			_maxAreaOfEffect = GetMaxAreaOfEffect();
 			_squaredMaxAreaOfEffect = _maxAreaOfEffect * _maxAreaOfEffect;
 		}
 
-		private float GetMaxAreaOfEffect()
-		{
-			return _primitives.Length > 0 ? _primitives.Max(p => p.MaxAreaOfEffect) : 0;
-		}
-
-		public Result Evaluate(Vector3[] vertices)
+		public Result Evaluate(Vector3[] vertices, KDTree<Vector3> tree)
 		{
 			if (!_hasPrimitves)
 				return CreateEmptyResult(vertices.Length);
-			Init(vertices);
+			Init(vertices, tree);
 			return CreateResult();
 		}
 
@@ -51,10 +44,11 @@ namespace SBaier.Master
 			return new Result(new float[verticesAmount], new float[verticesAmount]);
 		}
 
-		private void Init(Vector3[] vertices)
+		private void Init(Vector3[] vertices, KDTree<Vector3> tree)
 		{
 			_weights = new float[vertices.Length];
 			_vertices = vertices;
+			_verticesTree = tree;
 		}
 
 		private Result CreateResult()
@@ -75,28 +69,14 @@ namespace SBaier.Master
 
 		private void CalculateWeight()
 		{
-			int[] nearestPrimitive = _kDTree.GetNearestTo(_vertices);
-			for (int i = 0; i < nearestPrimitive.Length; i++)
+			for (int i = 0; i < _primitives.Length; i++)
 			{
-				Vector3 vertex = _vertices[i];
-				float sqrDistance = (_primitives[nearestPrimitive[i]].Position.FastSubstract(vertex)).sqrMagnitude;
-				if (sqrDistance > _squaredMaxAreaOfEffect)
-				{
-					_weights[i] = 0;
-					continue;
-				}
-				int[] primitivesInRange = _kDTree.GetNearestToWithin(vertex, _maxAreaOfEffect);
-				CalculateWeight(i, primitivesInRange);
+				ShapingPrimitive primitive = _primitives[i];
+				int[] verticesInRange = _verticesTree.GetNearestToWithin(primitive.Position, primitive.MaxAreaOfEffect);
+				
+				for (int j = 0; j < verticesInRange.Length; j++)
+					CalculateWeight(verticesInRange[j], primitive);
 			}
-			//int[] nearestPrimitive = _kDTree.GetNearestTo(_vertices);
-			//for (int i = 0; i < nearestPrimitive.Length; i++)
-			//	CalculateWeight(i, _primitives[nearestPrimitive[i]]);
-		}
-
-		private void CalculateWeight(int vertexIndex, int[] primitivesInRange)
-		{
-			for (int i = 0; i < primitivesInRange.Length; i++)
-				CalculateWeight(vertexIndex, _primitives[primitivesInRange[i]]);
 		}
 
 		private void CalculateWeight(int vertexIndex, ShapingPrimitive primitive)

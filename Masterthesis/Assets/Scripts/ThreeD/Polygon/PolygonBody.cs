@@ -9,10 +9,12 @@ namespace SBaier.Master
 		private readonly Polygon[] _polygons;
 		private readonly Vector3[] _vertices;
 
+
 		public PolygonBody(Polygon[] polygons, Vector3[] vertices)
 		{
 			_polygons = polygons;
 			_vertices = vertices;
+
 		}
 
 		public float GetDistanceTo(Vector3 point, int polygonIndex)

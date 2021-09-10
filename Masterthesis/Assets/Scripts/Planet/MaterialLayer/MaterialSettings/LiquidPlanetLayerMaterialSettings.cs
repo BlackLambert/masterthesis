@@ -12,8 +12,8 @@ namespace SBaier.Master
         public Gradient BaseGradient => _baseGradient;
 
         [SerializeField]
-        private Gradient _depthGradient;
-        public Gradient DepthGradient => _depthGradient;
+        private Color _depthColor;
+        public Color DepthColor => _depthColor;
 
 		public override PlanetMaterialState State => PlanetMaterialState.Liquid;
 		public override PlanetMaterialType Type => PlanetMaterialType.Liquid;

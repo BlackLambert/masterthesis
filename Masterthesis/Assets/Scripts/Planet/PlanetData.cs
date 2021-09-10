@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SBaier.Master
 {
@@ -11,7 +12,8 @@ namespace SBaier.Master
         public ContinentalPlates ContinentalPlates { get; set; }
 		public Seed Seed { get; }
         public Dictionary<short, PlanetLayerMaterialSettings> Materials { get; }
-        public uint LayerBitMask { get; set; }
+        public uint LayerBitMask { get; private set; }
+        private bool[] _layerActive;
         public Noise3D GradientNoise { get; }
 
         public PlanetData(
@@ -28,6 +30,26 @@ namespace SBaier.Master
 			Seed = seed;
             Materials = materials;
             GradientNoise = gradientNoise;
+        }
+
+        public void SetLayerBitMask(uint value)
+		{
+            LayerBitMask = value;
+            _layerActive = GetLayerActive();
+        }
+
+		private bool[] GetLayerActive()
+		{
+            Array enumValues = Enum.GetValues(typeof(PlanetMaterialType));
+            bool[] result = new bool[(int)Mathf.Pow(2, enumValues.Length)];
+            foreach (PlanetMaterialType type in enumValues)
+                result[(int)type] = (LayerBitMask & (uint)type) > 0;
+            return result;
+        }
+
+		public bool IsLayerActive(PlanetMaterialType type)
+		{
+            return _layerActive[(int)type];
         }
 	}
 }

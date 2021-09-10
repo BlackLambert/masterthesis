@@ -1,18 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SBaier.Master
 {
     public class SphericalVoronoiCalculator
     {
-		private readonly IList<Triangle> _delaunayTriangles;
-		private readonly IList<Vector3> _sites;
+		private readonly Triangle[] _delaunayTriangles;
+		private readonly Vector3[] _sites;
 		private readonly float _radius;
 
-		public SphericalVoronoiCalculator(IList<Triangle> delaunayTriangles,
-			IList<Vector3> sites, float radius)
+		public SphericalVoronoiCalculator(Triangle[] delaunayTriangles,
+			Vector3[] sites, float radius)
 		{
 			_delaunayTriangles = delaunayTriangles;
 			_sites = sites;
@@ -21,24 +22,46 @@ namespace SBaier.Master
 
         public VoronoiDiagram CalculateVoronoiDiagram()
 		{
-			Vector3[] vertices = GetVertices(_delaunayTriangles);
-            VoronoiRegion[] regions = new VoronoiRegion[_sites.Count];
-			for (int i = 0; i < _sites.Count; i++)
+			Vector3[] vertices = GetVoronoiVertices(_delaunayTriangles);
+			int sitesCount = _sites.Length;
+			VoronoiRegion[] regions = new VoronoiRegion[sitesCount];
+			for (int i = 0; i < sitesCount; i++)
 				regions[i] = CreateRegion(i);
-			SetNeighbors(regions);
             return new VoronoiDiagram(regions, vertices);
+		}
+
+		private Vector3[] GetVoronoiVertices(Triangle[] delaunayTriangles)
+		{
+			int count = delaunayTriangles.Length;
+			Vector3[] result = new Vector3[count];
+			for (int i = 0; i < count; i++)
+				result[i] = CaculateVetexPosition(delaunayTriangles[i]);
+			return result;
+		}
+
+		private Vector3 CaculateVetexPosition(Triangle triangle)
+		{
+			return triangle.CircumcenterCenter.normalized * _radius;
 		}
 
 		private VoronoiRegion CreateRegion(int siteIndex)
 		{
-			Vector3 site = _sites[siteIndex];
-			List<int> neighborTriangles = new List<int>();
-			for (int j = 0; j < _delaunayTriangles.Count; j++)
-			{
-				if(TriangleHasCorner(j, siteIndex))
-					neighborTriangles.Add(j);
-			}
-			return Create(site, neighborTriangles, siteIndex);
+			List<int> connectedTriangles = GetConnectedTriangles(siteIndex);
+			return Create(connectedTriangles, siteIndex);
+		}
+
+		private List<int> GetConnectedTriangles(int siteIndex)
+		{
+			List<int> result = new List<int>();
+			for (int j = 0; j < _delaunayTriangles.Length; j++)
+				CheckAddTriangle(siteIndex, j, ref result);
+			return result;
+		}
+
+		private void CheckAddTriangle(int siteIndex, int triangleIndex, ref List<int> result)
+		{
+			if (TriangleHasCorner(triangleIndex, siteIndex))
+				result.Add(triangleIndex);
 		}
 
 		private bool TriangleHasCorner(int triangleIndex, int siteIndex)
@@ -47,28 +70,29 @@ namespace SBaier.Master
 			return triangle.HasCorner(siteIndex);
 		}
 
-		private Vector3[] GetVertices(IList<Triangle> delaunayTriangles)
+		private VoronoiRegion Create(List<int> connectedTriangles, int siteIndex)
 		{
-			Vector3[] result = new Vector3[delaunayTriangles.Count];
-			for (int i = 0; i < delaunayTriangles.Count; i++)
-				result[i] = delaunayTriangles[i].CircumcenterCenter.normalized * _radius;
-			return result;
-		}
-
-		private VoronoiRegion Create(Vector3 site, List<int> neighborTriangles, int siteIndex)
-		{
-			int[] corners = new int[neighborTriangles.Count];
-			Triangle current = _delaunayTriangles[neighborTriangles[0]];
+			Vector3 site = _sites[siteIndex];
+			int[] corners = new int[connectedTriangles.Count];
+			HashSet<int> voronoiNeighbors = new HashSet<int>();
+			Triangle current = _delaunayTriangles[connectedTriangles[0]];
 			Vector2Int nextEdge = GetNextEdge(current, siteIndex);
 			int index = 0;
-			for (int i = 0; i < neighborTriangles.Count; i++)
+			for (int i = 0; i < connectedTriangles.Count; i++)
 			{
-				corners[i] = neighborTriangles[index];
+				corners[i] = connectedTriangles[index];
+				for (int j = 0; j < current.VertexIndices.Length; j++)
+				{
+					int corner = current.VertexIndices[j];
+					if (corner == siteIndex)
+						continue;
+					voronoiNeighbors.Add(corner);
+				}
 				nextEdge = GetNextEdge(current, siteIndex, nextEdge);
-				index = FindNeighbor(nextEdge, neighborTriangles, index);
-				current = _delaunayTriangles[neighborTriangles[index]];
+				index = FindNeighbor(nextEdge, connectedTriangles, index);
+				current = _delaunayTriangles[connectedTriangles[index]];
 			}
-			return new VoronoiRegion(site, corners);
+			return new VoronoiRegion(site, corners, voronoiNeighbors.ToArray());
 		}
 
 		private Vector2Int GetNextEdge(Triangle current, int siteIndex)
@@ -76,11 +100,11 @@ namespace SBaier.Master
 			return GetNextEdge(current, siteIndex, new Vector2Int(-1, -1));
 		}
 
-		private Vector2Int GetNextEdge(Triangle current, int siteIndex, Vector2Int formerEdge)
+		private Vector2Int GetNextEdge(Triangle triangle, int siteIndex, Vector2Int formerEdge)
 		{
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < triangle.VertexIndices.Length; i++)
 			{
-				Vector2Int edge = new Vector2Int(current.VertexIndices[i], current.VertexIndices[(i + 1)%3]);
+				Vector2Int edge = new Vector2Int(triangle.VertexIndices[i], triangle.VertexIndices[(i + 1)%3]);
 				if (edge[0] == formerEdge[0] && edge[1] == formerEdge[1] || edge[0] == formerEdge[1] && edge[1] == formerEdge[0])
 					continue;
 				if (edge[0] == siteIndex || edge[1] == siteIndex)
@@ -105,28 +129,6 @@ namespace SBaier.Master
 				}
 			}
 			throw new ArgumentException();
-		}
-
-		private void SetNeighbors(VoronoiRegion[] regions)
-		{
-			ConnectingBordersFinder finder = new ConnectingBordersFinder(regions);
-			finder.Calculate();
-			Vector2Int[] allNeighbors = finder.Neighbors;
-			for (int i = 0; i < regions.Length; i++)
-			{
-				VoronoiRegion currentRegion = regions[i];
-				List<int> neighbors = new List<int>();
-
-				for (int j = 0; j < allNeighbors.Length; j++)
-				{
-					Vector2Int n = allNeighbors[j];
-					if (n.x == i)
-						neighbors.Add(n.y);
-					if (n.y == i)
-						neighbors.Add(n.x);
-				}
-				currentRegion.SetNeighbors(neighbors.ToArray());
-			}
 		}
 	}
 }

@@ -10,15 +10,10 @@ namespace SBaier.Master
         public int[] Neighbors { get; private set; }
 		public override int[] VertexIndices { get; }
 
-		public VoronoiRegion(Vector3 site, int[] corners)
+		public VoronoiRegion(Vector3 site, int[] corners, int[] neighbors)
 		{
             Site = site;
             VertexIndices = corners;
-            Neighbors = new int[0];
-        }
-
-        public void SetNeighbors(int[] neighbors)
-		{
             Neighbors = neighbors;
         }
     }

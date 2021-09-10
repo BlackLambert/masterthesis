@@ -35,7 +35,7 @@ namespace SBaier.Master
 
 		private void OnLayerMaskChanged()
 		{
-			_planet.Data.LayerBitMask = _layerTogglePanel.GetLayerMask();
+			_planet.Data.SetLayerBitMask(_layerTogglePanel.GetLayerMask());
 			Rebuild();
 		}
 
