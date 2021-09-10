@@ -20,7 +20,7 @@ namespace SBaier.Master
 		public VoronoiRegion[] GetNeighborsOf(int regionIndex)
 		{
 			VoronoiRegion region = Regions[regionIndex];
-			int[] neighbors = region.Neighbors;
+			int[] neighbors = region.NeighborIndices;
 			VoronoiRegion[] result = new VoronoiRegion[neighbors.Length];
 			for (int i = 0; i < neighbors.Length; i++)
 				result[i] = Regions[neighbors[i]];

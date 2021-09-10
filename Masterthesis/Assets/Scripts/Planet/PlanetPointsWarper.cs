@@ -56,7 +56,7 @@ namespace SBaier.Master
         {
             Vector3 normalized = vertex.normalized;
             float dot = Vector3.Dot(normalized, Vector3.forward);
-            Vector3 crossVector = dot > 0.5f ? Vector3.right : Vector3.forward;
+            Vector3 crossVector = dot == 1 ? Vector3.right : Vector3.forward;
             Vector3 tangential = Vector3.Cross(normalized, crossVector);
             float deltaLength = warpValue * _warpFactor * _evalRadius;
             Vector3 deltaVector = tangential.FastMultiply(deltaLength);

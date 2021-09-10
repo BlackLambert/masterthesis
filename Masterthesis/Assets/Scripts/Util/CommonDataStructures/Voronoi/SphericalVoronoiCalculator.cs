@@ -74,7 +74,8 @@ namespace SBaier.Master
 		{
 			Vector3 site = _sites[siteIndex];
 			int[] corners = new int[connectedTriangles.Count];
-			HashSet<int> voronoiNeighbors = new HashSet<int>();
+			List<int> voronoiNeighbors = new List<int>();
+			List<Vector3> voronoiNeighborSites = new List<Vector3>();
 			Triangle current = _delaunayTriangles[connectedTriangles[0]];
 			Vector2Int nextEdge = GetNextEdge(current, siteIndex);
 			int index = 0;
@@ -84,15 +85,16 @@ namespace SBaier.Master
 				for (int j = 0; j < current.VertexIndices.Length; j++)
 				{
 					int corner = current.VertexIndices[j];
-					if (corner == siteIndex)
+					if (corner == siteIndex || voronoiNeighbors.Contains(corner))
 						continue;
 					voronoiNeighbors.Add(corner);
+					voronoiNeighborSites.Add(_sites[corner]);
 				}
 				nextEdge = GetNextEdge(current, siteIndex, nextEdge);
 				index = FindNeighbor(nextEdge, connectedTriangles, index);
 				current = _delaunayTriangles[connectedTriangles[index]];
 			}
-			return new VoronoiRegion(site, corners, voronoiNeighbors.ToArray());
+			return new VoronoiRegion(site, corners, voronoiNeighbors.ToArray(), voronoiNeighborSites.ToArray());
 		}
 
 		private Vector2Int GetNextEdge(Triangle current, int siteIndex)

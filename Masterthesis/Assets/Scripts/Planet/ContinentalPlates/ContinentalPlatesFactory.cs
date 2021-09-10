@@ -105,8 +105,8 @@ namespace SBaier.Master
 			for (int i = 0; i < segementIndices.Count; i++)
 			{
 				VoronoiRegion region = diagram.Regions[segementIndices[i]];
-				for (int j = 0; j < region.Neighbors.Length; j++)
-					neighbors.Add(region.Neighbors[j]);
+				for (int j = 0; j < region.NeighborIndices.Length; j++)
+					neighbors.Add(region.NeighborIndices[j]);
 			}
 			return neighbors.ToArray();
 		}

@@ -15,7 +15,7 @@ namespace SBaier.Master
 		public Vector3 Site => VoronoiRegion.Site;
 		public VoronoiRegion VoronoiRegion { get; }
 		public int BiomeID { get; set; }
-		public int[] Neighbors => VoronoiRegion.Neighbors;
+		public int[] Neighbors => VoronoiRegion.NeighborIndices;
 
 		public override int[] VertexIndices => VoronoiRegion.VertexIndices;
 	}

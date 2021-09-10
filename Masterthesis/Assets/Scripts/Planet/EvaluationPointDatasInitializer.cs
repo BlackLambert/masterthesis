@@ -1,3 +1,5 @@
+
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,8 +7,8 @@ using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class EvaluationPointDatasInitializer
-    {
+	public class EvaluationPointDatasInitializer
+	{
 		Vector3BinaryKDTreeFactory _treeFactory;
 
 		private Planet _planet;
@@ -14,10 +16,12 @@ namespace SBaier.Master
 		private float _warpChaosFacor;
 		private Noise3D _warpNoise;
 		private ContinentalPlates _plates;
+		private ContinentalPlateSegment[] _segments;
 		private VoronoiDiagram _segementsVoronoi;
 		private KDTree<Vector3> _segmentsKDTree;
 		private Biome[] _biomes;
 		private float _blendDistance;
+		private bool _hasBlendDistance;
 		private BiomeOccurrenceSerializer _serializer;
 
 		public EvaluationPointDatasInitializer(Vector3BinaryKDTreeFactory treeFactory,
@@ -41,10 +45,12 @@ namespace SBaier.Master
 			_warpFactor = parameter.WarpFactor;
 			_warpChaosFacor = parameter.WarpChaosFactor;
 			_plates = _planet.Data.ContinentalPlates;
+			_segments = _plates.Segments;
 			_segementsVoronoi = _plates.SegmentsVoronoi;
 			_segmentsKDTree = _treeFactory.Create(_plates.SegmentSites);
 			_biomes = parameter.Biomes;
 			_blendDistance = parameter.BlendDistance;
+			_hasBlendDistance = parameter.BlendDistance > 0;
 		}
 
 		private void Compute(PlanetFace face)
@@ -62,7 +68,7 @@ namespace SBaier.Master
 
 		private void InitData(EvaluationPointData pointData, int segmentIndex, Vector3 vertex)
 		{
-			ContinentalPlateSegment segment = _plates.Segments[segmentIndex];
+			ContinentalPlateSegment segment = _segments[segmentIndex];
 			pointData.ContinentalPlateSegmentIndex = segmentIndex;
 			pointData.Biomes = CalculateBiomeOccurrences(segment, vertex);
 		}
@@ -70,34 +76,35 @@ namespace SBaier.Master
 		private short[] CalculateBiomeOccurrences(ContinentalPlateSegment segment, Vector3 vertex)
 		{
 			List<short> result = new List<short>(1);
-			result.Add(_serializer.Serialize(new BiomeOccurrence((byte) segment.BiomeID, 1f)));
-			AddNeighborBiomes(segment, result, vertex);
+			result.Add(_serializer.Serialize(new BiomeOccurrence((byte)segment.BiomeID, 1f)));
+			if (_hasBlendDistance)
+				AddNeighborBiomes(segment, result, vertex);
 			return result.ToArray();
 		}
 
 		private void AddNeighborBiomes(ContinentalPlateSegment segment, List<short> result, Vector3 vertex)
 		{
-			int[] neighbors = segment.Neighbors; 
+			int[] neighbors = segment.Neighbors;
+			Vector3 distanceVectorToSite = vertex.FastSubstract(segment.Site);
+			VoronoiRegion segementRegion = segment.VoronoiRegion;
+			float[] distanceToNeighbors = segementRegion.DistanceToNeighbors;
+			Vector3[] distanceVectorToNeighbors = segementRegion.DistanceVectorToNeighbors;
 			for (int i = 0; i < neighbors.Length; i++)
-				AddNeighborBiome(neighbors[i], result, vertex);
-		}
-
-		private void AddNeighborBiome(int neighborIndex, List<short> result, Vector3 vertex)
-		{
-			ContinentalPlateSegment neighborSegment = _plates.Segments[neighborIndex];
-			float distanceToSegment = GetDistance(neighborIndex, vertex);
-			if (distanceToSegment > _blendDistance)
-				return;
-			float weight = 1 - (distanceToSegment / _blendDistance);
-			short value = _serializer.Serialize(new BiomeOccurrence((byte)neighborSegment.BiomeID, weight));
-			result.Add(value);
-		}
-
-		private float GetDistance(int segmentIndex, Vector3 vertex)
-		{
-			Vector3 pointNeighborOnBorder = _segementsVoronoi.GetNearestBorderPointOf(vertex, segmentIndex);
-			float distanceToSegment = _planet.GetDistanceOnSurface(vertex, pointNeighborOnBorder);
-			return distanceToSegment;
+			{
+				int neighborSegmentIndex = neighbors[i];
+				ContinentalPlateSegment neighborSegment = _segments[neighborSegmentIndex];
+				float distanceToNeighbor = distanceToNeighbors[i];
+				Vector3 distanceVectorToNeighbor = distanceVectorToNeighbors[i];
+				float projectionLength = Vector3.Dot(distanceVectorToSite, distanceVectorToNeighbor) / distanceToNeighbor;
+				float vertexDistanceToBorder = distanceToNeighbor - projectionLength;
+				if (vertexDistanceToBorder >= _blendDistance)
+					continue;
+				float weight = 1 - vertexDistanceToBorder / _blendDistance;
+				if (weight > 1 || weight <= 0)
+					throw new InvalidOperationException();
+				short value = _serializer.Serialize(new BiomeOccurrence((byte)neighborSegment.BiomeID, weight));
+				result.Add(value);
+			}
 		}
 
 		public class Parameter
