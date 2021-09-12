@@ -12,6 +12,7 @@ namespace SBaier.Master
         private const float _maxSlopeAngle = 90;
 
         private Biome[] _biomes;
+        private float _heightFactor;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
         protected override PlanetMaterialType MaterialType => PlanetMaterialType.Ground;
@@ -25,6 +26,7 @@ namespace SBaier.Master
         protected override void InitConcrete(Parameter parameter)
         {
             _biomes = parameter.Biomes;
+            _heightFactor = _maxSolidTopLayerThickness / parameter.Planet.Data.Dimensions.MaxHullThickness;
         }
 
         protected override void AddLayer(PlanetFace face)
@@ -47,7 +49,7 @@ namespace SBaier.Master
                 portion += GetHeight(warpedPoint, normal, biomeOccurrence);
                 sum += biomeOccurrence.Portion;
             }
-            return (portion / sum) * _maxSolidTopLayerThickness;
+            return (portion / sum) * _heightFactor;
 		}
 
 		private float GetHeight(Vector3 warpedPoint, Vector3 normal, BiomeOccurrence biomeOccurrence)

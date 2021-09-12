@@ -18,6 +18,7 @@ namespace SBaier.Master
         private PlanetLayerMaterialSerializer _planetLayerMaterialSerializer;
         private SeaLevelValueTransformer _transformer;
         private HashSet<PlanetLayerMaterialSettings> _handledGround;
+        private float _heightFactor = 1;
 
         public PlanetGroundVegetationLayerAdder(PlanetLayerMaterialSerializer planetLayerMaterialSerializer,
             BiomeOccurrenceSerializer biomeOccurrenceSerializer) : 
@@ -31,6 +32,7 @@ namespace SBaier.Master
         {
             _biomes = parameter.Biomes;
             _transformer = new SeaLevelValueTransformer(parameter.Planet.Data.Dimensions.RelativeSeaLevel);
+            _heightFactor = _maxVegetationLayerThickness / parameter.Planet.Data.Dimensions.MaxHullThickness;
         }
 
         protected override void AddLayer(PlanetFace face)
@@ -57,7 +59,7 @@ namespace SBaier.Master
                 _handledGround.Add(material.GroundRequirements);
                 heightPortion += GetHeightPortion(biomeOccurrence, data, heightEvalInput);
             }
-            return heightPortion * _maxVegetationLayerThickness;
+            return heightPortion * _heightFactor;
         }
 
 		private float GetHeightPortion(BiomeOccurrence biomeOccurrence, EvaluationPointData data, float heightEvaluationInput)

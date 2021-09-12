@@ -14,7 +14,25 @@ namespace SBaier.Master
         [SerializeField]
         private float _minimalMaxValue = 1;
 
-        protected virtual void Update()
+        protected virtual void Start()
+        {
+            foreach (SliderPanel panel in _otherSliders)
+                panel.Slider.onValueChanged.AddListener(OnOtherValueChanged);
+            UpdateMaxValue();
+        }
+
+        protected virtual void OnDestroy()
+        {
+            foreach (SliderPanel panel in _otherSliders)
+                panel.Slider.onValueChanged.RemoveListener(OnOtherValueChanged);
+        }
+
+        private void OnOtherValueChanged(float arg0)
+        {
+            UpdateMaxValue();
+        }
+
+        private void UpdateMaxValue()
         {
             float sum = _otherSliders.Sum(s => s.Slider.value);
             _targetSlider.Slider.maxValue = sum - _minimalMaxValue;

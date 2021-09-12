@@ -13,18 +13,36 @@ namespace SBaier.Master
         [SerializeField]
         private SliderPanel[] _sliders;
 
-        protected virtual void Update()
-		{
-            float valueSum = _sliders.Sum(s => s.Slider.value);
-            if (valueSum >= _targetMinValueSum)
-                SetMinTo(0);
-            else
-            {
-                float dif = (_targetMinValueSum - valueSum) / _sliders.Length;
-                float delta = GetDelta(dif);
-                SetMinTo(delta, dif);
-            }
+        protected virtual void Start()
+        {
+            foreach (SliderPanel panel in _sliders)
+                panel.Slider.onValueChanged.AddListener(OnOtherValueChanged);
+            UpdateMinValues();
         }
+
+        protected virtual void OnDestroy()
+        {
+            foreach (SliderPanel panel in _sliders)
+                panel.Slider.onValueChanged.RemoveListener(OnOtherValueChanged);
+        }
+
+        private void OnOtherValueChanged(float arg0)
+        {
+            UpdateMinValues();
+        }
+
+		private void UpdateMinValues()
+		{
+			float valueSum = _sliders.Sum(s => s.Slider.value);
+			if (valueSum >= _targetMinValueSum)
+				SetMinTo(0);
+			else
+			{
+				float dif = (_targetMinValueSum - valueSum) / _sliders.Length;
+				float delta = GetDelta(dif);
+				SetMinTo(delta, dif);
+			}
+		}
 
 		private float GetDelta(float dif)
 		{

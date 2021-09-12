@@ -42,7 +42,7 @@ namespace SBaier.Master
         protected void AddLayer(PlanetFace face, int index, float height)
         {
             EvaluationPointData data = face.Data.EvaluationPoints[index];
-            List<short> materials = GetMaterials(data);
+            List<short> materials = CreateMaterials(data);
             AddLayer(data, height, materials);
         }
 
@@ -55,7 +55,7 @@ namespace SBaier.Master
             layers.Add(layer);
         }
 
-        protected List<short> GetMaterials(EvaluationPointData data)
+        protected List<short> CreateMaterials(EvaluationPointData data)
         {
             List<short> result = new List<short>(data.Biomes.Length);
             BiomeOccurrence[] biomeOccurrences = GetBiomeOccurrences(data.Biomes);

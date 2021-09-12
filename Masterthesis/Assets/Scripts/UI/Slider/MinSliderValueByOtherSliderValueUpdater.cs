@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,9 +14,26 @@ namespace SBaier.Master
         [SerializeField]
         private float _minimalMinValue = 1;
 
-        protected virtual void Update()
-        {
-            _targetSlider.Slider.minValue = _otherSlider.Slider.value + _minimalMinValue;
-        }
-    }
+        protected virtual void Start()
+		{
+            _otherSlider.Slider.onValueChanged.AddListener(OnOtherValueChanged);
+			UpdateMinValue();
+
+		}
+
+        protected virtual void OnDestroy()
+		{
+            _otherSlider.Slider.onValueChanged.RemoveListener(OnOtherValueChanged);
+		}
+
+		private void OnOtherValueChanged(float arg0)
+		{
+			UpdateMinValue();
+		}
+
+		private void UpdateMinValue()
+		{
+			_targetSlider.Slider.minValue = _otherSlider.Slider.value + _minimalMinValue;
+		}
+	}
 }

@@ -99,9 +99,7 @@ namespace SBaier.Master
 				float vertexDistanceToBorder = distanceToNeighbor - projectionLength;
 				if (vertexDistanceToBorder >= _blendDistance)
 					continue;
-				float weight = 1 - vertexDistanceToBorder / _blendDistance;
-				if (weight > 1 || weight <= 0)
-					throw new InvalidOperationException();
+				float weight = Mathf.Clamp01(1 - vertexDistanceToBorder / _blendDistance);
 				short value = _serializer.Serialize(new BiomeOccurrence((byte)neighborSegment.BiomeID, weight));
 				result.Add(value);
 			}

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SBaier.Master
 {
@@ -10,6 +11,9 @@ namespace SBaier.Master
 		private const int _maximalSampleEliminationFactor = 3;
 		[SerializeField]
         private TextInputPanel _seedInput;
+
+		[SerializeField]
+		private Toggle _randomizeToggle;
 
 		[Header("Dimensionen")]
 		[SerializeField]
@@ -79,7 +83,11 @@ namespace SBaier.Master
 
 		public PlanetGenerator.Parameter CreateParameters()
 		{
+			if (_randomizeToggle.isOn)
+				RandomizeSeed();
 			Seed seed = CreateSeed();
+			if (_randomizeToggle.isOn)
+				Randomize(seed);
 			int subdivisions = (int)_subdivisionsSliderPanel.Slider.value;
 			PlanetDimensions dimensions = CreatePlanetDimensions();
 			PlanetAxisData axis = CreateAxisData();
@@ -97,6 +105,42 @@ namespace SBaier.Master
 				temperatureSpectrum: temperatureSpectrum,
 				shaping: shaping
 			);
+		}
+
+		public void Randomize(Seed seed)
+		{
+			_atmosphereSliderPanel.Randomize(seed);
+			_maxHullSliderPanel.Randomize(seed);
+			_bedrockSliderPanel.Randomize(seed);
+			_seaLevelSliderPanel.Randomize(seed);
+
+			_axisAnglePanel.Randomize(seed);
+			_secondsPerRevolutionPanel.Randomize(seed);
+
+			_plateSegmentsPanel.Randomize(seed);
+			_continentsPanel.Randomize(seed);
+			_oceansPanel.Randomize(seed);
+			_platesPanel.Randomize(seed);
+			_platesMinForcePanel.Randomize(seed);
+			_warpPanel.Randomize(seed);
+			_warpChaosPanel.Randomize(seed);
+			_blendPanel.Randomize(seed);
+			_sampleEliminationPanel.Randomize(seed);
+
+			_mountainBreadthPanel.Randomize(seed);
+			_mountainBlendFactorPanel.Randomize(seed);
+			_mountainMinPanel.Randomize(seed);
+			_mountainMinBreadthPanel.Randomize(seed);
+			_mountainHeightFactorPanel.Randomize(seed);
+
+			_canyonsBreadthPanel.Randomize(seed);
+			_canyonBlendFactorPanel.Randomize(seed);
+			_canyonMinPanel.Randomize(seed);
+			_canyonMinBreadthPanel.Randomize(seed);
+			_canyonDepthFactorPanel.Randomize(seed);
+
+			_minTempPanel.Randomize(seed);
+			_maxTempPanel.Randomize(seed);
 		}
 
 		private TemperatureSpectrum CreateTemperatureSpecturm()
@@ -177,6 +221,12 @@ namespace SBaier.Master
 			string seedText = _seedInput.InputField.text;
 			int seedValue = int.Parse(seedText);
 			return new Seed(seedValue);
+		}
+
+		private void RandomizeSeed()
+		{
+			int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+			_seedInput.InputField.text = seed.ToString();
 		}
 	}
 }

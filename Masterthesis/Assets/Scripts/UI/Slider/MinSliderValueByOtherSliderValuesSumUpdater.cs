@@ -14,10 +14,29 @@ namespace SBaier.Master
         [SerializeField]
         private float _minimalMinValue = 1;
 
-        protected virtual void Update()
+        protected virtual void Start()
         {
-            float sum = _otherSliders.Sum(s => s.Slider.value);
-            _targetSlider.Slider.minValue = sum + _minimalMinValue;
+			foreach (SliderPanel panel in _otherSliders)
+                panel.Slider.onValueChanged.AddListener(OnOtherValueChanged);
+            UpdateMinValue();
+
         }
-    }
+
+        protected virtual void OnDestroy()
+        {
+            foreach (SliderPanel panel in _otherSliders)
+                panel.Slider.onValueChanged.RemoveListener(OnOtherValueChanged);
+        }
+
+        private void OnOtherValueChanged(float arg0)
+        {
+            UpdateMinValue();
+        }
+
+		private void UpdateMinValue()
+		{
+			float sum = _otherSliders.Sum(s => s.Slider.value);
+			_targetSlider.Slider.minValue = sum + _minimalMinValue;
+		}
+	}
 }

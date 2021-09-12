@@ -48,5 +48,11 @@ namespace SBaier.Master
 		{
 			_valueLabel.text = _slider.value.ToString(_format);
 		}
+
+		public void Randomize(Seed seed)
+		{
+			float valueRange = _slider.maxValue - _slider.minValue;
+			_slider.value = _slider.minValue + (float) seed.Random.NextDouble() * valueRange;
+		}
 	}
 }

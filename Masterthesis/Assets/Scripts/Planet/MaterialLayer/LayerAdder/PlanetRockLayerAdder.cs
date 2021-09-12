@@ -11,6 +11,7 @@ namespace SBaier.Master
 		private ShapingLayer[] _shapingLayers;
 		private float _relativeSeaLevel;
         private SeaLevelValueTransformer _transformer;
+        private PlanetShaper _shaper;
 
 		protected override PlanetMaterialState LayerState => PlanetMaterialState.Solid;
         protected override PlanetMaterialType MaterialType => PlanetMaterialType.Rock;
@@ -26,6 +27,7 @@ namespace SBaier.Master
             Parameter p = parameter as Parameter;
             _planet = parameter.Planet;
             _shapingLayers = p.ShapingLayers;
+            _shaper = new PlanetShaper(_shapingLayers);
             _relativeSeaLevel = _planet.Data.Dimensions.RelativeSeaLevel;
             _transformer = new SeaLevelValueTransformer(_relativeSeaLevel);
         }
@@ -33,8 +35,7 @@ namespace SBaier.Master
 
         protected override void AddLayer(PlanetFace face)
         {
-            PlanetShaper shaper = new PlanetShaper(_shapingLayers);
-            float[] shapeValues = shaper.Shape(face);
+            float[] shapeValues = _shaper.Shape(face);
 
             for (int i = 0; i < shapeValues.Length; i++)
                 AddLayer(face, i, CalculateHeight(shapeValues[i]));
