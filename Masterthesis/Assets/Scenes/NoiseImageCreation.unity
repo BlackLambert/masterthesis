@@ -123,6 +123,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &12450808
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 12450810}
+  - component: {fileID: 12450809}
+  m_Layer: 0
+  m_Name: PoissonDiskDistributionImageCreator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &12450809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 12450808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c08adcea41133341a160e3e14684c87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _imageSize: {x: 64, y: 64}
+  _fileName: Samples_200
+  _filePath: SampleElimination
+  _targetPoints: 200
+  _startPointsfactor: 5
+--- !u!4 &12450810
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 12450808}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -126.12122, y: 204.14882, z: -42.670105}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &160979194
 GameObject:
   m_ObjectHideFlags: 0
@@ -135,6 +183,9 @@ GameObject:
   - component: {fileID: 160979195}
   - component: {fileID: 160979197}
   - component: {fileID: 160979198}
+  - component: {fileID: 160979199}
+  - component: {fileID: 160979200}
+  - component: {fileID: 160979201}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -158,6 +209,9 @@ MonoBehaviour:
   _monoInstallers:
   - {fileID: 160979197}
   - {fileID: 160979198}
+  - {fileID: 160979199}
+  - {fileID: 160979200}
+  - {fileID: 160979201}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -215,6 +269,137 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ea5e2ad011c95d4da9e8bffe2096104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &160979199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160979194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04bc7e3706f275f46aa61629dd015264, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &160979200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160979194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72bb7b314570aae4c941c73d9e048490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &160979201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160979194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77138606812f09949858296ed9a6c8e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &181856482
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 181856483}
+  - component: {fileID: 181856484}
+  m_Layer: 0
+  m_Name: RandomDistImageCreator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &181856483
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181856482}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -126.12122, y: 204.14882, z: -42.670105}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &181856484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181856482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b73d7bf0fc807347baa229e005b9958, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _imageSize: {x: 64, y: 64}
+  _fileName: Random_200
+  _filePath: Random
+  _points: 200
+--- !u!1 &761901165
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 761901167}
+  - component: {fileID: 761901166}
+  m_Layer: 0
+  m_Name: PoissonDiskDistributionImageCreator2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &761901166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761901165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c08adcea41133341a160e3e14684c87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _imageSize: {x: 64, y: 64}
+  _fileName: Samples_1000_Random
+  _filePath: SampleElimination
+  _targetPoints: 1000
+  _startPointsfactor: 1
+--- !u!4 &761901167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761901165}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -126.12122, y: 204.14882, z: -42.670105}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1051682706
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,7 +416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1051682707
 MonoBehaviour:
   m_ObjectHideFlags: 0

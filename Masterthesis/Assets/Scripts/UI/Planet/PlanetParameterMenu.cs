@@ -143,6 +143,46 @@ namespace SBaier.Master
 			_maxTempPanel.Randomize(seed);
 		}
 
+		public void Load(PlanetGenerator.Parameter parameter)
+		{
+			PlanetDimensions dimensions = parameter.Dimensions;
+			_atmosphereSliderPanel.Slider.value = dimensions.AtmosphereRadius;
+			_maxHullSliderPanel.Slider.value = dimensions.HullMaxRadius;
+			_bedrockSliderPanel.Slider.value = dimensions.KernelRadius;
+			_seaLevelSliderPanel.Slider.value = dimensions.RelativeSeaLevel;
+
+			PlanetAxisData axis = parameter.AxisData;
+			_axisAnglePanel.Slider.value = axis.Angle;
+			_secondsPerRevolutionPanel.Slider.value = axis.SecondsPerRevolution;
+
+			ContinentalPlatesParameter plates = parameter.ContinentalPlatesParameter;
+			_plateSegmentsPanel.Slider.value = plates.SegmentsAmount;
+			_continentsPanel.Slider.value = plates.ContinentsAmount;
+			_oceansPanel.Slider.value = plates.OceansAmount;
+			_platesPanel.Slider.value = plates.PlatesAmount;
+			_platesMinForcePanel.Slider.value = plates.PlatesMinForce;
+			_warpPanel.Slider.value = plates.WarpFactor;
+			_warpChaosPanel.Slider.value = plates.WarpChaosFactor;
+			_blendPanel.Slider.value = plates.BlendFactor;
+			_sampleEliminationPanel.Slider.value = plates.SampleEliminationFactor;
+
+			PlatesShapingParameter shaping = parameter.Shaping.Plates;
+			_mountainBreadthPanel.Slider.value = shaping.MountainsBreadthFactor;
+			_mountainBlendFactorPanel.Slider.value = shaping.MountainsBlendDistanceFactor;
+			_mountainMinPanel.Slider.value = shaping.MountainMin;
+			_mountainMinBreadthPanel.Slider.value = shaping.MountainMinBreadth;
+			_mountainHeightFactorPanel.Slider.value = shaping.MountainHeightFactor;
+			_canyonsBreadthPanel.Slider.value = shaping.CanyonsBreadthFactor;
+			_canyonBlendFactorPanel.Slider.value = shaping.CanyonsBlendDistanceFactor;
+			_canyonMinPanel.Slider.value = shaping.CanyonMin;
+			_canyonMinBreadthPanel.Slider.value = shaping.CanyonMinBreadth;
+			_canyonDepthFactorPanel.Slider.value = shaping.CanyonDepthFactor;
+
+			TemperatureSpectrum tempSpectrum = parameter.TemperatureSpectrum;
+			_minTempPanel.Slider.value = tempSpectrum.Min;
+			_maxTempPanel.Slider.value = tempSpectrum.Max;
+		}
+
 		private TemperatureSpectrum CreateTemperatureSpecturm()
 		{
 			float minTemp = _minTempPanel.Slider.value;

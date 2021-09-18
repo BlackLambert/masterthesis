@@ -11,7 +11,11 @@ namespace SBaier.Master
         [SerializeField]
         private float _lineDisplayTime = 60;
         [SerializeField]
-        private Color _lineColor = Color.green;
+        private Color _lineColor = Color.red;
+        [SerializeField]
+        private bool _drawBacksideAreas = true;
+        [SerializeField]
+        private Vector3 _offset = Vector3.zero;
 
         private VoronoiDiagram _diagram;
 
@@ -38,8 +42,12 @@ namespace SBaier.Master
 
 		private void Draw(VoronoiRegion region, int index)
 		{
-			Vector3 c0 = _diagram.Vertices[region.VertexIndices[index]];
-			Vector3 c1 = _diagram.Vertices[region.VertexIndices[(index + 1) % region.VertexIndices.Length]];
+            Vector3 siteToCamera = Camera.main.transform.position - region.Site;
+            float dotValue = Vector3.Dot(siteToCamera, region.Site);
+            if (!_drawBacksideAreas && dotValue >= 0)
+                return;
+			Vector3 c0 = _diagram.Vertices[region.VertexIndices[index]] + _offset;
+			Vector3 c1 = _diagram.Vertices[region.VertexIndices[(index + 1) % region.VertexIndices.Length]] + _offset;
 			Debug.DrawLine(c0, c1, _lineColor, _lineDisplayTime);
 		}
 	}

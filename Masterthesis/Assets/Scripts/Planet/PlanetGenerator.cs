@@ -34,10 +34,10 @@ namespace SBaier.Master
         [SerializeField]
         private NoiseSettings _layerMaterialGradientNoiseSettings;
 
-        /*[SerializeField]
+        [SerializeField]
         private DelaunayMesh _delaunay;
         [SerializeField]
-        private VoronoiMesh _voronoi;*/
+        private VoronoiMesh _voronoi;
 
         private BasicPlanetFactory _basicPlanetFactory;
         private ContinentalPlatesFactory _continentalPlatesFactory;
@@ -96,7 +96,7 @@ namespace SBaier.Master
 			Init(parameter);
 			CreatePlanet();
 			_planet.Data.ContinentalPlates = CreateContinentalPlates();
-			//UpdateDebugView();
+			UpdateDebugView();
 			_evaluationPointDatasInitializer.Compute(CreateEvaluationPointDatasInitializerParameter());
 			Materialize(parameter);
 			_planet.UpdateMesh();
@@ -181,12 +181,12 @@ namespace SBaier.Master
                 _parameter.ContinentalPlatesParameter.BlendFactor * _planet.AtmosphereRadius);
         }
 
-         /*private void UpdateDebugView()
+        private void UpdateDebugView()
         {
             ContinentalPlates plates = _planet.Data.ContinentalPlates;
             _delaunay.UpdateView(plates.SegmentSites, plates.SegmentsDelaunayTriangles);
             _voronoi.UpdateView(plates.SegmentsVoronoi);
-        }*/
+        }
 
         private ShapingLayer[] CreateShapingLayers(ShapingParameter shaping)
 		{
