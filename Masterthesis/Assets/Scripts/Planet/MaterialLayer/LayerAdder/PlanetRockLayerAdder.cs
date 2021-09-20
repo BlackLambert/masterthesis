@@ -55,9 +55,8 @@ namespace SBaier.Master
 		{
 			public Parameter(Biome[] biomes, 
                 Planet planet, 
-                float blendDistance,
                 ShapingLayer[] shapingLayers) : 
-                base(biomes, planet, blendDistance)
+                base(biomes, planet)
 			{
 				ShapingLayers = shapingLayers;
 			}

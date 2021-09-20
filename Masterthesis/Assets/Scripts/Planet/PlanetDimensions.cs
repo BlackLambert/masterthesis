@@ -2,8 +2,10 @@
 
 namespace SBaier.Master
 {
+	[Serializable]
 	public struct PlanetDimensions
 	{
+
 		public PlanetDimensions(float kernelRadius, float maxHullRadius, float relativeSeaLevel, float atmosphereRadius)
 		{
 			ValidateKernalThickness(kernelRadius);

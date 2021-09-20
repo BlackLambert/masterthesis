@@ -7,7 +7,8 @@ namespace SBaier.Master
 {
     public class BasicPlanetFactory
     {
-        private IcosahedronGenerator _icosahedronGenerator;
+		private const int _maxSubdivisions = 350;
+		private IcosahedronGenerator _icosahedronGenerator;
         private MeshFaceSeparator _faceSeparator;
         private SphereMeshFormer _meshFormer;
         private MeshSubdivider _subdivider;
@@ -36,7 +37,7 @@ namespace SBaier.Master
             _icosahedronGenerator.GenerateMeshFor(baseMesh, parameter.Dimensions.KernelRadius);
             MeshFaceSeparatorTarget[] targets = _faceSeparator.Separate(baseMesh);
             PlanetFace[] faces = GetFaces(targets);
-			SubdivideFaces(faces, parameter.Subdivisions);
+			SubdivideFaces(faces, (int) (parameter.Subdivisions * _maxSubdivisions));
 			FormSphere(faces, parameter.Dimensions.KernelRadius);
 			PlanetData data = CreatePlanetData(parameter);
 			Init(faces, data);
@@ -142,7 +143,7 @@ namespace SBaier.Master
             public Parameter(PlanetDimensions dimensions,
                 TemperatureSpectrum temperatureSpectrum,
                 PlanetAxisData axisData,
-                int subdivisions, 
+                float subdivisions, 
                 Seed seed,
                 PlanetLayerMaterialSettings[] materials,
                 Noise3D gradientNoise)
@@ -159,7 +160,7 @@ namespace SBaier.Master
 			public PlanetDimensions Dimensions { get; }
 			public TemperatureSpectrum TemperatureSpectrum { get; }
 			public PlanetAxisData AxisData { get; }
-			public int Subdivisions { get; }
+			public float Subdivisions { get; }
 			public Seed Seed { get; }
 			public PlanetLayerMaterialSettings[] Materials { get; }
 			public Noise3D GradientNoise { get; }

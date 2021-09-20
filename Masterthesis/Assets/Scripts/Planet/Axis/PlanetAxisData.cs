@@ -2,7 +2,8 @@ using System;
 
 namespace SBaier.Master
 {
-    public struct PlanetAxisData
+	[Serializable]
+	public class PlanetAxisData
     {
         public PlanetAxisData(float angle, float secondsPerRevolution)
 		{

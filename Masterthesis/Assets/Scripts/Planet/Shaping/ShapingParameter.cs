@@ -1,17 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class ShapingParameter
+	[Serializable]
+	public class ShapingParameter
     {
         public ShapingParameter(
-            PlatesShapingParameter plates)
+            TerrainStructureParameters plates)
 		{
 			Plates = plates;
 		}
 
-		public PlatesShapingParameter Plates { get; }
+		public TerrainStructureParameters Plates { get; }
 	}
 }

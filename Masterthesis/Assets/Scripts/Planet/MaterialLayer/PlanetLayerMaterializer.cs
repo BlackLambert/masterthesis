@@ -61,31 +61,28 @@ namespace SBaier.Master
 
 		private PlanetLayerAdder.Parameter CreateParameter(Parameter parameter)
 		{
-            return new PlanetLayerAdder.Parameter(parameter.Biomes, parameter.Planet, parameter.BlendFactor);
+            return new PlanetLayerAdder.Parameter(parameter.Biomes, parameter.Planet);
         }
 
 		private PlanetRockLayerAdder.Parameter CreateRockParameter(Parameter parameter)
 		{
-            return new PlanetRockLayerAdder.Parameter(parameter.Biomes, parameter.Planet, parameter.BlendFactor, parameter.ShapingLayers);
+            return new PlanetRockLayerAdder.Parameter(parameter.Biomes, parameter.Planet, parameter.ShapingLayers);
         }
 
         public class Parameter
 		{
             public Parameter(Planet planet,
                 Biome[] biomes,
-                ShapingLayer[] shapingLayers,
-                float blendFactor)
+                ShapingLayer[] shapingLayers)
 			{
 				Planet = planet;
 				Biomes = biomes;
 				ShapingLayers = shapingLayers;
-				BlendFactor = blendFactor;
 			}
 
 			public Planet Planet { get; }
 			public Biome[] Biomes { get; }
 			public ShapingLayer[] ShapingLayers { get; }
-			public float BlendFactor { get; }
 		}
     }
 }

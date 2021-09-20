@@ -9,6 +9,9 @@ namespace SBaier.Master
 {
 	public class EvaluationPointDatasInitializer
 	{
+		private const int _maxWarpChaos = 3;
+		private const float _maxRelativeWarpDistance = 0.3f;
+		private const float _minRelativeWarpDistance = 0.1f;
 		Vector3BinaryKDTreeFactory _treeFactory;
 
 		private Planet _planet;
@@ -17,9 +20,7 @@ namespace SBaier.Master
 		private Noise3D _warpNoise;
 		private ContinentalPlates _plates;
 		private ContinentalPlateSegment[] _segments;
-		private VoronoiDiagram _segementsVoronoi;
 		private KDTree<Vector3> _segmentsKDTree;
-		private Biome[] _biomes;
 		private float _blendDistance;
 		private bool _hasBlendDistance;
 		private BiomeOccurrenceSerializer _serializer;
@@ -42,13 +43,12 @@ namespace SBaier.Master
 		{
 			_planet = parameter.Planet;
 			_warpNoise = parameter.WarpNoise;
-			_warpFactor = parameter.WarpFactor;
-			_warpChaosFacor = parameter.WarpChaosFactor;
+			_warpFactor = Mathf.Max(_minRelativeWarpDistance, parameter.WarpFactor * _maxRelativeWarpDistance);
+			_warpFactor = parameter.WarpFactor * _maxRelativeWarpDistance;
+			_warpChaosFacor = parameter.WarpFactor * _maxWarpChaos;
 			_plates = _planet.Data.ContinentalPlates;
 			_segments = _plates.Segments;
-			_segementsVoronoi = _plates.SegmentsVoronoi;
 			_segmentsKDTree = _treeFactory.Create(_plates.SegmentSites);
-			_biomes = parameter.Biomes;
 			_blendDistance = parameter.BlendDistance;
 			_hasBlendDistance = parameter.BlendDistance > 0;
 		}
@@ -110,14 +110,12 @@ namespace SBaier.Master
 			public Parameter(Planet planet,
 				Noise3D warpNoise,
 				float warpFactor,
-				float warpChaosFactor,
 				Biome[] biomes,
 				float blendDistance)
 			{
 				Planet = planet;
 				WarpNoise = warpNoise;
 				WarpFactor = warpFactor;
-				WarpChaosFactor = warpChaosFactor;
 				Biomes = biomes;
 				BlendDistance = blendDistance;
 			}
@@ -125,7 +123,6 @@ namespace SBaier.Master
 			public Planet Planet { get; }
 			public Noise3D WarpNoise { get; }
 			public float WarpFactor { get; }
-			public float WarpChaosFactor { get; }
 			public Biome[] Biomes { get; }
 			public float BlendDistance { get; }
 		}

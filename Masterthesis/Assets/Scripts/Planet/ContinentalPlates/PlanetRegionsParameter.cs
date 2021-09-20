@@ -1,18 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace SBaier.Master
 {
-    public class ContinentalPlatesParameter 
+	[Serializable]
+	public class PlanetRegionsParameter 
     {
-        public ContinentalPlatesParameter(
+        public PlanetRegionsParameter(
             int segmentsAmount,
             int continentsAmount,
             int oceansAmount,
             int platesAmount,
 			float warpFactor,
-			float warpChaosFactor,
 			float blendFactor,
 			float sampleEliminationFactor,
 			float platesMinForce)
@@ -22,7 +23,6 @@ namespace SBaier.Master
 			OceansAmount = oceansAmount;
 			PlatesAmount = platesAmount;
 			WarpFactor = warpFactor;
-			WarpChaosFactor = warpChaosFactor;
 			BlendFactor = blendFactor;
 			SampleEliminationFactor = sampleEliminationFactor;
 			PlatesMinForce = platesMinForce;
@@ -33,7 +33,6 @@ namespace SBaier.Master
 		public int OceansAmount { get; }
 		public int PlatesAmount { get; }
 		public float WarpFactor { get; }
-		public float WarpChaosFactor { get; }
 		public float BlendFactor { get; }
 		public float SampleEliminationFactor { get; }
 		public float PlatesMinForce { get; }

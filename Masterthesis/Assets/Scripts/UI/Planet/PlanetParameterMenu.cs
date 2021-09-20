@@ -47,8 +47,6 @@ namespace SBaier.Master
 		[SerializeField]
 		private SliderPanel _warpPanel;
 		[SerializeField]
-		private SliderPanel _warpChaosPanel;
-		[SerializeField]
 		private SliderPanel _blendPanel;
 		[SerializeField]
 		private SliderPanel _sampleEliminationPanel;
@@ -88,10 +86,10 @@ namespace SBaier.Master
 			Seed seed = CreateSeed();
 			if (_randomizeToggle.isOn)
 				Randomize(seed);
-			int subdivisions = (int)_subdivisionsSliderPanel.Slider.value;
+			float subdivisions = _subdivisionsSliderPanel.Slider.value;
 			PlanetDimensions dimensions = CreatePlanetDimensions();
 			PlanetAxisData axis = CreateAxisData();
-			ContinentalPlatesParameter continentalPlatesParameter = CreateContinentalPlatesParameter();
+			PlanetRegionsParameter continentalPlatesParameter = CreateContinentalPlatesParameter();
 			TemperatureSpectrum temperatureSpectrum = CreateTemperatureSpecturm();
 			ShapingParameter shaping = CreateShapingParameter();
 
@@ -99,7 +97,7 @@ namespace SBaier.Master
 			(
 				seed: seed,
 				subdivisions: subdivisions,
-				dimensions: dimensions,
+				planetDimensions: dimensions,
 				axisData: axis,
 				continentalPlatesParameter: continentalPlatesParameter,
 				temperatureSpectrum: temperatureSpectrum,
@@ -123,7 +121,6 @@ namespace SBaier.Master
 			_platesPanel.Randomize(seed);
 			_platesMinForcePanel.Randomize(seed);
 			_warpPanel.Randomize(seed);
-			_warpChaosPanel.Randomize(seed);
 			_blendPanel.Randomize(seed);
 			_sampleEliminationPanel.Randomize(seed);
 
@@ -145,7 +142,7 @@ namespace SBaier.Master
 
 		public void Load(PlanetGenerator.Parameter parameter)
 		{
-			PlanetDimensions dimensions = parameter.Dimensions;
+			PlanetDimensions dimensions = parameter.PlanetDimensions;
 			_atmosphereSliderPanel.Slider.value = dimensions.AtmosphereRadius;
 			_maxHullSliderPanel.Slider.value = dimensions.HullMaxRadius;
 			_bedrockSliderPanel.Slider.value = dimensions.KernelRadius;
@@ -155,32 +152,33 @@ namespace SBaier.Master
 			_axisAnglePanel.Slider.value = axis.Angle;
 			_secondsPerRevolutionPanel.Slider.value = axis.SecondsPerRevolution;
 
-			ContinentalPlatesParameter plates = parameter.ContinentalPlatesParameter;
+			PlanetRegionsParameter plates = parameter.ContinentalPlatesParameter;
 			_plateSegmentsPanel.Slider.value = plates.SegmentsAmount;
 			_continentsPanel.Slider.value = plates.ContinentsAmount;
 			_oceansPanel.Slider.value = plates.OceansAmount;
 			_platesPanel.Slider.value = plates.PlatesAmount;
 			_platesMinForcePanel.Slider.value = plates.PlatesMinForce;
 			_warpPanel.Slider.value = plates.WarpFactor;
-			_warpChaosPanel.Slider.value = plates.WarpChaosFactor;
 			_blendPanel.Slider.value = plates.BlendFactor;
 			_sampleEliminationPanel.Slider.value = plates.SampleEliminationFactor;
 
-			PlatesShapingParameter shaping = parameter.Shaping.Plates;
-			_mountainBreadthPanel.Slider.value = shaping.MountainsBreadthFactor;
-			_mountainBlendFactorPanel.Slider.value = shaping.MountainsBlendDistanceFactor;
-			_mountainMinPanel.Slider.value = shaping.MountainMin;
-			_mountainMinBreadthPanel.Slider.value = shaping.MountainMinBreadth;
-			_mountainHeightFactorPanel.Slider.value = shaping.MountainHeightFactor;
-			_canyonsBreadthPanel.Slider.value = shaping.CanyonsBreadthFactor;
-			_canyonBlendFactorPanel.Slider.value = shaping.CanyonsBlendDistanceFactor;
-			_canyonMinPanel.Slider.value = shaping.CanyonMin;
-			_canyonMinBreadthPanel.Slider.value = shaping.CanyonMinBreadth;
-			_canyonDepthFactorPanel.Slider.value = shaping.CanyonDepthFactor;
+			TerrainStructureParameters shaping = parameter.Shaping.Plates;
+			MountainSettings mountain = shaping.Mountain;
+			CanyonSettings canyon = shaping.Canyon;
+			_mountainBreadthPanel.Slider.value = mountain.MaxBreadth;
+			_mountainBlendFactorPanel.Slider.value = mountain.Blendvalue;
+			_mountainMinPanel.Slider.value = mountain.MaxHeight;
+			_mountainMinBreadthPanel.Slider.value = mountain.MinBreadth;
+			_mountainHeightFactorPanel.Slider.value = mountain.MaxHeight;
+			_canyonsBreadthPanel.Slider.value = canyon.MaxBreadth;
+			_canyonBlendFactorPanel.Slider.value = canyon.Blendvalue;
+			_canyonMinPanel.Slider.value = canyon.MinDepth;
+			_canyonMinBreadthPanel.Slider.value = canyon.MinBreadth;
+			_canyonDepthFactorPanel.Slider.value = canyon.MaxDepth;
 
 			TemperatureSpectrum tempSpectrum = parameter.TemperatureSpectrum;
-			_minTempPanel.Slider.value = tempSpectrum.Min;
-			_maxTempPanel.Slider.value = tempSpectrum.Max;
+			_minTempPanel.Slider.value = tempSpectrum.Minimal;
+			_maxTempPanel.Slider.value = tempSpectrum.Maximal;
 		}
 
 		private TemperatureSpectrum CreateTemperatureSpecturm()
@@ -208,30 +206,29 @@ namespace SBaier.Master
 			return axis;
 		}
 
-		private ContinentalPlatesParameter CreateContinentalPlatesParameter()
+		private PlanetRegionsParameter CreateContinentalPlatesParameter()
 		{
 			int plateSegments = (int)_plateSegmentsPanel.Slider.value;
 			int contients = (int)_continentsPanel.Slider.value;
 			int oceans = (int)_oceansPanel.Slider.value;
 			int plates = (int)_platesPanel.Slider.value;
 			float warpFactor = _warpPanel.Slider.value;
-			float warpChaosFactor = _warpChaosPanel.Slider.value;
 			float blendFactor = _blendPanel.Slider.value;
 			float sampleEliminationFactor = _sampleEliminationPanel.Slider.value;
 			sampleEliminationFactor = 1 + (1 - sampleEliminationFactor) * _maximalSampleEliminationFactor;
 			float platesMinFoce = _platesMinForcePanel.Slider.value;
-			ContinentalPlatesParameter continentalPlatesParameter =
-				new ContinentalPlatesParameter(plateSegments, contients, oceans, plates, warpFactor, warpChaosFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
+			PlanetRegionsParameter continentalPlatesParameter =
+				new PlanetRegionsParameter(plateSegments, contients, oceans, plates, warpFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
 			return continentalPlatesParameter;
 		}
 
 		private ShapingParameter CreateShapingParameter()
 		{
-			PlatesShapingParameter plates = CreatePlatesShapingParameter();
+			TerrainStructureParameters plates = CreatePlatesShapingParameter();
 			return new ShapingParameter(plates);
 		}
 
-		private PlatesShapingParameter CreatePlatesShapingParameter()
+		private TerrainStructureParameters CreatePlatesShapingParameter()
 		{
 			float mountainBreadthFactor = _mountainBreadthPanel.Slider.value;
 			float mountainBlendFactor = _mountainBlendFactorPanel.Slider.value;
@@ -243,17 +240,26 @@ namespace SBaier.Master
 			float canyonMin = _canyonMinPanel.Slider.value;
 			float canyonMinBreadth = _canyonMinBreadthPanel.Slider.value;
 			float canyonDepthFactor = _canyonDepthFactorPanel.Slider.value;
-			return new PlatesShapingParameter(
-				mountainBreadthFactor, 
-				mountainBlendFactor, 
-				mountainMin,
+
+			MountainSettings mountain = new MountainSettings(
 				mountainMinBreadth,
+				mountainBreadthFactor,
+				mountainMin,
 				mountainHeightFactor,
-				canyonBreadthFactor, 
-				canyonBlendFactor, 
-				canyonMin,
+				mountainBlendFactor
+				);
+
+			CanyonSettings canyons = new CanyonSettings(
 				canyonMinBreadth,
-				canyonDepthFactor);
+				canyonBreadthFactor,
+				canyonMin,
+				canyonDepthFactor,
+				canyonBlendFactor
+				);
+
+			return new TerrainStructureParameters(
+				mountain,
+				canyons);
 		}
 
 		private Seed CreateSeed()

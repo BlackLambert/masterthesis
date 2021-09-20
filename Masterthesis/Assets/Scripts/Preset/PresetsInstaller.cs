@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
@@ -7,11 +8,16 @@ namespace SBaier.Master
     {
         [SerializeField]
         private PresetListEntry _entry;
+        [SerializeField]
+        private PresetsFileLoader _loader;
 
         public override void InstallBindings()
         {
             Container.BindFactory<Preset, PresetListEntry, PresetListEntry.Factory>().FromComponentInNewPrefab(_entry);
-            Container.Bind<Presets>().AsSingle();
+            Presets loadedPresets = _loader.Load();
+            if (loadedPresets == null)
+                loadedPresets = new Presets(new List<Preset>());
+            Container.Bind<Presets>().FromInstance(loadedPresets).AsSingle();
         }
     }
 }

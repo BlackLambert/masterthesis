@@ -59,7 +59,7 @@ namespace SBaier.Master
 			PresetListEntry newEntry = _factory.Create(preset);
 			newEntry.Base.SetParent(_hook);
 			newEntry.transform.localScale = Vector3.one;
-			newEntry.OnDelete += Remove;
+			newEntry.OnDelete += Delete;
 			_entries.Add(preset, newEntry);
 		}
 
@@ -67,8 +67,13 @@ namespace SBaier.Master
 		{
 			PresetListEntry entry = _entries[preset];
 			_entries.Remove(preset);
-			entry.OnDelete -= Remove;
+			entry.OnDelete -= Delete;
 			entry.Destruct();
+		}
+
+		private void Delete(Preset preset)
+		{
+			_presets.Remove(preset);
 		}
 	}
 }

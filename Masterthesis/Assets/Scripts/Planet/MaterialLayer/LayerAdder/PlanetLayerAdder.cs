@@ -86,17 +86,14 @@ namespace SBaier.Master
         public class Parameter
 		{
             public Parameter(Biome[] biomes,
-                Planet planet,
-                float blendFactor)
+                Planet planet)
 			{
 				Biomes = biomes;
 				Planet = planet;
-				BlendFactor = blendFactor;
 			}
 
 			public Biome[] Biomes { get; }
 			public Planet Planet { get; }
-			public float BlendFactor { get; }
 		}
     }
 }

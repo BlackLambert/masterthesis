@@ -2,23 +2,26 @@ using System;
 
 namespace SBaier.Master
 {
-    public struct TemperatureSpectrum
+	[Serializable]
+	public struct TemperatureSpectrum
     {
-        public TemperatureSpectrum(float min, float max)
-		{
-			Validate(min, max);
+		private const float _minTemp = -273.2f;
 
-			Min = min;
-			Max = max;
+		public TemperatureSpectrum(float minimal, float maximal)
+		{
+			Validate(minimal, maximal);
+
+			Minimal = minimal;
+			Maximal = maximal;
 		}
 
-		public float Min { get; }
-		public float Max { get; }
-		public float Delta => Max - Min;
+		public float Minimal { get; }
+		public float Maximal { get; }
+		public float Delta => Maximal - Minimal;
 
 		private static void Validate(float min, float max)
 		{
-			if (min > max)
+			if (min > max || min < _minTemp)
 				throw new ArgumentOutOfRangeException();
 		}
 	}

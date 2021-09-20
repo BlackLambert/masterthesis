@@ -9,7 +9,8 @@ namespace SBaier.Master
     public class ContinentalPlatesFactory
     {
 		private const float _minPlatesForce = 0.5f;
-
+		private const float _minStartSamplesFactor = 1.0f;
+		private const float _startSamplesFactorVariance = 2.0f;
 		private RandomPointsOnSphereGenerator _randomPointsGenerator;
 		private SampleElimination3D _sampleElimination;
 		private Vector3BinaryKDTreeFactory _kdTreeFactory;
@@ -26,7 +27,7 @@ namespace SBaier.Master
 
 		public ContinentalPlates Create(Parameters parameters)
 		{
-			int segmentsAmount = parameters.ContinentalPlatesParameter.SegmentsAmount;
+			int segmentsAmount = parameters.PlanetRegionsParameter.SegmentsAmount;
 			Vector3[] plateSegmentSites = CreateSites(parameters, segmentsAmount);
 			Triangle[] segmentsTriangles = CreatePlateSegmentTriangles(plateSegmentSites);
 			VoronoiDiagram segmentsVoronoi = CreatePlateSegmentVoronoiDiagram(plateSegmentSites, segmentsTriangles, parameters.Planet.AtmosphereRadius);
@@ -43,7 +44,7 @@ namespace SBaier.Master
 
 		private ContinentalRegion[] CreateRegions(Parameters parameters, Vector3[] plateSegmentSites, ContinentalPlateSegment[] segments, VoronoiDiagram segmentsVoronoi)
 		{
-			int regionSitesAmount = parameters.ContinentalPlatesParameter.OceansAmount + parameters.ContinentalPlatesParameter.ContinentsAmount;
+			int regionSitesAmount = parameters.PlanetRegionsParameter.OceansAmount + parameters.PlanetRegionsParameter.ContinentsAmount;
 			ContinentalRegion[] result = new ContinentalRegion[regionSitesAmount];
 			Vector3[] regionSites = CreateSites(parameters, regionSitesAmount);
 			//KDTree<Vector3> regionSitesTree = _kdTreeFactory.Create(regionSites);
@@ -125,7 +126,7 @@ namespace SBaier.Master
 
 			List<Polygon> polygons = ExtractPolygons(regionToSegments[index], segments);
 			Vector2Int[] borders = GetBorders(polygons.ToArray());
-			ContinentalRegion.Type type = index < parameters.ContinentalPlatesParameter.OceansAmount ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
+			ContinentalRegion.Type type = index < parameters.PlanetRegionsParameter.OceansAmount ? ContinentalRegion.Type.Oceanic : ContinentalRegion.Type.ContinentalPlate;
 			List<int> segmentIndices = regionToSegments[index];
 
 			for (int i = 0; i < segmentIndices.Count; i++)
@@ -184,7 +185,7 @@ namespace SBaier.Master
 			TemperatureSpectrum spectrum = parameters.Planet.Data.TemperatureSpectrum;
 			float angle = Vector3.Angle(site, Vector3.up);
 			float t = 1 - Mathf.Abs((angle - 90) / 90);
-			return Mathf.Lerp(spectrum.Min, spectrum.Max, t);
+			return Mathf.Lerp(spectrum.Minimal, spectrum.Maximal, t);
 		}
 
 		private VoronoiDiagram CreatePlateSegmentVoronoiDiagram(Vector3[] plateSegmentSites, Triangle[] triangles, float radius)
@@ -204,10 +205,10 @@ namespace SBaier.Master
 		private ContinentalPlate[] CreatePlates(Parameters parameters, ContinentalRegion[] regions)
 		{
 			Vector3[] regionSites = regions.Select(r => r.Site).ToArray();
-			Vector3[] plateSites = CreateSites(parameters, parameters.ContinentalPlatesParameter.PlatesAmount);
+			Vector3[] plateSites = CreateSites(parameters, parameters.PlanetRegionsParameter.PlatesAmount);
 			KDTree<Vector3> platesKDTree = _kdTreeFactory.Create(plateSites);
 			List<int>[] plateToRegion = FindNearest(regionSites, platesKDTree);
-			ContinentalPlate[] result = new ContinentalPlate[parameters.ContinentalPlatesParameter.PlatesAmount];
+			ContinentalPlate[] result = new ContinentalPlate[parameters.PlanetRegionsParameter.PlatesAmount];
 			Seed seed = new Seed(parameters.Seed.Random.Next());
 			for (int i = 0; i < plateToRegion.Length; i++)
 				result[i] = CreatePlate(parameters, regions, plateSites, plateToRegion, seed, i);
@@ -217,7 +218,7 @@ namespace SBaier.Master
 		private ContinentalPlate CreatePlate(Parameters parameters, ContinentalRegion[] regions, Vector3[] plateSites, List<int>[] plateToRegion, Seed seed, int index)
 		{
 			Vector3 movementTangent = CalculateMovementTangent(plateSites[index], seed);
-			float movementStrength = CalculateMovementStrength(seed, parameters.ContinentalPlatesParameter.PlatesMinForce);
+			float movementStrength = CalculateMovementStrength(seed, parameters.PlanetRegionsParameter.PlatesMinForce);
 			List<Polygon> polygons = ExtractPolygons(plateToRegion[index], regions);
 			Vector2Int[] borders = GetBorders(polygons.ToArray());
 			return new ContinentalPlate(plateSites[index], plateToRegion[index].ToArray(), movementTangent, movementStrength, borders);
@@ -276,7 +277,8 @@ namespace SBaier.Master
 		private Vector3[] CreateSites(Parameters parameters, int sitesAmount)
 		{
 			float atmosphereRadius = parameters.Planet.AtmosphereRadius;
-			int siteSamples = (int)(sitesAmount * parameters.ContinentalPlatesParameter.SampleEliminationFactor);
+			float startSamplesFactor = _minStartSamplesFactor + parameters.PlanetRegionsParameter.SampleEliminationFactor * _startSamplesFactorVariance;
+			int siteSamples = (int)(sitesAmount * startSamplesFactor);
 			Vector3[] points = _randomPointsGenerator.Generate(siteSamples, atmosphereRadius, parameters.Seed);
 			float sphereSurface = GetSphereSurface(parameters);
 			return _sampleElimination.Eliminate(points, sitesAmount, sphereSurface);
@@ -299,18 +301,18 @@ namespace SBaier.Master
 			public Parameters(
 				Planet planet, 
 				Seed seed, 
-				ContinentalPlatesParameter continentalPlatesParameter,
+				PlanetRegionsParameter planetRegionsParameter,
 				BiomeSettings[] biomes)
 			{
 				Planet = planet;
 				Seed = seed;
-				ContinentalPlatesParameter = continentalPlatesParameter;
+				PlanetRegionsParameter = planetRegionsParameter;
 				Biomes = biomes;
 			}
 
 			public Planet Planet { get; }
 			public Seed Seed { get; }
-			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
+			public PlanetRegionsParameter PlanetRegionsParameter { get; }
 			public BiomeSettings[] Biomes { get; }
 		}
 

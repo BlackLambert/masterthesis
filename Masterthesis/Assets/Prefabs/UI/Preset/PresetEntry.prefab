@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 6556551750981791621}
   - component: {fileID: 4551074490082029119}
   - component: {fileID: 6507204684049403441}
+  - component: {fileID: 8792801808470166330}
   m_Layer: 5
   m_Name: DeleteButton
   m_TagString: Untagged
@@ -255,6 +256,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8792801808470166330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2399675613282578682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07d01146087b1e4fb6b97bedf908255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _textToDisplay: Entferne Vorlage
 --- !u!1 &4054895821378847281
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,6 +415,7 @@ GameObject:
   - component: {fileID: 2329270556540689096}
   - component: {fileID: 2431192683954752975}
   - component: {fileID: 5338351512493950458}
+  - component: {fileID: 8001641462982241384}
   m_Layer: 5
   m_Name: UpdateButton
   m_TagString: Untagged
@@ -510,6 +525,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8001641462982241384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6380227109636966640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07d01146087b1e4fb6b97bedf908255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _textToDisplay: "\xDCberschreibe die Vorlage mit den aktuellen Parametern"
 --- !u!1 &7201841255305937464
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,6 +802,7 @@ GameObject:
   - component: {fileID: 2606637085610287180}
   - component: {fileID: 9184175705195233389}
   - component: {fileID: 2654240452930408675}
+  - component: {fileID: 6340868447657208785}
   m_Layer: 5
   m_Name: LoadButton
   m_TagString: Untagged
@@ -883,6 +912,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6340868447657208785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8113303605827443672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07d01146087b1e4fb6b97bedf908255, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _textToDisplay: Lade die Parameter dieser Vorlage.
 --- !u!1 &9191763346272208539
 GameObject:
   m_ObjectHideFlags: 0

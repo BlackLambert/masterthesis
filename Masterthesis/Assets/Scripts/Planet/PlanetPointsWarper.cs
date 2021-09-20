@@ -61,7 +61,8 @@ namespace SBaier.Master
             float deltaLength = warpValue * _warpFactor * _evalRadius;
             Vector3 deltaVector = tangential.FastMultiply(deltaLength);
             Vector3 result = normalized.FastMultiply(_evalRadius);
-            Quaternion rot = Quaternion.AngleAxis(warpValue * _maxWarpAngle * _warpChaosFactor, result);
+            float angle = (warpValue * _maxWarpAngle * _warpChaosFactor)%_maxWarpAngle;
+            Quaternion rot = Quaternion.AngleAxis(angle, result);
             result = result.FastAdd(rot * deltaVector);
             return result;
         }

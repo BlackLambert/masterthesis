@@ -1,4 +1,5 @@
 
+using Newtonsoft.Json;
 using System;
 using UnityEngine;
 using Zenject;
@@ -8,6 +9,7 @@ namespace SBaier.Master
     public class PlanetGenerator : MonoBehaviour
     {
 		private const float _minimalCameraDistance = 1f;
+		private const float _maxRelativeBlendDistance = 0.25f;
 		[Header("Planet Body")]
         [SerializeField]
         private IcosahedronGeneratorSettings _meshGeneratorSettings;
@@ -150,7 +152,7 @@ namespace SBaier.Master
 
         private BasicPlanetFactory.Parameter CreateBasicPlanetFactoryParameter()
 		{
-            PlanetDimensions dimensions = _parameter.Dimensions;
+            PlanetDimensions dimensions = _parameter.PlanetDimensions;
             TemperatureSpectrum temperature = _parameter.TemperatureSpectrum;
             PlanetAxisData axis = _parameter.AxisData;
             return new BasicPlanetFactory.Parameter(
@@ -176,9 +178,8 @@ namespace SBaier.Master
                 _planet, 
                 _continentalPlatesWarpingNoise, 
                 _parameter.ContinentalPlatesParameter.WarpFactor,
-                _parameter.ContinentalPlatesParameter.WarpChaosFactor,
                 _biomes,
-                _parameter.ContinentalPlatesParameter.BlendFactor * _planet.AtmosphereRadius);
+                _parameter.ContinentalPlatesParameter.BlendFactor * _maxRelativeBlendDistance * _planet.Data.Dimensions.HullMaxRadius);
         }
 
         private void UpdateDebugView()
@@ -217,8 +218,7 @@ namespace SBaier.Master
             return new PlanetLayerMaterializer.Parameter(
                 _planet, 
                 _biomes, 
-                shapingLayers,
-                _parameter.ContinentalPlatesParameter.BlendFactor);
+                shapingLayers);
         }
 
         private void SetVertexColors()
@@ -230,35 +230,37 @@ namespace SBaier.Master
 
         private void UpdateCamera()
         {
-            _focalDistanceController.SetMinDistance(_parameter.Dimensions.HullMaxRadius + _minimalCameraDistance);
+            _focalDistanceController.SetMinDistance(_parameter.PlanetDimensions.HullMaxRadius + _minimalCameraDistance);
 
 		}
 
 
+        [Serializable]
         public class Parameter
 		{
             public Parameter(Seed seed,
-                int subdivisions,
-                PlanetDimensions dimensions,
+                float subdivisions,
+                PlanetDimensions planetDimensions,
                 PlanetAxisData axisData,
-                ContinentalPlatesParameter continentalPlatesParameter,
+                PlanetRegionsParameter continentalPlatesParameter,
                 TemperatureSpectrum temperatureSpectrum,
                 ShapingParameter shaping)
 			{
 				Seed = seed;
 				Subdivisions = subdivisions;
-				Dimensions = dimensions;
-				AxisData = axisData;
+				PlanetDimensions = planetDimensions;
+                AxisData = axisData;
 				ContinentalPlatesParameter = continentalPlatesParameter;
 				TemperatureSpectrum = temperatureSpectrum;
 				Shaping = shaping;
 			}
 
+            [JsonIgnore]
 			public Seed Seed { get; }
-			public int Subdivisions { get; }
-			public PlanetDimensions Dimensions { get; }
+			public float Subdivisions { get; }
+			public PlanetDimensions PlanetDimensions { get; }
 			public PlanetAxisData AxisData { get; }
-			public ContinentalPlatesParameter ContinentalPlatesParameter { get; }
+			public PlanetRegionsParameter ContinentalPlatesParameter { get; }
 			public TemperatureSpectrum TemperatureSpectrum { get; }
 			public ShapingParameter Shaping { get; }
 		}
