@@ -47,6 +47,8 @@ namespace SBaier.Master
 		[SerializeField]
 		private SliderPanel _warpPanel;
 		[SerializeField]
+		private SliderPanel _warpLayersPanel;
+		[SerializeField]
 		private SliderPanel _blendPanel;
 		[SerializeField]
 		private SliderPanel _sampleEliminationPanel;
@@ -152,7 +154,7 @@ namespace SBaier.Master
 			_axisAnglePanel.Slider.value = axis.Angle;
 			_secondsPerRevolutionPanel.Slider.value = axis.SecondsPerRevolution;
 
-			PlanetRegionsParameter plates = parameter.ContinentalPlatesParameter;
+			PlanetRegionsParameter plates = parameter.PlanetRegionsParameter;
 			_plateSegmentsPanel.Slider.value = plates.SegmentsAmount;
 			_continentsPanel.Slider.value = plates.ContinentsAmount;
 			_oceansPanel.Slider.value = plates.OceansAmount;
@@ -213,12 +215,13 @@ namespace SBaier.Master
 			int oceans = (int)_oceansPanel.Slider.value;
 			int plates = (int)_platesPanel.Slider.value;
 			float warpFactor = _warpPanel.Slider.value;
+			int warpLayers = (int) _warpLayersPanel.Slider.value;
 			float blendFactor = _blendPanel.Slider.value;
 			float sampleEliminationFactor = _sampleEliminationPanel.Slider.value;
 			sampleEliminationFactor = 1 + (1 - sampleEliminationFactor) * _maximalSampleEliminationFactor;
 			float platesMinFoce = _platesMinForcePanel.Slider.value;
 			PlanetRegionsParameter continentalPlatesParameter =
-				new PlanetRegionsParameter(plateSegments, contients, oceans, plates, warpFactor, blendFactor, sampleEliminationFactor, platesMinFoce);
+				new PlanetRegionsParameter(plateSegments, contients, oceans, plates, warpFactor, warpLayers, blendFactor, sampleEliminationFactor, platesMinFoce);
 			return continentalPlatesParameter;
 		}
 

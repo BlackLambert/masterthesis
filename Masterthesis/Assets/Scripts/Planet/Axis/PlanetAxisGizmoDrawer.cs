@@ -22,6 +22,8 @@ namespace SBaier.Master
 
         public void OnDrawGizmosSelected()
 		{
+            if (_axis == null || _dimensions.Equals(default(PlanetDimensions)))
+                return;
             Gizmos.color = Color.red;
             Vector3 axis = Vector3.up * _dimensions.AtmosphereRadius + Vector3.up * _additionalAxisLength;
             axis = Quaternion.AngleAxis(_axis.Angle, Vector3.forward) * axis;

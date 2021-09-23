@@ -10,14 +10,14 @@ namespace SBaier.Master
 	public class EvaluationPointDatasInitializer
 	{
 		private const int _maxWarpChaos = 3;
-		private const float _maxRelativeWarpDistance = 0.3f;
-		private const float _minRelativeWarpDistance = 0.1f;
+		private const float _maxRelativeWarpDistance = 0.4f;
+		private const float _minRelativeWarpDistance = 0.15f;
 		Vector3BinaryKDTreeFactory _treeFactory;
 
 		private Planet _planet;
 		private float _warpFactor;
 		private float _warpChaosFacor;
-		private Noise3D _warpNoise;
+		private Noise3D[] _warpNoise;
 		private ContinentalPlates _plates;
 		private ContinentalPlateSegment[] _segments;
 		private KDTree<Vector3> _segmentsKDTree;
@@ -57,13 +57,17 @@ namespace SBaier.Master
 		{
 			PlanetFaceData faceData = face.Data;
 			EvaluationPointData[] evaluationPoints = faceData.EvaluationPoints;
-			PlanetPointsWarper warper = new PlanetPointsWarper(_warpNoise);
-			Vector3[] warpedVertices = warper.Warp(face.Vertices, _warpFactor, _warpChaosFacor, _planet.Data.Dimensions.AtmosphereRadius);
-			KDTree<Vector3> warpedVerticesTree = _treeFactory.Create(warpedVertices);
-			face.SetWarpedVertices(warpedVertices, warpedVerticesTree);
-			int[] segmentIndices = _segmentsKDTree.GetNearestTo(warpedVertices);
+			Vector3[] warpedPoints = face.Vertices;
+			foreach (Noise3D noise in _warpNoise)
+			{
+				PlanetPointsWarper warper = new PlanetPointsWarper(noise);
+				warpedPoints = warper.Warp(warpedPoints, _warpFactor, _warpChaosFacor, _planet.Data.Dimensions.AtmosphereRadius);
+			}
+			KDTree<Vector3> warpedVerticesTree = _treeFactory.Create(warpedPoints);
+			face.SetWarpedVertices(warpedPoints, warpedVerticesTree);
+			int[] segmentIndices = _segmentsKDTree.GetNearestTo(warpedPoints);
 			for (int i = 0; i < segmentIndices.Length; i++)
-				InitData(evaluationPoints[i], segmentIndices[i], warpedVertices[i]);
+				InitData(evaluationPoints[i], segmentIndices[i], warpedPoints[i]);
 		}
 
 		private void InitData(EvaluationPointData pointData, int segmentIndex, Vector3 vertex)
@@ -108,7 +112,7 @@ namespace SBaier.Master
 		public class Parameter
 		{
 			public Parameter(Planet planet,
-				Noise3D warpNoise,
+				Noise3D[] warpNoise,
 				float warpFactor,
 				Biome[] biomes,
 				float blendDistance)
@@ -121,7 +125,7 @@ namespace SBaier.Master
 			}
 
 			public Planet Planet { get; }
-			public Noise3D WarpNoise { get; }
+			public Noise3D[] WarpNoise { get; }
 			public float WarpFactor { get; }
 			public Biome[] Biomes { get; }
 			public float BlendDistance { get; }

@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &12450809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,7 +321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &181856483
 Transform:
   m_ObjectHideFlags: 0
@@ -368,7 +368,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &761901166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,7 +416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1051682707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -429,11 +429,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noiseSettings: {fileID: 11400000, guid: a70f9997021653e489864469960e542c, type: 2}
+  _noiseSettings: {fileID: 11400000, guid: ee216f8f85679c748ac082028ca922cc, type: 2}
   _bottomLeft: {x: 0, y: 0}
   _delta: {x: 0.01, y: 0.01}
   _imageSize: {x: 512, y: 512}
-  _fileName: LayeredNoise2D
+  _fileName: RidgeNoise2DOctave1
   _filePath: Noise/Thesis
 --- !u!4 &1051682709
 Transform:
@@ -448,4 +448,102 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1820046542
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1820046544}
+  - component: {fileID: 1820046543}
+  m_Layer: 0
+  m_Name: NoiseImageCreator (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1820046543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820046542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _noiseSettings: {fileID: 11400000, guid: ac2aae505c5074546b7612f8f1802e97, type: 2}
+  _bottomLeft: {x: 0, y: 0}
+  _delta: {x: 0.01, y: 0.01}
+  _imageSize: {x: 512, y: 512}
+  _fileName: RidgeNoise2DOctave2
+  _filePath: Noise/Thesis
+--- !u!4 &1820046544
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820046542}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2430828, y: 3.4950643, z: -4.6710567}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2110104608
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2110104610}
+  - component: {fileID: 2110104609}
+  m_Layer: 0
+  m_Name: NoiseImageCreator (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2110104609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2110104608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5d541c0c08f61e48a20c701afe881f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _noiseSettings: {fileID: 11400000, guid: fac45c0495b176c4cafaa2baca86150a, type: 2}
+  _bottomLeft: {x: 0, y: 0}
+  _delta: {x: 0.01, y: 0.01}
+  _imageSize: {x: 512, y: 512}
+  _fileName: RidgeNoise2DOctave3
+  _filePath: Noise/Thesis
+--- !u!4 &2110104610
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2110104608}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2430828, y: 3.4950643, z: -4.6710567}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

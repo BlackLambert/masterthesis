@@ -7,6 +7,7 @@ namespace SBaier.Master
 {
     public class PlanetRockLayerAdder : PlanetLayerAdder
     {
+		private const float _bottomLayerHeight = 0.01f;
 		private Planet _planet;
 		private ShapingLayer[] _shapingLayers;
 		private float _relativeSeaLevel;
@@ -38,7 +39,10 @@ namespace SBaier.Master
             float[] shapeValues = _shaper.Shape(face);
 
             for (int i = 0; i < shapeValues.Length; i++)
-                AddLayer(face, i, CalculateHeight(shapeValues[i]));
+            {
+                AddLayer(face, i, _bottomLayerHeight);
+                AddLayer(face, i, Mathf.Clamp01(CalculateHeight(shapeValues[i])-_bottomLayerHeight));
+            }
         }
 
         private float CalculateHeight(float shapeValue)

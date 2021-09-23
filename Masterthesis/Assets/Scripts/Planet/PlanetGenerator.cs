@@ -52,7 +52,7 @@ namespace SBaier.Master
         private PlanetLayerMaterialSettings[] _materials;
         private PlanetLayerTogglePanel _layerTogglePanel;
 
-        private Noise3D _continentalPlatesWarpingNoise;
+        private Noise3D[] _warpingNoise;
         private Noise3D _mountainsNoise;
         private Noise3D _canyonsNoise;
         private Noise3D _oceansNoise;
@@ -134,9 +134,14 @@ namespace SBaier.Master
 		}
 
 		private void CreateNoise(Parameter parameter)
-		{
-			_noiseFactory.ClearCache();
-			_continentalPlatesWarpingNoise = _noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, parameter.Seed);
+        {
+            int warpLayersAmount = parameter.PlanetRegionsParameter.WarpLayers;
+            _warpingNoise = new Noise3D[warpLayersAmount];
+			for (int i = 0; i < warpLayersAmount; i++)
+			{
+                _noiseFactory.ClearCache();
+                _warpingNoise[i] = _noiseFactory.Create(_continentalPlatesWarpingNoiseSettings, CreateSeed(parameter.Seed));
+            }
 			_mountainsNoise = _noiseFactory.Create(_mountainsNoiseSettings, parameter.Seed);
 			_canyonsNoise = _noiseFactory.Create(_canyonsNoiseSettings, parameter.Seed);
 			_oceansNoise = _noiseFactory.Create(_oceansNoiseSettings, parameter.Seed);
@@ -145,7 +150,12 @@ namespace SBaier.Master
             _layerMaterialGradientNoise = _noiseFactory.Create(_layerMaterialGradientNoiseSettings, parameter.Seed);
         }
 
-        private void CreatePlanet()
+		private Seed CreateSeed(Seed seed)
+		{
+            return new Seed(seed.Random.Next());
+		}
+
+		private void CreatePlanet()
         {
             _planet = _basicPlanetFactory.Create(CreateBasicPlanetFactoryParameter());
         }
@@ -176,10 +186,10 @@ namespace SBaier.Master
         {
             return new EvaluationPointDatasInitializer.Parameter(
                 _planet, 
-                _continentalPlatesWarpingNoise, 
-                _parameter.ContinentalPlatesParameter.WarpFactor,
+                _warpingNoise, 
+                _parameter.PlanetRegionsParameter.WarpFactor,
                 _biomes,
-                _parameter.ContinentalPlatesParameter.BlendFactor * _maxRelativeBlendDistance * _planet.Data.Dimensions.HullMaxRadius);
+                _parameter.PlanetRegionsParameter.BlendFactor * _maxRelativeBlendDistance * _planet.Data.Dimensions.HullMaxRadius);
         }
 
         private void UpdateDebugView()
@@ -209,7 +219,7 @@ namespace SBaier.Master
 			return new ContinentalPlatesFactory.Parameters(
                 _planet, 
                 _parameter.Seed, 
-                _parameter.ContinentalPlatesParameter, 
+                _parameter.PlanetRegionsParameter, 
                 _biomeSettings);
 		}
 
@@ -250,7 +260,7 @@ namespace SBaier.Master
 				Subdivisions = subdivisions;
 				PlanetDimensions = planetDimensions;
                 AxisData = axisData;
-				ContinentalPlatesParameter = continentalPlatesParameter;
+				PlanetRegionsParameter = continentalPlatesParameter;
 				TemperatureSpectrum = temperatureSpectrum;
 				Shaping = shaping;
 			}
@@ -260,7 +270,7 @@ namespace SBaier.Master
 			public float Subdivisions { get; }
 			public PlanetDimensions PlanetDimensions { get; }
 			public PlanetAxisData AxisData { get; }
-			public PlanetRegionsParameter ContinentalPlatesParameter { get; }
+			public PlanetRegionsParameter PlanetRegionsParameter { get; }
 			public TemperatureSpectrum TemperatureSpectrum { get; }
 			public ShapingParameter Shaping { get; }
 		}
