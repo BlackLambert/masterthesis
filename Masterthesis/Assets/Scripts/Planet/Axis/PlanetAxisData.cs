@@ -1,8 +1,10 @@
+using Newtonsoft.Json;
 using System;
 
 namespace SBaier.Master
 {
 	[Serializable]
+	[JsonObject(MemberSerialization.OptIn)]
 	public class PlanetAxisData
     {
         public PlanetAxisData(float angle, float secondsPerRevolution)
@@ -26,8 +28,14 @@ namespace SBaier.Master
 				throw new ArgumentOutOfRangeException();
 		}
 
+
+		[JsonProperty("angle")]
 		public float Angle { get; }
+
+		[JsonProperty("secondsPerRevolution")]
 		public float SecondsPerRevolution { get; }
+
+		[JsonIgnore]
 		public float RotationPerSecond => 360 / SecondsPerRevolution;
 	}
 }

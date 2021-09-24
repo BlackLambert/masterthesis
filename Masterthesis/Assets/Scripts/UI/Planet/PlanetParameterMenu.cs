@@ -123,6 +123,7 @@ namespace SBaier.Master
 			_platesPanel.Randomize(seed);
 			_platesMinForcePanel.Randomize(seed);
 			_warpPanel.Randomize(seed);
+			_warpLayersPanel.Randomize(seed);
 			_blendPanel.Randomize(seed);
 			_sampleEliminationPanel.Randomize(seed);
 
@@ -154,13 +155,14 @@ namespace SBaier.Master
 			_axisAnglePanel.Slider.value = axis.Angle;
 			_secondsPerRevolutionPanel.Slider.value = axis.SecondsPerRevolution;
 
-			PlanetRegionsParameter plates = parameter.PlanetRegionsParameter;
+			PlanetRegionsParameter plates = parameter.PlanetRegions;
 			_plateSegmentsPanel.Slider.value = plates.SegmentsAmount;
 			_continentsPanel.Slider.value = plates.ContinentsAmount;
 			_oceansPanel.Slider.value = plates.OceansAmount;
 			_platesPanel.Slider.value = plates.PlatesAmount;
 			_platesMinForcePanel.Slider.value = plates.PlatesMinForce;
 			_warpPanel.Slider.value = plates.WarpFactor;
+			_warpLayersPanel.Slider.value = plates.WarpLayers;
 			_blendPanel.Slider.value = plates.BlendFactor;
 			_sampleEliminationPanel.Slider.value = plates.SampleEliminationFactor;
 
@@ -169,7 +171,7 @@ namespace SBaier.Master
 			CanyonSettings canyon = shaping.Canyon;
 			_mountainBreadthPanel.Slider.value = mountain.MaxBreadth;
 			_mountainBlendFactorPanel.Slider.value = mountain.Blendvalue;
-			_mountainMinPanel.Slider.value = mountain.MaxHeight;
+			_mountainMinPanel.Slider.value = mountain.MinHeight;
 			_mountainMinBreadthPanel.Slider.value = mountain.MinBreadth;
 			_mountainHeightFactorPanel.Slider.value = mountain.MaxHeight;
 			_canyonsBreadthPanel.Slider.value = canyon.MaxBreadth;

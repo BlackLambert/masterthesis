@@ -1,29 +1,41 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace SBaier.Master
 {
 	[Serializable]
+	[JsonObject(MemberSerialization.OptIn)]
 	public struct PlanetDimensions
 	{
-
-		public PlanetDimensions(float kernelRadius, float maxHullRadius, float relativeSeaLevel, float atmosphereRadius)
+		[JsonConstructor]
+		public PlanetDimensions(float kernelRadius, float hullMaxRadius, float relativeSeaLevel, float atmosphereRadius)
 		{
 			ValidateKernalThickness(kernelRadius);
-			ValidateHullMaxRadius(maxHullRadius, kernelRadius);
+			ValidateHullMaxRadius(hullMaxRadius, kernelRadius);
 			ValidateRelativeSeaLevel(relativeSeaLevel);
-			ValidateAtmosphereThickness(atmosphereRadius, maxHullRadius);
+			ValidateAtmosphereThickness(atmosphereRadius, hullMaxRadius);
 
 			KernelRadius = kernelRadius;
-			HullMaxRadius = maxHullRadius;
+			HullMaxRadius = hullMaxRadius;
 			RelativeSeaLevel = relativeSeaLevel;
 			AtmosphereRadius = atmosphereRadius;
-			MaxHullThickness = maxHullRadius - kernelRadius;
+			MaxHullThickness = hullMaxRadius - kernelRadius;
 		}
 
+
+		[JsonProperty("kernelRadius")]
 		public float KernelRadius { get; }
+
+		[JsonProperty("hullMaxRadius")]
 		public float HullMaxRadius { get; }
+
+		[JsonProperty("atmosphereRadius")]
 		public float AtmosphereRadius { get; }
+
+		[JsonProperty("relativeSeaLevel")]
 		public float RelativeSeaLevel { get; }
+
+		[JsonIgnore]
 		public float MaxHullThickness { get; }
 
 

@@ -1,10 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Newtonsoft.Json;
+using System;
 
 namespace SBaier.Master
 {
-    public class CanyonSettings 
+	[Serializable]
+	[JsonObject(MemberSerialization.OptIn)]
+	public class CanyonSettings 
     {
 		public CanyonSettings(
 			float minBreadth,
@@ -20,10 +21,20 @@ namespace SBaier.Master
 			Blendvalue = blendvalue;
 		}
 
+
+		[JsonProperty("canyonMinBreadth")]
 		public float MinBreadth { get; }
+
+		[JsonProperty("canyonMaxBreadth")]
 		public float MaxBreadth { get; }
+
+		[JsonProperty("canyonMinDepth")]
 		public float MinDepth { get; }
+
+		[JsonProperty("canyonMaxDepth")]
 		public float MaxDepth { get; }
+
+		[JsonProperty("canyonBlendvalue")]
 		public float Blendvalue { get; }
 	}
 }

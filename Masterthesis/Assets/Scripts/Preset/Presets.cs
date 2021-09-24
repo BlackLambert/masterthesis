@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 namespace SBaier.Master
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class Presets 
     {
         public event Action<Preset> OnAdded;
@@ -14,7 +15,7 @@ namespace SBaier.Master
         [JsonIgnore]
         public int Count => _presetList.Count;
 
-        [JsonProperty]
+        [JsonProperty("presetList")]
         private List<Preset> _presetList;
 
         public Presets(List<Preset> presets)

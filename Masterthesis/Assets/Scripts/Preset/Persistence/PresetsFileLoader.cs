@@ -6,6 +6,6 @@ namespace SBaier.Master
 {
     public class PresetsFileLoader : FileLoader<Presets>
     {
-        
+
     }
 }

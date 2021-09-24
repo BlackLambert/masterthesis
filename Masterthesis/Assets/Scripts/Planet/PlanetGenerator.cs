@@ -92,19 +92,24 @@ namespace SBaier.Master
             _biomes = biomeFactory.Create(_biomeSettings);
         }
 
+        protected virtual void Start()
+		{
+            _layerTogglePanel.ResetView();
+        }
+
         public void Generate(Parameter parameter)
 		{
 			CleanPlanet();
 			Init(parameter);
 			CreatePlanet();
-			_planet.Data.ContinentalPlates = CreateContinentalPlates();
+            _planet.Data.SetLayerBitMask(_layerTogglePanel.GetLayerMask());
+            _planet.Data.ContinentalPlates = CreateContinentalPlates();
 			UpdateDebugView();
 			_evaluationPointDatasInitializer.Compute(CreateEvaluationPointDatasInitializerParameter());
 			Materialize(parameter);
 			_planet.UpdateMesh();
 			SetVertexColors();
             UpdateCamera();
-            _layerTogglePanel.ResetView();
             _layerTogglePanel.Show();
         }
 
@@ -135,7 +140,7 @@ namespace SBaier.Master
 
 		private void CreateNoise(Parameter parameter)
         {
-            int warpLayersAmount = parameter.PlanetRegionsParameter.WarpLayers;
+            int warpLayersAmount = parameter.PlanetRegions.WarpLayers;
             _warpingNoise = new Noise3D[warpLayersAmount];
 			for (int i = 0; i < warpLayersAmount; i++)
 			{
@@ -187,9 +192,9 @@ namespace SBaier.Master
             return new EvaluationPointDatasInitializer.Parameter(
                 _planet, 
                 _warpingNoise, 
-                _parameter.PlanetRegionsParameter.WarpFactor,
+                _parameter.PlanetRegions.WarpFactor,
                 _biomes,
-                _parameter.PlanetRegionsParameter.BlendFactor * _maxRelativeBlendDistance * _planet.Data.Dimensions.HullMaxRadius);
+                _parameter.PlanetRegions.BlendFactor * _maxRelativeBlendDistance * _planet.Data.Dimensions.HullMaxRadius);
         }
 
         private void UpdateDebugView()
@@ -219,7 +224,7 @@ namespace SBaier.Master
 			return new ContinentalPlatesFactory.Parameters(
                 _planet, 
                 _parameter.Seed, 
-                _parameter.PlanetRegionsParameter, 
+                _parameter.PlanetRegions, 
                 _biomeSettings);
 		}
 
@@ -246,8 +251,10 @@ namespace SBaier.Master
 
 
         [Serializable]
+        [JsonObject(MemberSerialization.OptIn)]
         public class Parameter
 		{
+            
             public Parameter(Seed seed,
                 float subdivisions,
                 PlanetDimensions planetDimensions,
@@ -260,19 +267,49 @@ namespace SBaier.Master
 				Subdivisions = subdivisions;
 				PlanetDimensions = planetDimensions;
                 AxisData = axisData;
-				PlanetRegionsParameter = continentalPlatesParameter;
+				PlanetRegions = continentalPlatesParameter;
+				TemperatureSpectrum = temperatureSpectrum;
+				Shaping = shaping;
+			}
+
+            [JsonConstructor]
+            public Parameter(
+                float subdivisions,
+                PlanetDimensions planetDimensions,
+                PlanetAxisData axisData,
+                PlanetRegionsParameter planetRegions,
+                TemperatureSpectrum temperatureSpectrum,
+                ShapingParameter shaping)
+			{
+				Seed = null;
+				Subdivisions = subdivisions;
+				PlanetDimensions = planetDimensions;
+                AxisData = axisData;
+				PlanetRegions = planetRegions;
 				TemperatureSpectrum = temperatureSpectrum;
 				Shaping = shaping;
 			}
 
             [JsonIgnore]
 			public Seed Seed { get; }
-			public float Subdivisions { get; }
-			public PlanetDimensions PlanetDimensions { get; }
-			public PlanetAxisData AxisData { get; }
-			public PlanetRegionsParameter PlanetRegionsParameter { get; }
-			public TemperatureSpectrum TemperatureSpectrum { get; }
-			public ShapingParameter Shaping { get; }
+
+            [JsonProperty("subdivisions")]
+            public float Subdivisions { get; }
+
+            [JsonProperty("planetDimensions")]
+            public PlanetDimensions PlanetDimensions { get; }
+
+            [JsonProperty("axisData")]
+            public PlanetAxisData AxisData { get; }
+
+            [JsonProperty("planetRegions")]
+            public PlanetRegionsParameter PlanetRegions { get; }
+
+            [JsonProperty("temperatureSpectrum")]
+            public TemperatureSpectrum TemperatureSpectrum { get; }
+
+            [JsonProperty("shaping")]
+            public ShapingParameter Shaping { get; }
 		}
     }
 }

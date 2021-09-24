@@ -1,14 +1,16 @@
+using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace SBaier.Master
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class Preset
     {
+        [JsonProperty("name")]
         public string Name { get; }
+
+        [JsonProperty("generatorParameters")]
         public PlanetGenerator.Parameter Parameters { get; private set; }
 
         public Preset(string name,
