@@ -13,14 +13,14 @@ namespace SBaier.Master
             settings.FloatFormatHandling = FloatFormatHandling.String;
             settings.FloatParseHandling = FloatParseHandling.Double;
             //settings.Formatting = Formatting.Indented;
-            settings.ConstructorHandling = ConstructorHandling.Default;
-            settings.MetadataPropertyHandling = MetadataPropertyHandling.Ignore;
+            //settings.ConstructorHandling = ConstructorHandling.Default;
+            //settings.MetadataPropertyHandling = MetadataPropertyHandling.Ignore;
             //settings.TypeNameHandling = TypeNameHandling.All;
             //settings.PreserveReferencesHandling = PreserveReferencesHandling.All;
-            settings.NullValueHandling = NullValueHandling.Include;
-            settings.ObjectCreationHandling = ObjectCreationHandling.Reuse;
-            settings.MissingMemberHandling = MissingMemberHandling.Error;
-            settings.ReferenceLoopHandling = ReferenceLoopHandling.Error;
+            //settings.NullValueHandling = NullValueHandling.Include;
+            //settings.ObjectCreationHandling = ObjectCreationHandling.Reuse;
+            //settings.MissingMemberHandling = MissingMemberHandling.Error;
+            //settings.ReferenceLoopHandling = ReferenceLoopHandling.Error;
             Container.Bind<JsonSerializerSettings>().FromInstance(settings).AsSingle();
         }
     }

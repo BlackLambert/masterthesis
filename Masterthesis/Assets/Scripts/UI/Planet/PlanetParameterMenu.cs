@@ -109,6 +109,7 @@ namespace SBaier.Master
 
 		public void Randomize(Seed seed)
 		{
+
 			_atmosphereSliderPanel.Randomize(seed);
 			_maxHullSliderPanel.Randomize(seed);
 			_bedrockSliderPanel.Randomize(seed);
@@ -145,6 +146,8 @@ namespace SBaier.Master
 
 		public void Load(PlanetGenerator.Parameter parameter)
 		{
+			_subdivisionsSliderPanel.Slider.value = parameter.Subdivisions;
+
 			PlanetDimensions dimensions = parameter.PlanetDimensions;
 			_atmosphereSliderPanel.Slider.value = dimensions.AtmosphereRadius;
 			_maxHullSliderPanel.Slider.value = dimensions.HullMaxRadius;
